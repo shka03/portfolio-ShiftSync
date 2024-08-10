@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+	    <meta charset="UTF-8">
+	    <title>勤怠記録</title>
+	    <link rel="stylesheet" th:href="@{../static/css/attendance.css}">
+	</head>
+	<body>
+	    <div class="container">
+	        <h1>勤怠記録</h1>
+			
+			<!-- 出退勤表示 -->
+	        <div class="display-row">
+	            <div>
+	                <p>出勤日付: <span th:text="${clockInDate != null} ? ${clockInDate} : '未出勤'"></span></p>
+	            </div>
+	            <div>
+	                <p>出勤時刻: <span th:text="${clockInTime != null} ? ${clockInTime} : '未出勤'"></span></p>
+	            </div>
+	            <div>
+	                <p>退勤時刻: <span th:text="${clockOutTime != null} ? ${clockOutTime} : '未退勤'"></span></p>
+	            </div>
+	        </div>
+			
+			<!-- 出退勤記録 -->
+	        <div class="record-row">
+	            <form th:action="@{/attendance/clock-in}" method="post">
+	                <button type="submit" th:disabled="${clockedIn}">出勤</button>
+	            </form>
+	
+	            <form th:action="@{/attendance/clock-out}" method="post">
+	                <button type="submit" th:disabled="${!clockedIn}">退勤</button>
+	            </form>
+	        </div>
+	
+			<!-- ログアウト -->
+			<form th:action="@{/logout}" method="post">
+				<input type="submit" value="ログアウト" class="logout-form">
+			</form>
+	    </div>
+	</body>
+</html>
