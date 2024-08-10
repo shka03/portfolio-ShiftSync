@@ -10,6 +10,7 @@ import com.levels.ShiftSync.form.LoginForm;
 @Controller
 @RequestMapping("/login")
 public class LoginController {
+	// ログイン画面を表示する
 	@GetMapping
 	public String showLogin(@ModelAttribute LoginForm form) {
 		// templatesフォルダ配下のlogin.htmlに遷移

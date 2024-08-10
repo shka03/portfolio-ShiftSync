@@ -3,13 +3,21 @@ package com.levels.ShiftSync.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.
-EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+	/** DI対象が存在すれば、DIして使用する */
+	 private final UserDetailsService userDetailsService;
+	 private final PasswordEncoder passwordEncoder;
+	
 	// SecurityFilterChainのBean定義
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -18,6 +26,8 @@ public class SecurityConfig {
 			.authorizeHttpRequests(authz -> authz
 			// 「/login」へのアクセスは認証を必要としない
 			.requestMatchers("/login").permitAll()
+			// TODO:決裁者しかアクセスでいきない場合の実装で追加
+			//.requestMatchers("/attendance/admin").hasAuthority("ADMIN")
 			// その他のリクエストは認証が必要
 			.anyRequest().authenticated())
 			// ★フォームベースのログイン設定
@@ -33,7 +43,17 @@ public class SecurityConfig {
 			// ログイン成功時のリダイレクト先を指定
 			.defaultSuccessUrl("/")
 			// ログイン失敗時のリダイレクト先を指定
-			.failureUrl("/login?error")
+			.failureUrl("/login?error"))
+			// ★ログアウト設定
+			.logout(logout -> logout
+			// ログアウトを処理するURLを指定
+			.logoutUrl("/logout")
+			// ログアウト成功時のリダイレクト先を指定
+			.logoutSuccessUrl("/login?logout")
+			// ログアウト時にセッションを無効にする
+			.invalidateHttpSession(true)
+			// ログアウト時にCookieを削除する
+			.deleteCookies("JSESSIONID")
 			);
 		return http.build();
 	}

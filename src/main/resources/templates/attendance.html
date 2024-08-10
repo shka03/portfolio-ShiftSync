@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+ 　　　　　xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 	
 	<head>
 	    <meta charset="UTF-8">
@@ -31,34 +32,34 @@
 	<body>
 	    <div class="container">
 	        <h1>勤怠記録</h1>
-	        
-			<div sec:authentication="name">
- 				ログイン情報のname値に書き換わる
- 			</div>
+<!--	        TODO:決裁者画面作成の時に有効にする。-->
+<!--			<a sec:authorize="hasAuthority('ADMIN')" th:href="@{/xx}">決裁者画面へ</a>-->
+<!--			<br>-->
+			<div sec:authentication="name"></div>
  			
 			<!-- 出退勤表示 -->
 	        <div class="display-row">
 	            <div>
 	                <p>現在の日時: <span id="currentDateTime"></span></p>
 	            </div>
-	            <div>
-	                <p>出勤時刻: <span th:text="${clockInTime != null} ? ${clockInTime} : '未出勤'"></span></p>
-	            </div>
-	            <div>
-	                <p>退勤時刻: <span th:text="${clockOutTime != null} ? ${clockOutTime} : '未退勤'"></span></p>
-	            </div>
+<!--	            <div>-->
+<!--	                <p>出勤時刻: <span th:text="${clockInTime != null} ? ${clockInTime} : '未出勤'"></span></p>-->
+<!--	            </div>-->
+<!--	            <div>-->
+<!--	                <p>退勤時刻: <span th:text="${clockOutTime != null} ? ${clockOutTime} : '未退勤'"></span></p>-->
+<!--	            </div>-->
 	        </div>
 			
 			<!-- 出退勤打刻 -->
-	        <div class="record-row">
-	            <form th:action="@{/attendance/clock-in}" method="post">
-	                <button type="submit" th:disabled="${clockedIn}">出勤</button>
-	            </form>
+<!--	        <div class="record-row">-->
+<!--	            <form th:action="@{/attendance/clock-in}" method="post">-->
+<!--	                <button type="submit" th:disabled="${clockedIn}">出勤</button>-->
+<!--	            </form>-->
 	
-	            <form th:action="@{/attendance/clock-out}" method="post">
-	                <button type="submit" th:disabled="${!clockedIn}">退勤</button>
-	            </form>
-	        </div>
+<!--	            <form th:action="@{/attendance/clock-out}" method="post">-->
+<!--	                <button type="submit" th:disabled="${!clockedIn}">退勤</button>-->
+<!--	            </form>-->
+<!--	        </div>-->
 	
 			<!-- ログアウト -->
 			<form th:action="@{/logout}" method="post">
