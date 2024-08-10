@@ -1,18 +1,45 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+	
 	<head>
 	    <meta charset="UTF-8">
 	    <title>勤怠記録</title>
 	    <link rel="stylesheet" th:href="@{../static/css/attendance.css}">
+	    <script>
+			// クライアント側で日時表示の更新を行う。
+	        function updateDateTime() {
+	            const now = new Date();
+	            const year = now.getFullYear();
+	            const month = String(now.getMonth() + 1).padStart(2, '0'); // 月は0から始まるため +1
+	            const day = String(now.getDate()).padStart(2, '0');
+	            const hours = String(now.getHours()).padStart(2, '0');
+	            const minutes = String(now.getMinutes()).padStart(2, '0');
+	            const seconds = String(now.getSeconds()).padStart(2, '0');
+	
+	            const formattedDate = `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+	            document.getElementById('currentDateTime').textContent = formattedDate;
+	        }
+	
+	        // ページが読み込まれたときに日時を表示し、1秒ごとに更新
+	        window.onload = function() {
+	            updateDateTime();
+	            setInterval(updateDateTime, 1000); // 1秒ごとにupdateDateTimeを呼び出す
+	        };
+	    </script>
 	</head>
+	
 	<body>
 	    <div class="container">
 	        <h1>勤怠記録</h1>
-			
+	        
+			<div sec:authentication="name">
+ 				ログイン情報のname値に書き換わる
+ 			</div>
+ 			
 			<!-- 出退勤表示 -->
 	        <div class="display-row">
 	            <div>
-	                <p>出勤日付: <span th:text="${clockInDate != null} ? ${clockInDate} : '未出勤'"></span></p>
+	                <p>現在の日時: <span id="currentDateTime"></span></p>
 	            </div>
 	            <div>
 	                <p>出勤時刻: <span th:text="${clockInTime != null} ? ${clockInTime} : '未出勤'"></span></p>
@@ -22,7 +49,7 @@
 	            </div>
 	        </div>
 			
-			<!-- 出退勤記録 -->
+			<!-- 出退勤打刻 -->
 	        <div class="record-row">
 	            <form th:action="@{/attendance/clock-in}" method="post">
 	                <button type="submit" th:disabled="${clockedIn}">出勤</button>
@@ -39,4 +66,5 @@
 			</form>
 	    </div>
 	</body>
+	
 </html>
