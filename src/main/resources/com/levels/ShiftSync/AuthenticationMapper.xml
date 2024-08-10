@@ -4,7 +4,7 @@
 
 <mapper namespace="com.example.webapp.repository.AuthenticationMapper">
 	<!-- ユーザー名で認証情報を検索 -->
-	<select id="selectByUsername" resultType="com.example.webapp.entity.Authentication">
+	<select id="selectByUsername" resultType="com.levels.ShiftSync.entity.Authentication">
 		SELECT username, password, authority FROM authentications WHERE username = #{username}
 	</select>
 </mapper>
