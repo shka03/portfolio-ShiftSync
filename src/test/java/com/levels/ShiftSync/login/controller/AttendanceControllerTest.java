@@ -1,4 +1,4 @@
-package com.levels.ShiftSync.controller;
+package com.levels.ShiftSync.login.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -17,6 +17,8 @@ import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfig
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import com.levels.ShiftSync.controller.AttendanceController;
 
 @WebMvcTest(AttendanceController.class)
 public class AttendanceControllerTest {

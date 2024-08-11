@@ -1,4 +1,4 @@
-package com.levels.ShiftSync.controller;
+package com.levels.ShiftSync.login.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.levels.ShiftSync.controller.LoginController;
 
 @WebMvcTest(LoginController.class)
 public class LoginControllerTest {

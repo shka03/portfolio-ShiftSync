@@ -4,6 +4,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
 * ハッシュ化した文字列を返すクラス
+* TODO:本機能を利用して、アカウント登録時に入力したPWをハッシュ化してテーブルに反映させる。
 */
 public class PasswordGenerator {
  public static void main(String[] args) {

@@ -44,7 +44,7 @@ public class LoginUserDatailsServiceImpl implements UserDetailsService {
 	}
 	
 	// 権限情報をリストで取得する
-	List<GrantedAuthority> getAuthorityList(Role role) {
+	public List<GrantedAuthority> getAuthorityList(Role role) {
 		// 権限リスト
 		List<GrantedAuthority> authorities = new ArrayList<>();
 

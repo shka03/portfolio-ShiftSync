@@ -27,7 +27,7 @@ public class SecurityConfig {
 			// 「/login」へのアクセスは認証を必要としない
 			.requestMatchers("/login").permitAll()
 			// TODO:決裁者しかアクセスでいきない場合の実装で追加
-			//.requestMatchers("/attendance/admin").hasAuthority("ADMIN")
+			.requestMatchers("/attendance/admin").hasAuthority("ADMIN")
 			// その他のリクエストは認証が必要
 			.anyRequest().authenticated())
 			// ★フォームベースのログイン設定
