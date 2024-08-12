@@ -7,5 +7,5 @@ import com.levels.ShiftSync.entity.Authentication;
 @Mapper
 public interface AuthenticationMapper {
 	// ユーザー名でログイン情報を取得します。
-	Authentication selectByUsername(String username);
+	Authentication selectByEmployeeId(Integer employeeId);
 }

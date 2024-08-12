@@ -1,4 +1,4 @@
-package com.levels.ShiftSync.errorpage;
+package com.levels.ShiftSync.error_page;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

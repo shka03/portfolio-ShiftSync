@@ -1,20 +1,14 @@
 package com.levels.ShiftSync.login.service.impl;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,7 +18,7 @@ import com.levels.ShiftSync.entity.Role;
 import com.levels.ShiftSync.repository.AuthenticationMapper;
 import com.levels.ShiftSync.service.impl.LoginUserDetailsServiceImpl;
 
-public class LoginUserDetailsServiceImplTest {
+class LoginUserDetailsServiceImplTest {
 
     @Mock
     private AuthenticationMapper authenticationMapper;
@@ -33,89 +27,73 @@ public class LoginUserDetailsServiceImplTest {
     private LoginUserDetailsServiceImpl loginUserDetailsService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
-    /* 要約
-     * authenticationMapper.selectByUsername が存在するユーザーを返すときのテスト。
-     * UserDetails が正しい情報を持ち、正しい権限を持っていることを確認します。
-     * */
     @Test
-    public void testLoadUserByUsername_UserExists() {
-        // Arrange
-        String username = "testuser";
+    void testLoadUserByEmployeeId_ExistingEmployee() {
+        // テスト要約: 存在する従業員IDで正しいUserDetailsを返す
         Authentication authentication = new Authentication();
-        authentication.setUsername(username);
-        authentication.setPassword("testpassword");
-        authentication.setAuthority(Role.USER);
+        authentication.setEmployeeId(1);
+        authentication.setUsername("testuser");
+        authentication.setPassword("password");
+        authentication.setAuthority(Role.ADMIN);
 
-        when(authenticationMapper.selectByUsername(anyString())).thenReturn(authentication);
+        when(authenticationMapper.selectByEmployeeId(anyInt())).thenReturn(authentication);
 
-        // Act
-        UserDetails userDetails = loginUserDetailsService.loadUserByUsername(username);
+        UserDetails userDetails = loginUserDetailsService.loadUserByEmployeeId("1");
 
-        // Assert
-        assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo(username);
-
-        // 型の不一致が起こり、テスト実行ができなかったので個別で作成。
-        List<GrantedAuthority> expectedAuthorities = Collections.singletonList(new SimpleGrantedAuthority(Role.USER.name()));
-        List<GrantedAuthority> actualAuthorities = userDetails.getAuthorities().stream().collect(Collectors.toList());
-        assertThat(actualAuthorities).containsExactlyInAnyOrderElementsOf(expectedAuthorities);
+        assertEquals("testuser", userDetails.getUsername());
+        assertEquals("password", userDetails.getPassword());
+        assertEquals(2, userDetails.getAuthorities().size());
+        assertTrue(userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN")));
+        assertTrue(userDetails.getAuthorities().contains(new SimpleGrantedAuthority("USER")));
     }
 
-    /*　要約
-     * authenticationMapper.selectByUsername が null を返すときのテスト。
-     * UsernameNotFoundException がスローされることを確認します。
-     * */
     @Test
-    public void testLoadUserByUsername_UserNotFound() {
-        // Arrange
-        String username = "nonexistentuser";
+    void testLoadUserByEmployeeId_NonExistingEmployee() {
+        // テスト要約: 存在しない従業員IDでUsernameNotFoundExceptionをスローする
+        when(authenticationMapper.selectByEmployeeId(anyInt())).thenReturn(null);
 
-        when(authenticationMapper.selectByUsername(anyString())).thenReturn(null);
-
-        // Act & Assert
-        UsernameNotFoundException thrown = org.junit.jupiter.api.Assertions.assertThrows(
-            UsernameNotFoundException.class,
-            () -> loginUserDetailsService.loadUserByUsername(username)
-        );
-        assertThat(thrown.getMessage()).isEqualTo(username + " => 指定しているユーザー名は存在しません");
+        assertThrows(UsernameNotFoundException.class, () -> {
+            loginUserDetailsService.loadUserByEmployeeId("999");
+        });
     }
 
-    /*　要約
-     * Role.USER に対して getAuthorityList メソッドをテスト。
-     * User 権限だけがリストに含まれることを確認します。
-     * */
     @Test
-    public void testGetAuthorityList_WithUserRole() {
-        // Arrange
-        Role role = Role.USER;
-
-        // Act
-        List<GrantedAuthority> authorities = loginUserDetailsService.getAuthorityList(role);
-
-        // Assert
-        assertThat(authorities).containsExactly(new SimpleGrantedAuthority(Role.USER.name()));
+    void testLoadUserByEmployeeId_EmptyEmployeeId() {
+        // テスト要約: 空の従業員IDでUsernameNotFoundExceptionをスローする
+        assertThrows(UsernameNotFoundException.class, () -> {
+            loginUserDetailsService.loadUserByEmployeeId("");
+        });
     }
 
-    /* 要約
-     * Role.ADMIN に対して getAuthorityList メソッドをテスト。
-     * Admin と User 権限の両方がリストに含まれることを確認します。
-     * */
     @Test
-    public void testGetAuthorityList_WithAdminRole() {
-        // Arrange
-        Role role = Role.ADMIN;
+    void testLoadUserByEmployeeId_InvalidEmployeeIdFormat() {
+        // テスト要約: 無効な従業員ID形式でNumberFormatExceptionをスローする
+        assertThrows(NumberFormatException.class, () -> {
+            loginUserDetailsService.loadUserByEmployeeId("invalid");
+        });
+    }
 
-        // Act
-        List<GrantedAuthority> authorities = loginUserDetailsService.getAuthorityList(role);
+    @Test
+    void testLoadUserByUsername() {
+        // テスト要約: loadUserByUsernameメソッドが正常に動作することを確認する
+        Authentication authentication = new Authentication();
+        authentication.setEmployeeId(1);
+        authentication.setUsername("testuser");
+        authentication.setPassword("password");
+        authentication.setAuthority(Role.ADMIN);
 
-        // Assert
-        List<GrantedAuthority> expectedAuthorities = new ArrayList<>();
-        expectedAuthorities.add(new SimpleGrantedAuthority(Role.ADMIN.name()));
-        expectedAuthorities.add(new SimpleGrantedAuthority(Role.USER.name()));
-        assertThat(authorities).containsExactlyInAnyOrderElementsOf(expectedAuthorities);
+        when(authenticationMapper.selectByEmployeeId(anyInt())).thenReturn(authentication);
+
+        UserDetails userDetails = loginUserDetailsService.loadUserByUsername("1");
+
+        assertEquals("testuser", userDetails.getUsername());
+        assertEquals("password", userDetails.getPassword());
+        assertEquals(2, userDetails.getAuthorities().size());
+        assertTrue(userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN")));
+        assertTrue(userDetails.getAuthorities().contains(new SimpleGrantedAuthority("USER")));
     }
 }

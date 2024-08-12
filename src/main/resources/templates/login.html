@@ -8,7 +8,7 @@
 		
 		<!-- エラー表示 -->
 		<div th:if="${param.error}">
-			<p style="color: red;">usernameまたはpasswordが違います</p>
+			<p style="color: red;">employeeIdまたはpasswordが違います</p>
 		</div>
 		
 		<!--ログアウト表示 -->
@@ -19,8 +19,8 @@
 		<form th:action="@{/authentication}" method="post" th:object="${loginForm}">	
 			<!-- ユーザー名 -->
 			<div>
-				<label for="usernameInput">username</label>
-				<input type="text" th:field="*{usernameInput}">
+				<label for="employeeIdInput">employeeId</label>
+				<input type="text" th:field="*{employeeIdInput}">
 			</div>
 			
 			<!-- パスワード -->

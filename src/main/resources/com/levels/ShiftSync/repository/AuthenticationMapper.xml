@@ -4,8 +4,10 @@
 	namespace="com.levels.ShiftSync.repository.AuthenticationMapper">
 
 	<!-- ユーザー名で認証情報を検索 -->
-	<select id="selectByUsername" resultType="com.levels.ShiftSync.entity.Authentication">
-		SELECT username, password, authority FROM authentications WHERE username = #{username}
+	<select id="selectByEmployeeId" resultType="com.levels.ShiftSync.entity.Authentication">
+	    SELECT employee_id, username, password, authority 
+       	FROM authentications 
+       	WHERE employee_id = #{employeeId}
 	</select>
 
 </mapper>

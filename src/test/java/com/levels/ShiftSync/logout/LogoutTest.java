@@ -22,7 +22,7 @@ public class LogoutTest {
      * ログイン後にログアウトを行い、ログインの指定のURL遷移とセッション情報削除ができているかを確認。
      * */
     @Test
-    @WithMockUser(username = "testuser", roles = {"USER"})
+    @WithMockUser(username = "1", roles = {"USER"}) // username を整数の文字列として設定
     public void testLogout() throws Exception {
         // Perform logout request
         mockMvc.perform(MockMvcRequestBuilders.post("/logout")

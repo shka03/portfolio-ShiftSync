@@ -5,9 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class Authentication {
+	/** 従業員ID　*/
+	private Integer employeeId;
 	/** ユーザー名 */
 	private String username;
 	/** パスワード */
