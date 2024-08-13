@@ -17,3 +17,8 @@ window.onload = function() {
     updateDateTime();
     setInterval(updateDateTime, 1000); // 1秒ごとにupdateDateTimeを呼び出す
 };
+
+// 出勤ボタンの制御
+document.querySelector('form[action="/clock-in"] button[type="submit"]').addEventListener('click', function() {
+    this.disabled = true; // ボタンを非活性化
+});

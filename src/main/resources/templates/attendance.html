@@ -34,7 +34,7 @@
         <!-- 出退勤打刻 -->
         <div class="record-row">
             <form th:action="@{/clock-in}" method="post">
-                <button type="submit" th:disabled="${isAlreadyClockedIn}">出勤</button>
+                <button type="submit" th:disabled="${isClockedInToday}">出勤</button>
             </form>
 
             <form th:action="@{/clock-out}" method="post">

@@ -1,6 +1,9 @@
 package com.levels.ShiftSync.service.impl;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Optional;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -38,6 +41,19 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         attendanceRecordMapper.clockOut(record);
     }
     
+    // 今日の出勤記録があるかを確認するメソッド
+    public boolean isClockedInToday(Integer employeeId) {
+        Optional<AttendanceRecord> recordOpt = findAttendanceRecordForToday(employeeId);
+        return recordOpt.isPresent(); // 出勤記録がある場合にtrueを返す
+    }
+    
+    private Optional<AttendanceRecord> findAttendanceRecordForToday(Integer employeeId) {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+        return attendanceRecordMapper.findAttendanceRecordForToday(employeeId, startOfDay, endOfDay);
+    }
+    
     // 認証情報からemployeeIdを取得するメソッド
     private Integer getEmployeeIdFromSecurityContext() {
         // SecurityContextから認証情報を取得
@@ -45,10 +61,4 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         // LoginUserから従業員IDを取得
         return loginUser.getEmployeeId();
     }
-
-//    // 出勤可能かどうかのチェック
-//    public boolean canClockInToday(Integer employeeId) {
-//        Optional<AttendanceRecord> record = getTodayRecord(employeeId);
-//        return record.isEmpty(); // 今日の記録がない場合に出勤可能
-//    }
 }

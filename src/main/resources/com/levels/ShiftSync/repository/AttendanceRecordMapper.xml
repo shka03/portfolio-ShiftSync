@@ -15,5 +15,13 @@
         SET clock_out = #{clockOut}
         WHERE employee_id = #{employeeId} 
     </update>
+    
+    <!-- 今日の出勤記録を取得 -->
+    <select id="findAttendanceRecordForToday" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
+        SELECT *
+        FROM attendance_records
+        WHERE employee_id = #{employeeId}
+        AND clock_in BETWEEN #{startOfDay} AND #{endOfDay}
+    </select>
 
 </mapper>
