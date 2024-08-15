@@ -27,29 +27,13 @@ public class AttendanceRecordController {
     
     @PostMapping("/clock-in")
     public String clockIn() {
-        try {
-//            // 今日出勤できるかどうかをチェック
-//            if (!attendanceService.canClockInToday(employeeId)) {
-//                // 出勤できない場合、エラーページにリダイレクト
-//                return "error/403";
-//            }
-
-        	attendanceRecordServiceImpl.clockInTime();
-            return "redirect:/";
-        } catch (Exception e) {
-            logger.error("Error while clocking in for employee ID: " + e.getMessage());
-            return "error/500";
-        }
+        attendanceRecordServiceImpl.clockInTime();
+        return "redirect:/";
     }
     
     @PostMapping("/clock-out")
     public String clockOutTime() {
-        try {
-        	attendanceRecordServiceImpl.clockOutTime();
-            return "redirect:/";
-        } catch (Exception e) {
-            logger.error("Error while clocking in for employee ID: " + e.getMessage());
-            return "error/500";
-        }
+        attendanceRecordServiceImpl.clockOutTime();
+        return "redirect:/";
     }
 }

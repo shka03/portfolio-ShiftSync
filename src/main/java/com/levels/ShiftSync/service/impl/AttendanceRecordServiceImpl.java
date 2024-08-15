@@ -45,10 +45,4 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         // LoginUserから従業員IDを取得
         return loginUser.getEmployeeId();
     }
-
-//    // 出勤可能かどうかのチェック
-//    public boolean canClockInToday(Integer employeeId) {
-//        Optional<AttendanceRecord> record = getTodayRecord(employeeId);
-//        return record.isEmpty(); // 今日の記録がない場合に出勤可能
-//    }
 }
