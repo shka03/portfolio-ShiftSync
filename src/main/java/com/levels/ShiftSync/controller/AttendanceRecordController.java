@@ -19,7 +19,6 @@ public class AttendanceRecordController {
     
     private final AttendanceRecordServiceImpl attendanceRecordServiceImpl;
 
-    // 勤怠記録画面を表示する
     @GetMapping
     public String showAttendancePage() {
     	return "attendance";
@@ -35,5 +34,11 @@ public class AttendanceRecordController {
     public String clockOutTime() {
         attendanceRecordServiceImpl.clockOutTime();
         return "redirect:/";
+    }
+    
+    @GetMapping("monthly_attendance")
+    public String showMonthlyAttendancePage() {
+//    	attendanceRecordServiceImpl.getMonthlyAttendance();
+    	return "monthly_attendance";
     }
 }

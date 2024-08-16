@@ -1,6 +1,6 @@
 package com.levels.ShiftSync.service.impl;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     public void clockInTime() {
         AttendanceRecord record = new AttendanceRecord();
         record.setEmployeeId(getEmployeeIdFromSecurityContext());
-        record.setClockIn(LocalDateTime.now());
+        record.setClockIn(new Timestamp(System.currentTimeMillis()));
         attendanceRecordMapper.clockIn(record);
     }
     
@@ -34,11 +34,18 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     public void clockOutTime() {
         AttendanceRecord record = new AttendanceRecord();
         record.setEmployeeId(getEmployeeIdFromSecurityContext());
-        record.setClockOut(LocalDateTime.now());
+        record.setClockOut(new Timestamp(System.currentTimeMillis()));
         attendanceRecordMapper.clockOut(record);
     }
     
-    // 認証情報からemployeeIdを取得するメソッド
+    @Override
+    // 従業員の当月の出退勤時間を全て取得する
+    public void getMonthlyAttendance() {
+        Integer employeeId = getEmployeeIdFromSecurityContext();
+        attendanceRecordMapper.getMonthlyAttendance(employeeId);
+    }
+    
+    // 認証情報からemployeeIdを取得する
     private Integer getEmployeeIdFromSecurityContext() {
         // SecurityContextから認証情報を取得
         LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

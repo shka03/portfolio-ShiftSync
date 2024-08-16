@@ -11,4 +11,7 @@ public interface AttendanceRecordMapper {
     
     // 従業員の退勤時間を登録する
     void clockOut(AttendanceRecord record);
+    
+    // 従業員の退勤時間を登録する
+    void getMonthlyAttendance(Integer employeeId);
 }
