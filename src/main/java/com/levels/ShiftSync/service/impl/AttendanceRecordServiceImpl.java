@@ -38,8 +38,8 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         attendanceRecordMapper.clockOut(record);
     }
     
-    @Override
     // 従業員の当月の出退勤時間を全て取得する
+    @Override
     public List<AttendanceRecord> getMonthlyAttendance() {
         Integer employeeId = getEmployeeIdFromSecurityContext();
         List<AttendanceRecord> attendanceRecords = attendanceRecordMapper.getMonthlyAttendance(employeeId);
