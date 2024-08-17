@@ -13,7 +13,9 @@
     <div class="container">
         <h1>勤怠記録</h1>
         <p th:if="${clockInSuccessMessage}"th:text="${clockInSuccessMessage}" style="color: blue;"></p>
-        <p th:if="${clockErrorMessage}"th:text="${clockErrorMessage}" style="color: red;"></p>
+        <p th:if="${clockInErrorMessage}"th:text="${clockInErrorMessage}" style="color: red;"></p>
+        <p th:if="${clockOutSuccessMessage}"th:text="${clockOutSuccessMessage}" style="color: blue;"></p>
+        <p th:if="${clockOutErrorMessage}"th:text="${clockOutErrorMessage}" style="color: red;"></p>
 
         <div sec:authentication="name"></div>
 

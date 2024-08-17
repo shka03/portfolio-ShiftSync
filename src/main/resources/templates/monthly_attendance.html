@@ -18,7 +18,7 @@
 			</tr>
 			<tr th:each="attendance_record : ${attendance_records}">
 			    <td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}"></td>
-			    <td th:text="${attendance_record.clockOut}"></td>
+			    <td th:text="${#dates.format(attendance_record.clockOut, 'yyyy-MM-dd HH:mm:ss')}"></td>
 			</tr>
 			</tbody>
 	    </table>
