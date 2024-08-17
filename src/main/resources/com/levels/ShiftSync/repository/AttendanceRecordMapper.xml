@@ -17,15 +17,6 @@
         SET clock_out = date_trunc('second', #{clockOut}::timestamp without time zone)
         WHERE employee_id = #{employeeId} 
     </update>
-    
-<!--    <select id="getMonthlyAttendance" parameterType="com.levels.ShiftSync.entity.AttendanceRecord">-->
-<!--    	SELECT *-->
-<!--		FROM attendance_records-->
-<!--		WHERE employee_id = #{employeeId}-->
-<!--  		AND clock_in -->
-<!--  		BETWEEN date_trunc('month', current_date)-->
-<!--        AND (date_trunc('month', current_date) + interval '1 month' - interval '1 second');-->
-<!--    </select>-->
 
 	<select id="getMonthlyAttendance" parameterType="java.lang.Integer" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
 	    SELECT
