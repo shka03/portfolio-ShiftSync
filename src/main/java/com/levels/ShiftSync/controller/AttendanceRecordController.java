@@ -23,8 +23,13 @@ public class AttendanceRecordController {
     @GetMapping
     public String showAttendancePage(Model model) {
     	List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
-		todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
-		model.addAttribute("clockInTime", todayAttendance.get(0).getClockIn());
+        
+        if (!todayAttendance.isEmpty()) {
+            model.addAttribute("clockInTime", todayAttendance.get(0).getClockIn());
+        } else {
+            model.addAttribute("clockInTime", null); // 適切なデフォルト値
+        }
+        
     	return "attendance";
     }
     

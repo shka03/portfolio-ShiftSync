@@ -14,7 +14,7 @@
 	        </thead>
 	        <tbody>
 			<tr th:if="${#lists.isEmpty(attendance_records)}">
-			    <td colspan="3">今月の勤怠データはまだありません。</td>
+			    <td colspan="3" th:text="${message}"></td>
 			</tr>
 			<tr th:each="attendance_record : ${attendance_records}">
 			    <td th:text="${attendance_record.clockIn}"></td>
