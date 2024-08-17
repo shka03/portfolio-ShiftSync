@@ -2,9 +2,9 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "master", "development", "PROJ-43--development", "test" ]
+    branches: [ "master", "development", "PROJ-43--development" ]
   pull_request:
-    branches: [ "master", "test" ]
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write  # Add this line to allow token usage
       
     services:
       postgres:
@@ -47,6 +46,35 @@ jobs:
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
     - name: Build with Gradle Wrapper
       run: ./gradlew build
+
+    - name: Notify JIRA of deployment
+      run: |
+        curl -u ${{ secrets.JIRA_USER }}:${{ secrets.JIRA_API_TOKEN }} \
+        -X POST \
+        -H "Content-Type: application/json" \
+        -d '{
+              "deployment": {
+                "environment": "production",
+                "state": "successful",
+                "pipeline": {
+                  "id": "pipeline-id",
+                  "displayName": "Pipeline Name",
+                  "url": "https://github.com/shka03/portfolio-ShiftSync/actions/runs/${{ github.run_id }}"
+                },
+                "description": "Deployment description",
+                "lastUpdated": "'$(date +%Y-%m-%dT%H:%M:%SZ)'",
+                "associations": [
+                  {
+                    "associationType": "issueIdOrKeys",
+                    "values": ["PROJ-43"]
+                  }
+                ]
+              }
+            }' \
+        https://your-domain.atlassian.net/rest/deployments/0.1/bulk
+      env:
+        JIRA_USER: ${{ secrets.JIRA_USER }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
 
   dependency-submission:
 
