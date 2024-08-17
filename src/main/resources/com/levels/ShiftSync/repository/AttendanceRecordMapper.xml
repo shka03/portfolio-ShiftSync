@@ -18,6 +18,19 @@
         WHERE employee_id = #{employeeId} 
     </update>
 
+	<!-- 当日の勤怠データを取得 -->
+	<select id="getTodayAttendance" parameterType="java.lang.Integer" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
+	    SELECT
+	        record_id AS recordId,
+		    employee_id AS employeeId,
+		    clock_in AS clockIn,
+		    clock_out AS clockOut
+	    FROM attendance_records
+	    WHERE employee_id = #{employeeId}
+	    AND  DATE(clock_in) = current_date
+	</select>
+
+	<!-- 当月の勤怠データを取得 -->
 	<select id="getMonthlyAttendance" parameterType="java.lang.Integer" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
 	    SELECT
 	        record_id AS recordId,
@@ -28,7 +41,7 @@
 	    WHERE employee_id = #{employeeId}
 	    AND clock_in 
 	    BETWEEN date_trunc('month', current_date)
-	    AND (date_trunc('month', current_date) + interval '1 month' - interval '1 second');
+	    AND (date_trunc('month', current_date) + interval '1 month' - interval '1 second')
 	</select>
 
 </mapper>

@@ -12,24 +12,28 @@
 <body>
     <div class="container">
         <h1>勤怠記録</h1>
+        <p th:if="${clockInSuccessMessage}"th:text="${clockInSuccessMessage}" style="color: blue;"></p>
+        <p th:if="${clockInErrorMessage}"th:text="${clockInErrorMessage}" style="color: red;"></p>
+        <p th:if="${clockOutSuccessMessage}"th:text="${clockOutSuccessMessage}" style="color: blue;"></p>
+        <p th:if="${clockOutErrorMessage}"th:text="${clockOutErrorMessage}" style="color: red;"></p>
 
         <div sec:authentication="name"></div>
 
         <!-- 出退勤表示 -->
-        <div class="display-row">
-            <div>
-                <p>現在の日時</p>
-                <span id="currentDateTime"></span>
-            </div>
-            <div>
-                <p>出勤時刻</p>
-                <span th:text="${clockInTime != null} ? ${clockInTime} : '未出勤'"></span>
-            </div>
-            <div>
-                <p>退勤時刻</p>
-                <span th:text="${clockOutTime != null} ? ${clockOutTime} : '未退勤'"></span>
-            </div>
-        </div>
+		<div class="display-row">
+		    <div>
+		        <p>現在の日時</p>
+		        <span id="currentDateTime"></span>
+		    </div>
+		    <div>
+		        <p>出勤時刻</p>
+		        <span th:text="${clockInTime != null ? #dates.format(clockInTime, 'yyyy-MM-dd HH:mm:ss') : '未出勤'}"></span>
+		    </div>
+		    <div>
+		        <p>退勤時刻</p>
+		        <span th:text="${clockOutTime != null ? #dates.format(clockOutTime, 'yyyy-MM-dd HH:mm:ss') : '未退勤'}"></span>
+		    </div>
+		</div>
 
         <!-- 出退勤打刻 -->
         <div class="record-row">
@@ -42,7 +46,7 @@
             </form>
         </div>
 		<br>
-		<a th:href="@{monthly_attendance}">今月の出退勤一覧</a>
+		<a th:href="@{monthly_attendance}">今月の勤怠履歴</a>
 		
         <!-- ログアウト -->
         <form th:action="@{/logout}" method="post">

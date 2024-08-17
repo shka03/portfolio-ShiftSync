@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-	    <title>勤怠記録一覧</title>
+	    <title>勤怠履歴</title>
 	</head>
 	<body>
-	    <h2>勤怠記録一覧</h2>
+	    <h2>勤怠履歴</h2>
 	    <table border="1" width="300">
 	        <thead>
 	        <tr>
@@ -14,11 +14,11 @@
 	        </thead>
 	        <tbody>
 			<tr th:if="${#lists.isEmpty(attendance_records)}">
-			    <td colspan="3">今月の勤怠データはまだありません。</td>
+			    <td colspan="3" th:text="${message}"></td>
 			</tr>
 			<tr th:each="attendance_record : ${attendance_records}">
-			    <td th:text="${attendance_record.clockIn}"></td>
-			    <td th:text="${attendance_record.clockOut}"></td>
+			    <td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}"></td>
+			    <td th:text="${#dates.format(attendance_record.clockOut, 'yyyy-MM-dd HH:mm:ss')}"></td>
 			</tr>
 			</tbody>
 	    </table>
