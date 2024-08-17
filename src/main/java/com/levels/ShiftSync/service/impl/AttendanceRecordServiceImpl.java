@@ -1,6 +1,7 @@
 package com.levels.ShiftSync.service.impl;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 	private final AttendanceRecordMapper attendanceRecordMapper;
 	
-	// TODO：調査->出退勤データを一つの関数にして作成すると出勤のみ時間が生成されない。
     // 出勤時間をデータベースに挿入
     @Override
     public void clockInTime() {
@@ -40,9 +40,10 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     
     @Override
     // 従業員の当月の出退勤時間を全て取得する
-    public void getMonthlyAttendance() {
+    public List<AttendanceRecord> getMonthlyAttendance() {
         Integer employeeId = getEmployeeIdFromSecurityContext();
-        attendanceRecordMapper.getMonthlyAttendance(employeeId);
+        List<AttendanceRecord> attendanceRecords = attendanceRecordMapper.getMonthlyAttendance(employeeId);
+        return attendanceRecords;
     }
     
     // 認証情報からemployeeIdを取得する
