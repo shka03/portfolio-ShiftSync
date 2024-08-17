@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.service.impl.AttendanceRecordServiceImpl;
@@ -20,14 +21,30 @@ public class AttendanceRecordController {
     private final AttendanceRecordServiceImpl attendanceRecordServiceImpl;
 
     @GetMapping
-    public String showAttendancePage() {
+    public String showAttendancePage(Model model) {
+    	List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+		todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+		model.addAttribute("clockInTime", todayAttendance.get(0).getClockIn());
     	return "attendance";
     }
     
+    // 勤怠登録画面に戻ることからPRGパターンで実装
     @PostMapping("/clock-in")
-    public String clockIn() {
-        attendanceRecordServiceImpl.clockInTime();
-        return "redirect:/";
+    public String clockIn(RedirectAttributes attributes) {
+    	List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+    	
+    	if (todayAttendance == null || todayAttendance.isEmpty()) {
+    		attendanceRecordServiceImpl.clockInTime();
+    		todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+    		attributes.addFlashAttribute("clockInTime", todayAttendance.get(0).getClockIn());
+    		attributes.addFlashAttribute("clockInSuccessMessage", "おはようございます。出勤しました。");
+    		return "redirect:/";
+    	} else {
+    		todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+    		attributes.addFlashAttribute("clockInTime", todayAttendance.get(0).getClockIn());
+    		attributes.addFlashAttribute("clockErrorMessage", "すでに出勤してます。");
+    		return "redirect:/";
+    	}
     }
     
     @PostMapping("/clock-out")

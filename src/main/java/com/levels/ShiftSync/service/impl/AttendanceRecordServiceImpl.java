@@ -37,9 +37,16 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         record.setClockOut(new Timestamp(System.currentTimeMillis()));
         attendanceRecordMapper.clockOut(record);
     }
+
+    // 従業員の当日の出退勤時間を取得する
+    public List<AttendanceRecord>  getTodayAttendance(){
+        Integer employeeId = getEmployeeIdFromSecurityContext();
+        List<AttendanceRecord> attendanceRecords = attendanceRecordMapper.getTodayAttendance(employeeId);
+        return attendanceRecords;
+    }
     
-    @Override
     // 従業員の当月の出退勤時間を全て取得する
+    @Override
     public List<AttendanceRecord> getMonthlyAttendance() {
         Integer employeeId = getEmployeeIdFromSecurityContext();
         List<AttendanceRecord> attendanceRecords = attendanceRecordMapper.getMonthlyAttendance(employeeId);
