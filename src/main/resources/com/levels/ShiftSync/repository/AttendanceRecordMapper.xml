@@ -5,15 +5,30 @@
 
     <!--　出勤時間の登録 -->
     <insert id="clockIn" parameterType="com.levels.ShiftSync.entity.AttendanceRecord">
-        INSERT INTO attendance_records (employee_id, clock_in)
-        VALUES (#{employeeId}, #{clockIn})
+<!--        INSERT INTO attendance_records (employee_id, clock_in)-->
+<!--        VALUES (#{employeeId}, #{clockIn})-->
+		INSERT INTO attendance_records (employee_id, clock_in)
+		VALUES (#{employeeId}, date_trunc('second', #{clockIn}::timestamp without time zone))
     </insert>
 
     <!--　出勤時間の登録 -->
     <update id="clockOut" parameterType="com.levels.ShiftSync.entity.AttendanceRecord">
         UPDATE attendance_records
-        SET clock_out = #{clockOut}
+        SET clock_out = date_trunc('second', #{clockOut}::timestamp without time zone)
         WHERE employee_id = #{employeeId} 
     </update>
+
+	<select id="getMonthlyAttendance" parameterType="java.lang.Integer" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
+	    SELECT
+	        record_id AS recordId,
+		    employee_id AS employeeId,
+		    clock_in AS clockIn,
+		    clock_out AS clockOut
+	    FROM attendance_records
+	    WHERE employee_id = #{employeeId}
+	    AND clock_in 
+	    BETWEEN date_trunc('month', current_date)
+	    AND (date_trunc('month', current_date) + interval '1 month' - interval '1 second');
+	</select>
 
 </mapper>

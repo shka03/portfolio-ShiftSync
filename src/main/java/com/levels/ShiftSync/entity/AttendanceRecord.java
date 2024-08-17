@@ -1,6 +1,6 @@
 package com.levels.ShiftSync.entity;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class AttendanceRecord {
 	private Integer recordId;
     private Integer employeeId;
-    private LocalDateTime clockIn;
-    private LocalDateTime clockOut;
+    private Timestamp clockIn;
+    private Timestamp clockOut;
 }
