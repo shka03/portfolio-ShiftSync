@@ -11,11 +11,12 @@
 		VALUES (#{employeeId}, date_trunc('second', #{clockIn}::timestamp without time zone))
     </insert>
 
-    <!--　出勤時間の登録 -->
+    <!--　退勤時間の登録 -->
     <update id="clockOut" parameterType="com.levels.ShiftSync.entity.AttendanceRecord">
         UPDATE attendance_records
         SET clock_out = date_trunc('second', #{clockOut}::timestamp without time zone)
-        WHERE employee_id = #{employeeId} 
+        WHERE employee_id = #{employeeId}
+        AND  DATE(clock_in) = current_date 
     </update>
 
 	<!-- 当日の勤怠データを取得 -->
