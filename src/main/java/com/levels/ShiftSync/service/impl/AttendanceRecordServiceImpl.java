@@ -1,6 +1,7 @@
 package com.levels.ShiftSync.service.impl;
 
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -54,15 +55,24 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         Integer employeeId = getEmployeeIdFromSecurityContext();
         return attendanceRecordMapper.getTodayAttendance(employeeId);
     }
-
+    
     /**
-     * 従業員の当月の出退勤時間を全て取得するメソッド
-     * @return 当月の出退勤時間のリスト
+     * 任意の月の勤怠記録を取得するメソッド
+     * @param month 取得したい月 (1月 = 1, 12月 = 12)
+     * @return 指定された月の出退勤時間のリスト。出勤または退勤記録がない場合は空のリストを返します。
      */
-    @Override
-    public List<AttendanceRecord> getMonthlyAttendance() {
-        Integer employeeId = getEmployeeIdFromSecurityContext();
-        return attendanceRecordMapper.getMonthlyAttendance(employeeId);
+    @Transactional(readOnly = true)
+    public List<AttendanceRecord> getYearlyAttendanceForMonth(int month) {
+        // ログイン中のユーザーIDを取得
+        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Integer employeeId = loginUser.getEmployeeId();
+
+        // 現在の年と選択された月を "YYYY-MM" 形式で取得
+        Calendar cal = Calendar.getInstance();
+        String yearMonth = String.format("%d-%02d", cal.get(Calendar.YEAR), month);
+
+        // MyBatisで勤怠記録を取得
+        return attendanceRecordMapper.getMonthlyAttendanceForYear(employeeId, yearMonth);
     }
 
     /**

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>勤怠履歴</title>
+</head>
+<body>
+    <h2>勤怠履歴</h2>
+    
+    <!-- 月の選択ドロップダウン -->
+    <form th:action="@{/yearly_attendance}" method="get">
+        <label for="month">月を選択:</label>
+        <select name="month" id="month">
+            <option th:each="i : ${#numbers.sequence(1,12)}"
+                    th:value="${i}" th:text="${i}">1</option>
+        </select>
+        <button type="submit">表示</button>
+    </form>
+
+    <!-- 選択した月を表示 -->
+    <p th:text="'選択された月: ' + ${selectedMonth} + '月の勤怠履歴'"></p>
+
+    <!-- 勤怠テーブル -->
+    <table border="1" width="300">
+        <thead>
+        <tr>
+            <th>出勤時間</th>
+            <th>退勤時刻</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(attendance_records)}">
+            <td colspan="3" th:text="${message}">データがありません</td>
+        </tr>
+        <tr th:each="attendance_record : ${attendance_records}">
+            <td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${#dates.format(attendance_record.clockOut, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td><a>修正</a></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a th:href="@{/}">戻る</a>
+</body>
+</html>

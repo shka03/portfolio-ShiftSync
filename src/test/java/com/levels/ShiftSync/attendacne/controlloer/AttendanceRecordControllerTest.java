@@ -1,5 +1,6 @@
 package com.levels.ShiftSync.attendacne.controlloer;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -9,10 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -21,7 +24,8 @@ import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.service.impl.AttendanceRecordServiceImpl;
 
 public class AttendanceRecordControllerTest {
-
+	
+	@Autowired
     private MockMvc mockMvc;
 
     @Mock
@@ -82,7 +86,7 @@ public class AttendanceRecordControllerTest {
                .andExpect(status().is3xxRedirection()) // リダイレクトのステータスコードを確認
                .andExpect(redirectedUrl("/")) // リダイレクト先のURLを確認
                .andExpect(flash().attributeExists("clockInErrorMessage")) // エラーメッセージが存在することを確認
-               .andExpect(flash().attribute("clockInErrorMessage", "すでに出勤してます。")); // エラーメッセージの内容を確認
+               .andExpect(flash().attribute("clockInErrorMessage", "すでに出勤しています。")); // エラーメッセージの内容を確認
 
         // 出勤処理メソッドが呼び出されなかったことを確認
         verify(attendanceRecordServiceImpl, never()).clockInTime();
@@ -152,5 +156,63 @@ public class AttendanceRecordControllerTest {
 
         // 退勤処理メソッドが呼び出されなかったことを確認
         verify(attendanceRecordServiceImpl, never()).clockOutTime();
+    }
+    
+    /**
+     * 任意の月に勤怠データが存在する場合のテストケース
+     * 期待される結果:
+     * - 正常に勤怠リストが表示される
+     * - 選択された月が画面に表示される
+     */
+    @Test
+    @DisplayName("勤怠データが存在する場合の月別勤怠リスト表示テスト")
+    void testShowYearlyAttendance_ExistingData() throws Exception {
+        // モックデータの準備
+        List<AttendanceRecord> mockAttendanceRecords = new ArrayList<>();
+        mockAttendanceRecords.add(createMockAttendanceRecord("2023-08-01 09:00:00", "2023-08-01 18:00:00"));
+        when(attendanceRecordServiceImpl.getYearlyAttendanceForMonth(anyInt())).thenReturn(mockAttendanceRecords);
+
+        // テスト実行
+        mockMvc.perform(get("/yearly_attendance")
+                .param("month", "8"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("attendance/yearly_attendance"))
+                .andExpect(model().attributeExists("attendance_records"))
+                .andExpect(model().attribute("selectedMonth", 8));
+    }
+
+    /**
+     * 任意の月に勤怠データが存在しない場合のテストケース
+     * 期待される結果:
+     * - "データがありません" メッセージが表示される
+     * - 選択された月が画面に表示される
+     */
+    @Test
+    @DisplayName("勤怠データが存在しない場合の月別勤怠リスト表示テスト")
+    void testShowYearlyAttendance_NoData() throws Exception {
+        // モックで空のリストを返すよう設定
+        when(attendanceRecordServiceImpl.getYearlyAttendanceForMonth(anyInt())).thenReturn(new ArrayList<>());
+
+        // テスト実行
+        mockMvc.perform(get("/yearly_attendance")
+                .param("month", "8"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("attendance/yearly_attendance"))
+                .andExpect(model().attributeExists("message"))
+                .andExpect(model().attribute("message", "選択された月のデータはありません。"))
+                .andExpect(model().attribute("selectedMonth", 8));
+    }
+
+    /**
+     * モック用の勤怠記録を生成するヘルパーメソッド
+     * @param clockIn 出勤時間
+     * @param clockOut 退勤時間
+     * @return モックされたAttendanceRecordオブジェクト
+     */
+    private AttendanceRecord createMockAttendanceRecord(String clockIn, String clockOut) {
+        AttendanceRecord record = new AttendanceRecord();
+        record.setClockIn(Timestamp.valueOf(clockIn));
+        record.setClockOut(Timestamp.valueOf(clockOut));
+        return record;
     }
 }
