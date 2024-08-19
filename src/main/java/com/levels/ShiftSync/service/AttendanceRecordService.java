@@ -29,8 +29,9 @@ public interface AttendanceRecordService {
     List<AttendanceRecord> getTodayAttendance();
 
     /**
-     * 従業員の当月の出退勤時間を取得するメソッド
-     * @return 当月の出退勤時間のリスト。出勤または退勤記録がない場合は空のリストを返します。
+     * 任意の月の勤怠記録を取得するメソッド
+     * @param month 取得したい月 (1月 = 1, 12月 = 12)
+     * @return 指定された月の出退勤時間のリスト。出勤または退勤記録がない場合は空のリストを返します。
      */
-    List<AttendanceRecord> getMonthlyAttendance();
+    List<AttendanceRecord> getYearlyAttendanceForMonth(int month);
 }

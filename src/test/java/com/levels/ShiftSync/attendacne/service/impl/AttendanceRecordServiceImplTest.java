@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -111,9 +112,9 @@ class AttendanceRecordServiceImplTest {
         assertEquals(1, result.size(), "今日の勤怠記録が1件であるべきです");
         assertEquals(mockEmployeeId, result.get(0).getEmployeeId(), "従業員IDが正しく設定されているべきです");
     }
-
+    
     @Test
-    void testGetMonthlyAttendance() {
+    void testGetYearlyAttendanceForMonth() {
         // セキュリティコンテキストをモックして従業員IDを設定
         Integer mockEmployeeId = 123;
         SecurityContext mockSecurityContext = SecurityContextHolder.createEmptyContext();
@@ -121,15 +122,22 @@ class AttendanceRecordServiceImplTest {
         mockSecurityContext.setAuthentication(new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(mockLoginUser, null));
         SecurityContextHolder.setContext(mockSecurityContext);
 
+        // 現在の年と月を模擬するための設定
+        Calendar cal = Calendar.getInstance();
+        int currentYear = cal.get(Calendar.YEAR);
+        int month = 5; // 例として5月を指定
+        String yearMonth = String.format("%d-%02d", currentYear, month);
+
         // モックデータの設定
         AttendanceRecord record = new AttendanceRecord();
         record.setEmployeeId(mockEmployeeId);
         record.setClockIn(new Timestamp(System.currentTimeMillis()));
 
-        when(attendanceRecordMapper.getMonthlyAttendance(mockEmployeeId)).thenReturn(List.of(record));
+        when(attendanceRecordMapper.getMonthlyAttendanceForYear(mockEmployeeId, yearMonth)).thenReturn(List.of(record));
 
-        List<AttendanceRecord> result = attendanceRecordService.getMonthlyAttendance();
-        assertEquals(1, result.size(), "今月の勤怠記録が1件であるべきです");
+        // メソッドの実行と検証
+        List<AttendanceRecord> result = attendanceRecordService.getYearlyAttendanceForMonth(month);
+        assertEquals(1, result.size(), "指定された月の勤怠記録が1件であるべきです");
         assertEquals(mockEmployeeId, result.get(0).getEmployeeId(), "従業員IDが正しく設定されているべきです");
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
@@ -20,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AttendanceRecordController {
 
-    private final AttendanceRecordServiceImpl attendanceRecordServiceImpl;
+    private final AttendanceRecordServiceImpl attendanceRecordService;
 
     /**
      * 今日の勤怠情報を表示するメソッド
@@ -29,7 +30,7 @@ public class AttendanceRecordController {
      */
     @GetMapping
     public String showAttendancePage(Model model) {
-        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+        List<AttendanceRecord> todayAttendance = attendanceRecordService.getTodayAttendance();
         populateAttendanceModel(model, todayAttendance);
         return "attendance";
     }
@@ -41,15 +42,17 @@ public class AttendanceRecordController {
      */
     @PostMapping("/clock-in")
     public String clockIn(RedirectAttributes attributes) {
-        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+        List<AttendanceRecord> todayAttendance = attendanceRecordService.getTodayAttendance();
 
+        // 既に出勤済みの場合の処理
         if (!todayAttendance.isEmpty()) {
             handleAlreadyClockedIn(attributes, todayAttendance.get(0).getClockIn());
             return "redirect:/";
         }
 
-        attendanceRecordServiceImpl.clockInTime();
-        todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+        // 出勤処理を実行
+        attendanceRecordService.clockInTime();
+        todayAttendance = attendanceRecordService.getTodayAttendance();
         addClockInSuccessAttributes(attributes, todayAttendance.get(0).getClockIn());
         return "redirect:/";
     }
@@ -60,58 +63,73 @@ public class AttendanceRecordController {
      * @return リダイレクト先のURL
      */
     @PostMapping("/clock-out")
-    public String clockOutTime(RedirectAttributes attributes) {
-        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+    public String clockOut(RedirectAttributes attributes) {
+        List<AttendanceRecord> todayAttendance = attendanceRecordService.getTodayAttendance();
 
+        // 出勤記録がない場合の処理
         if (todayAttendance.isEmpty()) {
             addClockOutErrorAttributes(attributes, "出勤記録がありません。");
             return "redirect:/";
         }
 
         AttendanceRecord record = todayAttendance.get(0);
+        // 既に退勤済みの場合の処理
         if (record.getClockOut() != null) {
             addClockOutErrorAttributes(attributes, "すでに退勤しています。");
             return "redirect:/";
         }
 
-        attendanceRecordServiceImpl.clockOutTime();
-        todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+        // 退勤処理を実行
+        attendanceRecordService.clockOutTime();
+        todayAttendance = attendanceRecordService.getTodayAttendance();
         addClockOutSuccessAttributes(attributes, todayAttendance.get(0).getClockOut());
         return "redirect:/";
     }
 
     /**
-     * 月間勤怠情報を表示するメソッド
+     * 任意の月の勤怠履歴を表示するメソッド
+     * @param month 表示する月 (1月 = 1, 12月 = 12)
      * @param model Thymeleafテンプレートにデータを渡すためのモデル
-     * @return "monthly_attendance" テンプレート名
+     * @return "yearly_attendance" テンプレート名
      */
-    @GetMapping("/monthly_attendance")
-    public String showMonthlyAttendancePage(Model model) {
-        List<AttendanceRecord> monthlyAttendance = attendanceRecordServiceImpl.getMonthlyAttendance();
+    @GetMapping("/yearly_attendance")
+    public String showYearlyAttendance(
+            @RequestParam(value = "month", defaultValue = "1") int month, 
+            Model model
+    ) {
+        List<AttendanceRecord> yearlyAttendance = attendanceRecordService.getYearlyAttendanceForMonth(month);
 
-        if (isMonthlyAttendanceEmpty(monthlyAttendance)) {
-            addEmptyAttendanceMessage(model);
-            return "monthly_attendance";
+        // データが存在しない場合は、エラーメッセージをモデルに追加し、早期にリターン
+        if (yearlyAttendance.isEmpty()) {
+            model.addAttribute("message", "選択された月のデータはありません。");
+            model.addAttribute("selectedMonth", month); // 選択された月もモデルに追加
+            return "attendance/yearly_attendance";
         }
 
-        addAttendanceRecordsToModel(model, monthlyAttendance);
-        return "monthly_attendance";
-    }
+        // データが存在する場合、勤怠記録をモデルに追加
+        model.addAttribute("attendance_records", yearlyAttendance);
 
+        // 選択された月をモデルに追加
+        model.addAttribute("selectedMonth", month);
+
+        return "attendance/yearly_attendance";
+    }
+    
     /**
      * 今日の勤怠情報をModelに設定するメソッド
      * @param model Modelにデータを追加するためのオブジェクト
      * @param todayAttendance 今日の勤怠記録のリスト
      */
     private void populateAttendanceModel(Model model, List<AttendanceRecord> todayAttendance) {
-        if (!todayAttendance.isEmpty()) {
-            AttendanceRecord record = todayAttendance.get(0);
-            model.addAttribute("clockInTime", record.getClockIn());
-            model.addAttribute("clockOutTime", record.getClockOut());
-        } else {
+        if (todayAttendance.isEmpty()) {
             model.addAttribute("clockInTime", null);
             model.addAttribute("clockOutTime", null);
+            return;
         }
+
+        AttendanceRecord record = todayAttendance.get(0);
+        model.addAttribute("clockInTime", record.getClockIn());
+        model.addAttribute("clockOutTime", record.getClockOut());
     }
 
     /**
@@ -140,7 +158,7 @@ public class AttendanceRecordController {
      */
     private void addClockInErrorAttributes(RedirectAttributes attributes, Timestamp clockInTime) {
         attributes.addFlashAttribute("clockInTime", clockInTime);
-        attributes.addFlashAttribute("clockInErrorMessage", "すでに出勤してます。");
+        attributes.addFlashAttribute("clockInErrorMessage", "すでに出勤しています。");
     }
 
     /**
@@ -160,31 +178,5 @@ public class AttendanceRecordController {
     private void addClockOutSuccessAttributes(RedirectAttributes attributes, Timestamp clockOutTime) {
         attributes.addFlashAttribute("clockOutTime", clockOutTime);
         attributes.addFlashAttribute("clockOutSuccessMessage", "お疲れ様でした。退勤しました。");
-    }
-
-    /**
-     * 月間勤怠データが空かどうかをチェックするメソッド
-     * @param monthlyAttendance 月間勤怠記録のリスト
-     * @return 月間勤怠データが空の場合はtrue、それ以外はfalse
-     */
-    private boolean isMonthlyAttendanceEmpty(List<AttendanceRecord> monthlyAttendance) {
-        return monthlyAttendance == null || monthlyAttendance.isEmpty();
-    }
-
-    /**
-     * 空の勤怠データメッセージをModelに追加するメソッド
-     * @param model Modelにデータを追加するためのオブジェクト
-     */
-    private void addEmptyAttendanceMessage(Model model) {
-        model.addAttribute("message", "今月の勤怠データはまだありません。");
-    }
-
-    /**
-     * 勤怠データをModelに追加するメソッド
-     * @param model Modelにデータを追加するためのオブジェクト
-     * @param monthlyAttendance 月間勤怠記録のリスト
-     */
-    private void addAttendanceRecordsToModel(Model model, List<AttendanceRecord> monthlyAttendance) {
-        model.addAttribute("attendance_records", monthlyAttendance);
     }
 }
