@@ -6,10 +6,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
 * ユーザーの認証情報を表すUserDetails実装クラス
 */
+@EqualsAndHashCode(callSuper=false)
 @Data
 public class LoginUser extends User {
 	private Integer employeeId;
