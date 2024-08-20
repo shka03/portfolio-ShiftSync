@@ -23,6 +23,18 @@ public interface AttendanceRecordService {
     void clockOutTime();
 
     /**
+     * 従業員の出勤時間を修正するメソッド
+     * 入力した時刻を出勤時間としてデータベースに保存します。
+     */
+    void updateClockInTime();
+    
+    /**
+     * 従業員の退勤時間を修正するメソッド
+     * 入力した時刻を退勤時間としてデータベースに保存します。
+     */
+    void updateClockOutTime();
+
+    /**
      * 従業員の当日の出退勤時間を取得するメソッド
      * @return 当日の出退勤時間のリスト。出勤または退勤記録がない場合は空のリストを返します。
      */

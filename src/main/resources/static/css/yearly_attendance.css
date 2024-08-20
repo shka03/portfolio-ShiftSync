@@ -1,0 +1,15 @@
+/* 勤怠テーブル */
+.attendance-table {
+    width: 300px;
+    border-collapse: collapse;
+}
+
+.attendance-table th, .attendance-table td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
+
+.attendance-table th {
+    background-color: #f2f2f2;
+}

@@ -103,7 +103,7 @@ public class AttendanceRecordController {
         if (yearlyAttendance.isEmpty()) {
             model.addAttribute("message", "選択された月のデータはありません。");
             model.addAttribute("selectedMonth", month); // 選択された月もモデルに追加
-            return "attendance/yearly_attendance";
+            return "yearly_attendance";
         }
 
         // データが存在する場合、勤怠記録をモデルに追加
@@ -112,7 +112,7 @@ public class AttendanceRecordController {
         // 選択された月をモデルに追加
         model.addAttribute("selectedMonth", month);
 
-        return "attendance/yearly_attendance";
+        return "yearly_attendance";
     }
     
     /**

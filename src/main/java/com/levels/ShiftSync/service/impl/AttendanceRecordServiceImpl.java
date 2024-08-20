@@ -57,6 +57,26 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     }
     
     /**
+     * 従業員の出勤時間を修正するメソッド
+     * 入力した時刻を出勤時間としてデータベースに保存します。
+     */
+    @Override
+    public void updateClockInTime() {
+    	// TODO 自動生成されたメソッド・スタブ
+    	
+    }
+    
+    /**
+     * 従業員の退勤時間を修正するメソッド
+     * 入力した時刻を退勤時間としてデータベースに保存します。
+     */
+    @Override
+    public void updateClockOutTime() {
+    	// TODO 自動生成されたメソッド・スタブ
+    	
+    }
+    
+    /**
      * 任意の月の勤怠記録を取得するメソッド
      * @param month 取得したい月 (1月 = 1, 12月 = 12)
      * @return 指定された月の出退勤時間のリスト。出勤または退勤記録がない場合は空のリストを返します。
