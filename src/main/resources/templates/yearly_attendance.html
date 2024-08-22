@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<link>
+<head>
     <title>勤怠履歴</title>
     <link href="../static/css/yearly_attendance.css" th:href="@{/css/yearly_attendance.css}" rel="stylesheet" />
 </head>
@@ -36,7 +36,18 @@
         <tr th:each="attendance_record : ${attendance_records}">
             <td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}"></td>
             <td th:text="${#dates.format(attendance_record.clockOut, 'yyyy-MM-dd HH:mm:ss')}"></td>
-            <td><a>修正</a></td>
+            <td>
+			<!-- 出勤時間修正フォーム -->
+                <form th:action="@{/updateClockInTime}" method="post" style="display:inline;">
+                    <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
+                    <input type="hidden" name="currentClockIn" th:value="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}" />
+                    
+                     日付と時間を別々に選択する出勤時間修正 
+                    <input type="time" name="newClockIn" placeholder="時間" required />
+                    <button type="submit">出勤時刻の修正</button>
+                </form>
+                
+            </td>
         </tr>
         </tbody>
     </table>
