@@ -31,6 +31,12 @@ public interface AttendanceRecordMapper {
      * @param record 退勤記録を含むAttendanceRecordオブジェクト。退勤時間が設定されている必要があります。
      */
     void clockOut(AttendanceRecord record);
+    
+    /**
+     * 従業員の退勤時間を修正するメソッド
+     * @param params 更新対象のレコードID、従業員ID、および新しい退勤時間を含むマップ
+     */
+    void updateClockOutTime(Map<String, Object> params);
 
     /**
      * 従業員の当日の出退勤時間を取得するメソッド

@@ -36,8 +36,15 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         attendanceRecordMapper.clockIn(record);
     }
     
+    /**
+     * 出勤時刻を更新するメソッド
+     * 
+     * @param recordId 出退勤レコードのID。どのレコードを更新するかを特定するために使用します。
+     * @param employeeId 従業員のID。どの従業員の出勤時刻を更新するかを特定するために使用します。
+     * @param newClockIn 新しい出勤時刻。タイムスタンプ形式（yyyy-MM-dd HH:mm:ss）で指定します。
+     */
     @Override
-    public void updateClockInTime(int recordId, int employeeId, Timestamp newClockIn) {
+    public void updateClockInTime(Integer recordId, Integer employeeId, Timestamp newClockIn) {
         Map<String, Object> params = new HashMap<>();
         params.put("recordId", recordId);
         params.put("employeeId", employeeId);
@@ -57,6 +64,23 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         record.setClockOut(new Timestamp(System.currentTimeMillis()));
         attendanceRecordMapper.clockOut(record);
     }
+    
+    /**
+     * 退勤時刻を更新するメソッド
+     * 
+     * @param recordId 出退勤レコードのID。どのレコードを更新するかを特定するために使用します。
+     * @param employeeId 従業員のID。どの従業員の退勤時刻を更新するかを特定するために使用します。
+     * @param newClockOut 新しい退勤時刻。タイムスタンプ形式（yyyy-MM-dd HH:mm:ss）で指定します。
+     */
+    @Override
+    public void updateClockOutTime(Integer recordId, Integer employeeId, Timestamp newClockOut) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("recordId", recordId);
+        params.put("employeeId", employeeId);
+        params.put("newClockOut", newClockOut);
+
+        attendanceRecordMapper.updateClockOutTime(params);
+    }
 
     /**
      * 従業員の当日の出退勤時間を取得するメソッド
@@ -66,16 +90,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     public List<AttendanceRecord> getTodayAttendance() {
         Integer employeeId = getEmployeeIdFromSecurityContext();
         return attendanceRecordMapper.getTodayAttendance(employeeId);
-    }
-    
-    /**
-     * 従業員の退勤時間を修正するメソッド
-     * 入力した時刻を退勤時間としてデータベースに保存します。
-     */
-    @Override
-    public void updateClockOutTime() {
-    	// TODO 自動生成されたメソッド・スタブ
-    	
     }
     
     /**

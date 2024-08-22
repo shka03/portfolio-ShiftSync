@@ -60,7 +60,7 @@ public class AttendanceRecordController {
     
     /**
      * 出勤時刻を更新するメソッド
-     * @param recordId 出勤レコードのID
+     * @param recordId 出退勤レコードのID
      * @param employeeId 従業員のID
      * @param newClockIn 新しい出勤時刻（hh:mm形式）
      * @param currentClockIn 現在の出勤時刻（yyyy-MM-dd HH:mm:ss形式）
@@ -69,8 +69,8 @@ public class AttendanceRecordController {
      */
     @PostMapping("/updateClockInTime")
     public String updateClockInTime(
-            @RequestParam("recordId") int recordId,
-            @RequestParam("employeeId") int employeeId,
+            @RequestParam("recordId") Integer recordId,
+            @RequestParam("employeeId") Integer employeeId,
             @RequestParam("newClockIn") String newClockInStr,
             @RequestParam("currentClockIn") String currentClockInStr,
             RedirectAttributes attributes) {
@@ -139,6 +139,60 @@ public class AttendanceRecordController {
         todayAttendance = attendanceRecordService.getTodayAttendance();
         addClockOutSuccessAttributes(attributes, todayAttendance.get(0).getClockOut());
         return "redirect:/";
+    }
+    
+    /**
+     * 出勤時刻を更新するメソッド
+     * @param recordId 出退勤レコードのID
+     * @param employeeId 従業員のID
+     * @param newClockIn 新しい退勤時刻（hh:mm形式）
+     * @param currentClockIn 現在の退勤時刻（yyyy-MM-dd HH:mm:ss形式）
+     * @param attributes リダイレクト時にFlashAttributesにデータを追加
+     * @return リダイレクト先のURL
+     */
+    @PostMapping("/updateClockOutTime")
+    public String updateClockOutTime(
+            @RequestParam("recordId") Integer recordId,
+            @RequestParam("employeeId") Integer employeeId,
+            @RequestParam("newClockOut") String newClockOutStr,
+            @RequestParam("currentClockOut") String currentClockOutStr,
+            RedirectAttributes attributes) {
+
+        // 入力されたパラメータがnullまたは空でないことを確認
+        if (newClockOutStr == null || newClockOutStr.isEmpty() ||
+            currentClockOutStr == null || currentClockOutStr.isEmpty()) {
+            attributes.addFlashAttribute("message", "退勤時刻が無効です。");
+            return "redirect:/yearly_attendance";
+        }
+
+        // 現在の退勤時刻から日付部分を取得
+        String datePart;
+        try {
+            datePart = currentClockOutStr.split(" ")[0];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            attributes.addFlashAttribute("message", "現在の退勤時刻の形式が不正です。");
+            return "redirect:/yearly_attendance";
+        }
+
+        // 日付部分と新しい退勤時間部分を結合してタイムスタンプ形式に変換
+        String newClockOutFullStr = datePart + " " + newClockOutStr + ":00";
+        Timestamp newClockOut;
+        try {
+            newClockOut = Timestamp.valueOf(newClockOutFullStr);
+        } catch (IllegalArgumentException e) {
+            attributes.addFlashAttribute("message", "新しい退勤時刻の形式が不正です。");
+            return "redirect:/yearly_attendance";
+        }
+
+        // 退勤時間の修正を実行
+        try {
+            attendanceRecordService.updateClockOutTime(recordId, employeeId, newClockOut);
+            attributes.addFlashAttribute("message", "退勤時刻を修正しました。");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("message", "退勤時刻の修正に失敗しました。");
+        }
+
+        return "redirect:/yearly_attendance";
     }
 
     /**
