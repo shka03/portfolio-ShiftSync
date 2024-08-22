@@ -75,40 +75,71 @@ public class AttendanceRecordController {
             @RequestParam("currentClockIn") String currentClockInStr,
             RedirectAttributes attributes) {
 
-        // 入力されたパラメータがnullまたは空でないことを確認
-        if (newClockInStr == null || newClockInStr.isEmpty() ||
-            currentClockInStr == null || currentClockInStr.isEmpty()) {
+        // 入力パラメータの検証
+        if (isInvalidClockInParameter(newClockInStr, currentClockInStr)) {
             attributes.addFlashAttribute("message", "出勤時刻が無効です。");
             return "redirect:/yearly_attendance";
         }
 
         // 現在の出勤時刻から日付部分を取得
-        String datePart;
-        try {
-            datePart = currentClockInStr.split(" ")[0];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            attributes.addFlashAttribute("message", "現在の出勤時刻の形式が不正です。");
+        String datePart = extractDatePartFromCurrentClockIn(currentClockInStr, attributes);
+        if (datePart == null) {
             return "redirect:/yearly_attendance";
         }
 
-        // 日付部分と新しい出勤時間部分を結合してタイムスタンプ形式に変換
-        String newClockInFullStr = datePart + " " + newClockInStr + ":00";
-        Timestamp newClockIn;
+        // 新しい出勤時刻のパースと検証
+        Timestamp newClockIn = parseNewClockIn(datePart, newClockInStr, attributes);
+        if (newClockIn == null) {
+            return "redirect:/yearly_attendance";
+        }
+
+        // 出勤時間の更新と結果の設定
+        return updateClockInTime(recordId, employeeId, newClockIn, attributes);
+    }
+
+    private boolean isInvalidClockInParameter(String newClockInStr, String currentClockInStr) {
+        return newClockInStr == null || newClockInStr.isEmpty() ||
+               currentClockInStr == null || currentClockInStr.isEmpty();
+    }
+
+    private String extractDatePartFromCurrentClockIn(String currentClockInStr, RedirectAttributes attributes) {
+        if (currentClockInStr == null || !currentClockInStr.contains(" ")) {
+            attributes.addFlashAttribute("message", "現在の出勤時刻の形式が不正です。");
+            return null;
+        }
+
         try {
-            newClockIn = Timestamp.valueOf(newClockInFullStr);
+            return currentClockInStr.split(" ")[0];
+        } catch (Exception e) {
+            attributes.addFlashAttribute("message", "現在の出勤時刻の形式が不正です。");
+            return null;
+        }
+    }
+
+
+    private Timestamp parseNewClockIn(String datePart, String newClockInStr, RedirectAttributes attributes) {
+        if (newClockInStr == null || newClockInStr.isEmpty()) {
+            attributes.addFlashAttribute("message", "新しい出勤時刻の形式が不正です。");
+            return null;
+        }
+
+        String newClockInFullStr = String.format("%s %s:00", datePart, newClockInStr);
+        try {
+            return Timestamp.valueOf(newClockInFullStr);
         } catch (IllegalArgumentException e) {
             attributes.addFlashAttribute("message", "新しい出勤時刻の形式が不正です。");
-            return "redirect:/yearly_attendance";
+            return null;
         }
+    }
 
-        // 出勤時間の修正を実行
+
+    private String updateClockInTime(Integer recordId, Integer employeeId, Timestamp newClockIn, RedirectAttributes attributes) {
         try {
             attendanceRecordService.updateClockInTime(recordId, employeeId, newClockIn);
             attributes.addFlashAttribute("message", "出勤時刻を修正しました。");
         } catch (Exception e) {
             attributes.addFlashAttribute("message", "出勤時刻の修正に失敗しました。");
         }
-
         return "redirect:/yearly_attendance";
     }
 

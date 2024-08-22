@@ -90,42 +90,86 @@ public class AttendanceRecordControllerTest {
         verify(attendanceRecordServiceImpl, never()).clockInTime();
     }
 
-    /**
-     * 出勤時刻更新が正常に行われるテスト。
-     * 正常なパラメータで出勤時刻を更新するか確認します。
-     */
     @Test
-    @DisplayName("出勤時刻更新が正常に行われるテスト")
-    public void testUpdateClockInTime_Success() throws Exception {
-        doNothing().when(attendanceRecordServiceImpl).updateClockInTime(any(), any(), any());
+    @DisplayName("出勤時刻が正常に更新されるテスト")
+    void testUpdateClockInTime_Success() throws Exception {
+        // モックの設定
+        Timestamp newClockIn = Timestamp.valueOf("2024-08-22 08:30:00");
+        doNothing().when(attendanceRecordServiceImpl).updateClockInTime(anyInt(), anyInt(), any(Timestamp.class));
 
+        // リクエストのシミュレーション
         mockMvc.perform(post("/updateClockInTime")
                 .param("recordId", "1")
                 .param("employeeId", "1")
                 .param("newClockIn", "08:30")
-                .param("currentClockIn", "2024-08-22 08:00:00"))
+                .param("currentClockIn", "2024-08-22 08:00")
+                .flashAttr("message", "出勤時刻を修正しました。"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/yearly_attendance"));
+                .andExpect(redirectedUrl("/yearly_attendance"))
+                .andExpect(flash().attribute("message", "出勤時刻を修正しました。"));
 
-        verify(attendanceRecordServiceImpl, times(1)).updateClockInTime(eq(1), eq(1), any(Timestamp.class));
+        // モックメソッドの呼び出し確認
+        verify(attendanceRecordServiceImpl).updateClockInTime(1, 1, newClockIn);
     }
 
-    /**
-     * 無効な出勤時刻パラメータが提供された場合のテスト。
-     * 出勤時刻のフォーマットが無効な場合、更新処理が行われないか確認します。
-     */
     @Test
-    @DisplayName("無効な出勤時刻パラメータが提供された場合、出勤時刻が更新されないテスト")
-    public void testUpdateClockInTime_InvalidClockInFormat() throws Exception {
+    @DisplayName("無効な現在の出勤時刻形式でエラーメッセージが表示されるテスト")
+    void testUpdateClockInTime_InvalidCurrentClockInFormat() throws Exception {
+        // リクエストのシミュレーション
         mockMvc.perform(post("/updateClockInTime")
                 .param("recordId", "1")
                 .param("employeeId", "1")
-                .param("newClockIn", "invalid")
+                .param("newClockIn", "08:30")
+                .param("currentClockIn", "invalid_format"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/yearly_attendance"))
+                .andExpect(flash().attribute("message", "現在の出勤時刻の形式が不正です。"));
+    }
+
+    @Test
+    @DisplayName("無効な新しい出勤時刻形式でエラーメッセージが表示されるテスト")
+    void testUpdateClockInTime_InvalidNewClockInFormat() throws Exception {
+        // リクエストのシミュレーション
+        mockMvc.perform(post("/updateClockInTime")
+                .param("recordId", "1")
+                .param("employeeId", "1")
+                .param("newClockIn", "invalid_time")
                 .param("currentClockIn", "2024-08-22 08:00:00"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/yearly_attendance"));
+                .andExpect(redirectedUrl("/yearly_attendance"))
+                .andExpect(flash().attribute("message", "新しい出勤時刻の形式が不正です。"));
+    }
 
-        verify(attendanceRecordServiceImpl, never()).updateClockInTime(any(), any(), any());
+    @Test
+    @DisplayName("出勤時刻がnullの場合にエラーメッセージが表示されるテスト")
+    void testUpdateClockInTime_NullParameters() throws Exception {
+        // リクエストのシミュレーション
+        mockMvc.perform(post("/updateClockInTime")
+                .param("recordId", "1")
+                .param("employeeId", "1")
+                .param("newClockIn", "")
+                .param("currentClockIn", ""))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/yearly_attendance"))
+                .andExpect(flash().attribute("message", "出勤時刻が無効です。"));
+    }
+
+    @Test
+    @DisplayName("出勤時刻更新中に例外が発生した場合のテスト")
+    void testUpdateClockInTime_Exception() throws Exception {
+        // モックの設定
+        Timestamp newClockIn = Timestamp.valueOf("2024-08-22 08:30:00");
+        doThrow(new RuntimeException("DBエラー")).when(attendanceRecordServiceImpl).updateClockInTime(anyInt(), anyInt(), any(Timestamp.class));
+
+        // リクエストのシミュレーション
+        mockMvc.perform(post("/updateClockInTime")
+                .param("recordId", "1")
+                .param("employeeId", "1")
+                .param("newClockIn", "08:30")
+                .param("currentClockIn", "2024-08-22 08:00"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/yearly_attendance"))
+                .andExpect(flash().attribute("message", "出勤時刻の修正に失敗しました。"));
     }
 
     /**
