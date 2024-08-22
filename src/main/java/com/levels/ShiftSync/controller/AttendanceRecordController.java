@@ -1,6 +1,7 @@
 package com.levels.ShiftSync.controller;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -94,9 +95,14 @@ public class AttendanceRecordController {
      */
     @GetMapping("/yearly_attendance")
     public String showYearlyAttendance(
-            @RequestParam(value = "month", defaultValue = "1") int month, 
+            @RequestParam(value = "month", required = false) Integer month, 
             Model model
     ) {
+        // month が null なら、現在の月を使用する
+        if (month == null) {
+            month = LocalDate.now().getMonthValue();
+        }
+        
         List<AttendanceRecord> yearlyAttendance = attendanceRecordService.getYearlyAttendanceForMonth(month);
 
         // データが存在しない場合は、エラーメッセージをモデルに追加し、早期にリターン

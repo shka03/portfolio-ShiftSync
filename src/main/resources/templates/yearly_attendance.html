@@ -41,8 +41,6 @@
                 <form th:action="@{/updateClockInTime}" method="post" style="display:inline;">
                     <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
                     <input type="hidden" name="currentClockIn" th:value="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}" />
-                    
-                     日付と時間を別々に選択する出勤時間修正 
                     <input type="time" name="newClockIn" placeholder="時間" required />
                     <button type="submit">出勤時刻の修正</button>
                 </form>
