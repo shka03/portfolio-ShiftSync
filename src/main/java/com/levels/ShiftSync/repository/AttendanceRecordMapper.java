@@ -1,6 +1,7 @@
 package com.levels.ShiftSync.repository;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
@@ -18,6 +19,12 @@ public interface AttendanceRecordMapper {
      * @param record 出勤記録を含むAttendanceRecordオブジェクト。出勤時間が設定されている必要があります。
      */
     void clockIn(AttendanceRecord record);
+    
+    /**
+     * 従業員の出勤時間を修正するメソッド
+     * @param params 更新対象のレコードID、従業員ID、および新しい出勤時間を含むマップ
+     */
+    void updateClockInTime(Map<String, Object> params);
 
     /**
      * 従業員の退勤時間をデータベースに登録するメソッド

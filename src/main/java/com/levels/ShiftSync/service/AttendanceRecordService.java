@@ -1,5 +1,6 @@
 package com.levels.ShiftSync.service;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
@@ -26,7 +27,7 @@ public interface AttendanceRecordService {
      * 従業員の出勤時間を修正するメソッド
      * 入力した時刻を出勤時間としてデータベースに保存します。
      */
-    void updateClockInTime();
+    void updateClockInTime(int recordId, int employeeId, Timestamp newClockIn);
     
     /**
      * 従業員の退勤時間を修正するメソッド

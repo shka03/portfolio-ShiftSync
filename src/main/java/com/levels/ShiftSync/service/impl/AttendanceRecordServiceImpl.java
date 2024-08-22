@@ -2,7 +2,9 @@ package com.levels.ShiftSync.service.impl;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,16 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         record.setClockIn(new Timestamp(System.currentTimeMillis()));
         attendanceRecordMapper.clockIn(record);
     }
+    
+    @Override
+    public void updateClockInTime(int recordId, int employeeId, Timestamp newClockIn) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("recordId", recordId);
+        params.put("employeeId", employeeId);
+        params.put("newClockIn", newClockIn);
+
+        attendanceRecordMapper.updateClockInTime(params);
+    }
 
     /**
      * 退勤時間をデータベースに挿入するメソッド
@@ -54,16 +66,6 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     public List<AttendanceRecord> getTodayAttendance() {
         Integer employeeId = getEmployeeIdFromSecurityContext();
         return attendanceRecordMapper.getTodayAttendance(employeeId);
-    }
-    
-    /**
-     * 従業員の出勤時間を修正するメソッド
-     * 入力した時刻を出勤時間としてデータベースに保存します。
-     */
-    @Override
-    public void updateClockInTime() {
-    	// TODO 自動生成されたメソッド・スタブ
-    	
     }
     
     /**

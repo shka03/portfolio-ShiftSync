@@ -57,6 +57,60 @@ public class AttendanceRecordController {
         addClockInSuccessAttributes(attributes, todayAttendance.get(0).getClockIn());
         return "redirect:/";
     }
+    
+    /**
+     * 出勤時刻を更新するメソッド
+     * @param recordId 出勤レコードのID
+     * @param employeeId 従業員のID
+     * @param newClockIn 新しい出勤時刻（hh:mm形式）
+     * @param currentClockIn 現在の出勤時刻（yyyy-MM-dd HH:mm:ss形式）
+     * @param attributes リダイレクト時にFlashAttributesにデータを追加
+     * @return リダイレクト先のURL
+     */
+    @PostMapping("/updateClockInTime")
+    public String updateClockInTime(
+            @RequestParam("recordId") int recordId,
+            @RequestParam("employeeId") int employeeId,
+            @RequestParam("newClockIn") String newClockInStr,
+            @RequestParam("currentClockIn") String currentClockInStr,
+            RedirectAttributes attributes) {
+
+        // 入力されたパラメータがnullまたは空でないことを確認
+        if (newClockInStr == null || newClockInStr.isEmpty() ||
+            currentClockInStr == null || currentClockInStr.isEmpty()) {
+            attributes.addFlashAttribute("message", "出勤時刻が無効です。");
+            return "redirect:/yearly_attendance";
+        }
+
+        // 現在の出勤時刻から日付部分を取得
+        String datePart;
+        try {
+            datePart = currentClockInStr.split(" ")[0];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            attributes.addFlashAttribute("message", "現在の出勤時刻の形式が不正です。");
+            return "redirect:/yearly_attendance";
+        }
+
+        // 日付部分と新しい出勤時間部分を結合してタイムスタンプ形式に変換
+        String newClockInFullStr = datePart + " " + newClockInStr + ":00";
+        Timestamp newClockIn;
+        try {
+            newClockIn = Timestamp.valueOf(newClockInFullStr);
+        } catch (IllegalArgumentException e) {
+            attributes.addFlashAttribute("message", "新しい出勤時刻の形式が不正です。");
+            return "redirect:/yearly_attendance";
+        }
+
+        // 出勤時間の修正を実行
+        try {
+            attendanceRecordService.updateClockInTime(recordId, employeeId, newClockIn);
+            attributes.addFlashAttribute("message", "出勤時刻を修正しました。");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("message", "出勤時刻の修正に失敗しました。");
+        }
+
+        return "redirect:/yearly_attendance";
+    }
 
     /**
      * 退勤処理を行うメソッド
