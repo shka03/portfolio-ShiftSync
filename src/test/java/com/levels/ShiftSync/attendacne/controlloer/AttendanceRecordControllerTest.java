@@ -15,9 +15,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
@@ -158,7 +162,6 @@ public class AttendanceRecordControllerTest {
     @DisplayName("出勤時刻更新中に例外が発生した場合のテスト")
     void testUpdateClockInTime_Exception() throws Exception {
         // モックの設定
-        Timestamp newClockIn = Timestamp.valueOf("2024-08-22 08:30:00");
         doThrow(new RuntimeException("DBエラー")).when(attendanceRecordServiceImpl).updateClockInTime(anyInt(), anyInt(), any(Timestamp.class));
 
         // リクエストのシミュレーション
@@ -231,43 +234,99 @@ public class AttendanceRecordControllerTest {
 
         verify(attendanceRecordServiceImpl, never()).clockOutTime();
     }
-
-    /**
-     * 退勤時刻更新が正常に行われるテスト。
-     * 正常なパラメータで退勤時刻を更新するか確認します。
-     */
+    
     @Test
-    @DisplayName("退勤時刻更新が正常に行われるテスト")
-    public void testUpdateClockOutTime_Success() throws Exception {
-        doNothing().when(attendanceRecordServiceImpl).updateClockOutTime(any(), any(), any());
+    @DisplayName("退勤時刻が正常に更新されるテスト")
+    void testUpdateClockOutTime_Success() throws Exception {
+        // モックの設定
+        Timestamp newClockOut = Timestamp.valueOf("2024-08-22 17:30:00");
+        doNothing().when(attendanceRecordServiceImpl).updateClockOutTime(anyInt(), anyInt(), any(Timestamp.class));
 
+        // リクエストのシミュレーション
         mockMvc.perform(post("/updateClockOutTime")
                 .param("recordId", "1")
                 .param("employeeId", "1")
                 .param("newClockOut", "17:30")
-                .param("currentClockOut", "2024-08-22 17:00:00"))
+                .param("currentClockOut", "2024-08-22 17:00")
+                .flashAttr("message", "退勤時刻を修正しました。"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/yearly_attendance"));
+                .andExpect(redirectedUrl("/yearly_attendance"))
+                .andExpect(flash().attribute("message", "退勤時刻を修正しました。"));
 
-        verify(attendanceRecordServiceImpl, times(1)).updateClockOutTime(eq(1), eq(1), any(Timestamp.class));
+        // モックメソッドの呼び出し確認
+        verify(attendanceRecordServiceImpl).updateClockOutTime(1, 1, newClockOut);
     }
 
-    /**
-     * 無効な退勤時刻パラメータが提供された場合のテスト。
-     * 退勤時刻のフォーマットが無効な場合、更新処理が行われないか確認します。
-     */
     @Test
     @DisplayName("無効な退勤時刻パラメータが提供された場合、退勤時刻が更新されないテスト")
     public void testUpdateClockOutTime_InvalidClockOutFormat() throws Exception {
         mockMvc.perform(post("/updateClockOutTime")
                 .param("recordId", "1")
                 .param("employeeId", "1")
-                .param("newClockOut", "invalid")
+                .param("newClockOut", "invalid_format")
                 .param("currentClockOut", "2024-08-22 17:00:00"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/yearly_attendance"));
 
         verify(attendanceRecordServiceImpl, never()).updateClockOutTime(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("退勤時刻が無効な場合にエラーメッセージが表示されるテスト")
+    void testUpdateClockOutTime_InvalidClockOut() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/updateClockOutTime")
+                .param("recordId", "1")
+                .param("employeeId", "1")
+                .param("newClockOut", "")
+                .param("currentClockOut", "2024-08-24 17:30:00"))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/yearly_attendance"))
+                .andExpect(MockMvcResultMatchers.flash().attribute("message", "退勤時刻が無効です。"))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("現在の退勤時刻形式が不正な場合にエラーメッセージが表示されるテスト")
+    void testUpdateClockOutTime_InvalidCurrentClockOutFormat() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/updateClockOutTime")
+                .param("recordId", "1")
+                .param("employeeId", "1")
+                .param("newClockOut", "17:30") // 正しい形式の新しい退勤時刻
+                .param("currentClockOut", "invalid_time")) // 不正な形式の現在の退勤時刻
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/yearly_attendance"))
+                .andExpect(MockMvcResultMatchers.flash().attribute("message", "現在の退勤時刻の形式が不正です。"))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("新しい退勤時刻形式が不正な場合にエラーメッセージが表示されるテスト")
+    void testUpdateClockOutTime_InvalidNewClockOutFormat() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/updateClockOutTime")
+                .param("recordId", "1")
+                .param("employeeId", "1")
+                .param("newClockOut", "invalid_time")
+                .param("currentClockOut", "2024-08-24 17:30:00"))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/yearly_attendance"))
+                .andExpect(MockMvcResultMatchers.flash().attribute("message", "新しい退勤時刻の形式が不正です。"))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("退勤時刻の修正に失敗した場合にエラーメッセージが表示されるテスト")
+    void testUpdateClockOutTime_Failure() throws Exception {
+        Mockito.doThrow(new RuntimeException("DB error")).when(attendanceRecordServiceImpl).updateClockOutTime(anyInt(), anyInt(), any(Timestamp.class));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/updateClockOutTime")
+                .param("recordId", "1")
+                .param("employeeId", "1")
+                .param("newClockOut", "17:30")
+                .param("currentClockOut", "2024-08-24 17:30:00"))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/yearly_attendance"))
+                .andExpect(MockMvcResultMatchers.flash().attribute("message", "退勤時刻の修正に失敗しました。"))
+                .andDo(MockMvcResultHandlers.print());
     }
 
     /**
