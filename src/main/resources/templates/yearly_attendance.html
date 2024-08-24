@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <title>勤怠履歴</title>
-    <link href="../static/css/yearly_attendance.css" th:href="@{/css/yearly_attendance.css}" rel="stylesheet" />
+    <!-- head共通部分 -->
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <title>勤怠履歴 - ShiftSync</title>
 </head>
+
 <body>
+	
+	<!-- header共通部分 -->
+	<th:block th:replace="~{fragments/header :: header}"></th:block>
+    
     <h2>勤怠履歴</h2>
     
     <!-- 月の選択ドロップダウン -->
@@ -62,5 +69,9 @@
     </table>
 
     <a th:href="@{/}">戻る</a>
+    
+    <!-- footer共通部分 -->
+    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
+ 
 </body>
 </html>
