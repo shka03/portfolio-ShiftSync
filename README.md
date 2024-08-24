@@ -22,6 +22,7 @@ THB
 - IDE：Eclipse2023-12
     - SpringBoot 3.3.2
     - 言語：Java21
+    - ビルドツール：Gradle
 - SpringBootプロジェクトツール：Spring Initializr
 - RDBMS：Postgres
     - GUIツール：Pgadmin4
