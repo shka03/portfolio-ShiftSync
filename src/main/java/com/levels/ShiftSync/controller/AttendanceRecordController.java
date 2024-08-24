@@ -97,11 +97,23 @@ public class AttendanceRecordController {
         return updateClockInTime(recordId, employeeId, newClockIn, attributes);
     }
 
+    /**
+     * 出勤時刻と現在の出勤時刻の文字列が有効かどうかをチェックします。
+     * @param newClockInStr 新しい出勤時刻（hh:mm形式）
+     * @param currentClockInStr 現在の出勤時刻（yyyy-MM-dd HH:mm:ss形式）
+     * @return 出勤時刻が無効な場合はtrue、それ以外はfalse
+     */
     private boolean isInvalidClockInParameter(String newClockInStr, String currentClockInStr) {
         return newClockInStr == null || newClockInStr.isEmpty() ||
                currentClockInStr == null || currentClockInStr.isEmpty();
     }
 
+    /**
+     * 現在の出勤時刻から日付部分を抽出します。
+     * @param currentClockInStr 現在の出勤時刻（yyyy-MM-dd HH:mm:ss形式）
+     * @param attributes リダイレクト時にFlashAttributesにデータを追加
+     * @return 日付部分（yyyy-MM-dd形式）または、形式が不正な場合はnull
+     */
     private String extractDatePartFromCurrentClockIn(String currentClockInStr, RedirectAttributes attributes) {
         if (currentClockInStr == null || !currentClockInStr.contains(" ")) {
             attributes.addFlashAttribute("message", "現在の出勤時刻の形式が不正です。");
@@ -116,7 +128,13 @@ public class AttendanceRecordController {
         }
     }
 
-
+    /**
+     * 新しい出勤時刻をパースしてTimestampに変換します。
+     * @param datePart 現在の出勤時刻から抽出した日付部分（yyyy-MM-dd形式）
+     * @param newClockInStr 新しい出勤時刻（hh:mm形式）
+     * @param attributes リダイレクト時にFlashAttributesにデータを追加
+     * @return 新しい出勤時刻のTimestampまたは、形式が不正な場合はnull
+     */
     private Timestamp parseNewClockIn(String datePart, String newClockInStr, RedirectAttributes attributes) {
         if (newClockInStr == null || newClockInStr.isEmpty()) {
             attributes.addFlashAttribute("message", "新しい出勤時刻の形式が不正です。");
@@ -132,14 +150,24 @@ public class AttendanceRecordController {
         }
     }
 
-
+    /**
+     * 出勤時刻をデータベースで更新し、結果に応じてメッセージを設定します。
+     * @param recordId 出退勤レコードのID
+     * @param employeeId 従業員のID
+     * @param newClockIn 新しい出勤時刻のTimestamp
+     * @param attributes リダイレクト時にFlashAttributesにデータを追加
+     * @return リダイレクト先のURL
+     */
     private String updateClockInTime(Integer recordId, Integer employeeId, Timestamp newClockIn, RedirectAttributes attributes) {
         try {
+            // 出勤時刻の更新処理
             attendanceRecordService.updateClockInTime(recordId, employeeId, newClockIn);
             attributes.addFlashAttribute("message", "出勤時刻を修正しました。");
         } catch (Exception e) {
+            // 更新処理中の例外処理
             attributes.addFlashAttribute("message", "出勤時刻の修正に失敗しました。");
         }
+        // 更新後、年次勤怠ページにリダイレクト
         return "redirect:/yearly_attendance";
     }
 
