@@ -28,7 +28,6 @@ public class SecurityConfig {
 			.requestMatchers("/login").permitAll()
 			// TODO:決裁者しかアクセスでいきない場合の実装で追加
 			.requestMatchers("/attendance/admin").hasAuthority("ADMIN")
-			.requestMatchers("/clockIn", "/clockOut").authenticated()
 			// その他のリクエストは認証が必要
 			.anyRequest().authenticated())
 			// ★フォームベースのログイン設定
@@ -41,8 +40,8 @@ public class SecurityConfig {
 			.usernameParameter("employeeIdInput")
 			// パスワードのname属性を指定
 			.passwordParameter("passwordInput")
-			// ログイン成功時のリダイレクト先を指定
-			.defaultSuccessUrl("/")
+			// ログイン成功時のリダイレクト先を指定、常に指定したURLにリダイレクト
+			.defaultSuccessUrl("/", true)
 			// ログイン失敗時のリダイレクト先を指定
 			.failureUrl("/login?error"))
 			// ★ログアウト設定
