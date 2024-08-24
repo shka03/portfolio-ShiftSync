@@ -1,13 +1,26 @@
 <!-- src/main/resources/templates/error/500.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <title>500 Internal Server Error</title>
+    <!-- head共通部分 -->
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <title>500エラー - ShiftSync</title>
 </head>
+
 <body>
+	
+	<!-- header共通部分 -->
+	<th:block th:replace="~{fragments/header :: header}"></th:block>
+    
     <h1>Internal Server Error</h1>
     <p>申し訳ありませんが、サーバー内部でエラーが発生しました。</p>
     <p>問題が解決しない場合は、管理者にお問い合わせください。</p>
     <a th:href="@{/}">勤怠記録画面に戻る</a>
+    
+    <!-- footer共通部分 -->
+    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
+    
 </body>
+
 </html>
