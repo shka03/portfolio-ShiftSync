@@ -23,6 +23,7 @@ THB
     - SpringBoot 3.3.2
     - 言語：Java21
     - ビルドツール：Gradle
+    - コード管理：Git
 - SpringBootプロジェクトツール：Spring Initializr
 - RDBMS：Postgres
     - GUIツール：Pgadmin4
