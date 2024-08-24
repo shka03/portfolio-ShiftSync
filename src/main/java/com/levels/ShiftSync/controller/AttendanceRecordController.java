@@ -1,6 +1,7 @@
 package com.levels.ShiftSync.controller;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -56,6 +57,119 @@ public class AttendanceRecordController {
         addClockInSuccessAttributes(attributes, todayAttendance.get(0).getClockIn());
         return "redirect:/";
     }
+    
+    /**
+     * 出勤時刻を更新するメソッド
+     * @param recordId 出退勤レコードのID
+     * @param employeeId 従業員のID
+     * @param newClockIn 新しい出勤時刻（hh:mm形式）
+     * @param currentClockIn 現在の出勤時刻（yyyy-MM-dd HH:mm:ss形式）
+     * @param attributes リダイレクト時にFlashAttributesにデータを追加
+     * @return リダイレクト先のURL
+     */
+    @PostMapping("/updateClockInTime")
+    public String updateClockInTime(
+            @RequestParam("recordId") Integer recordId,
+            @RequestParam("employeeId") Integer employeeId,
+            @RequestParam("newClockIn") String newClockInStr,
+            @RequestParam("currentClockIn") String currentClockInStr,
+            RedirectAttributes attributes) {
+
+        // 入力パラメータの検証
+        if (isInvalidClockInParameter(newClockInStr, currentClockInStr)) {
+            attributes.addFlashAttribute("message", "出勤時刻が無効です。");
+            return "redirect:/yearly_attendance";
+        }
+
+        // 現在の出勤時刻から日付部分を取得
+        String datePart = extractDatePartFromCurrentClockIn(currentClockInStr, attributes);
+        if (datePart == null) {
+            return "redirect:/yearly_attendance";
+        }
+
+        // 新しい出勤時刻のパースと検証
+        Timestamp newClockIn = parseNewClockIn(datePart, newClockInStr, attributes);
+        if (newClockIn == null) {
+            return "redirect:/yearly_attendance";
+        }
+
+        // 出勤時間の更新と結果の設定
+        return updateClockInTime(recordId, employeeId, newClockIn, attributes);
+    }
+
+    /**
+     * 出勤時刻と現在の出勤時刻の文字列が有効かどうかをチェックします。
+     * @param newClockInStr 新しい出勤時刻（hh:mm形式）
+     * @param currentClockInStr 現在の出勤時刻（yyyy-MM-dd HH:mm:ss形式）
+     * @return 出勤時刻が無効な場合はtrue、それ以外はfalse
+     */
+    private boolean isInvalidClockInParameter(String newClockInStr, String currentClockInStr) {
+        return newClockInStr == null || newClockInStr.isEmpty() ||
+               currentClockInStr == null || currentClockInStr.isEmpty();
+    }
+
+    /**
+     * 現在の出勤時刻から日付部分を抽出します。
+     * @param currentClockInStr 現在の出勤時刻（yyyy-MM-dd HH:mm:ss形式）
+     * @param attributes リダイレクト時にFlashAttributesにデータを追加
+     * @return 日付部分（yyyy-MM-dd形式）または、形式が不正な場合はnull
+     */
+    private String extractDatePartFromCurrentClockIn(String currentClockInStr, RedirectAttributes attributes) {
+        if (currentClockInStr == null || !currentClockInStr.contains(" ")) {
+            attributes.addFlashAttribute("message", "現在の出勤時刻の形式が不正です。");
+            return null;
+        }
+
+        try {
+            return currentClockInStr.split(" ")[0];
+        } catch (Exception e) {
+            attributes.addFlashAttribute("message", "現在の出勤時刻の形式が不正です。");
+            return null;
+        }
+    }
+
+    /**
+     * 新しい出勤時刻をパースしてTimestampに変換します。
+     * @param datePart 現在の出勤時刻から抽出した日付部分（yyyy-MM-dd形式）
+     * @param newClockInStr 新しい出勤時刻（hh:mm形式）
+     * @param attributes リダイレクト時にFlashAttributesにデータを追加
+     * @return 新しい出勤時刻のTimestampまたは、形式が不正な場合はnull
+     */
+    private Timestamp parseNewClockIn(String datePart, String newClockInStr, RedirectAttributes attributes) {
+        if (newClockInStr == null || newClockInStr.isEmpty()) {
+            attributes.addFlashAttribute("message", "新しい出勤時刻の形式が不正です。");
+            return null;
+        }
+
+        String newClockInFullStr = String.format("%s %s:00", datePart, newClockInStr);
+        try {
+            return Timestamp.valueOf(newClockInFullStr);
+        } catch (IllegalArgumentException e) {
+            attributes.addFlashAttribute("message", "新しい出勤時刻の形式が不正です。");
+            return null;
+        }
+    }
+
+    /**
+     * 出勤時刻をデータベースで更新し、結果に応じてメッセージを設定します。
+     * @param recordId 出退勤レコードのID
+     * @param employeeId 従業員のID
+     * @param newClockIn 新しい出勤時刻のTimestamp
+     * @param attributes リダイレクト時にFlashAttributesにデータを追加
+     * @return リダイレクト先のURL
+     */
+    private String updateClockInTime(Integer recordId, Integer employeeId, Timestamp newClockIn, RedirectAttributes attributes) {
+        try {
+            // 出勤時刻の更新処理
+            attendanceRecordService.updateClockInTime(recordId, employeeId, newClockIn);
+            attributes.addFlashAttribute("message", "出勤時刻を修正しました。");
+        } catch (Exception e) {
+            // 更新処理中の例外処理
+            attributes.addFlashAttribute("message", "出勤時刻の修正に失敗しました。");
+        }
+        // 更新後、年次勤怠ページにリダイレクト
+        return "redirect:/yearly_attendance";
+    }
 
     /**
      * 退勤処理を行うメソッド
@@ -85,6 +199,82 @@ public class AttendanceRecordController {
         addClockOutSuccessAttributes(attributes, todayAttendance.get(0).getClockOut());
         return "redirect:/";
     }
+    
+    /**
+     * 出勤時刻を更新するメソッド
+     * @param recordId 出退勤レコードのID
+     * @param employeeId 従業員のID
+     * @param newClockIn 新しい退勤時刻（hh:mm形式）
+     * @param currentClockIn 現在の退勤時刻（yyyy-MM-dd HH:mm:ss形式）
+     * @param attributes リダイレクト時にFlashAttributesにデータを追加
+     * @return リダイレクト先のURL
+     */
+    @PostMapping("/updateClockOutTime")
+    public String updateClockOutTime(
+            @RequestParam("recordId") Integer recordId,
+            @RequestParam("employeeId") Integer employeeId,
+            @RequestParam("newClockOut") String newClockOutStr,
+            @RequestParam("currentClockOut") String currentClockOutStr,
+            RedirectAttributes attributes) {
+
+        // 入力パラメータの検証
+        if (isInvalidTimeParameter(newClockOutStr, currentClockOutStr)) {
+            attributes.addFlashAttribute("message", "退勤時刻が無効です。");
+            return "redirect:/yearly_attendance";
+        }
+
+        // 現在の退勤時刻から日付部分を取得
+        String datePart;
+        try {
+            datePart = extractDatePart(currentClockOutStr);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            attributes.addFlashAttribute("message", "現在の退勤時刻の形式が不正です。");
+            return "redirect:/yearly_attendance";
+        }
+
+        // 日付部分と新しい退勤時間部分を結合してタイムスタンプ形式に変換
+        Timestamp newClockOut;
+        try {
+            newClockOut = createTimestamp(datePart, newClockOutStr);
+        } catch (IllegalArgumentException e) {
+            attributes.addFlashAttribute("message", "新しい退勤時刻の形式が不正です。");
+            return "redirect:/yearly_attendance";
+        }
+
+        // 退勤時間の修正を実行
+        try {
+            attendanceRecordService.updateClockOutTime(recordId, employeeId, newClockOut);
+            attributes.addFlashAttribute("message", "退勤時刻を修正しました。");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("message", "退勤時刻の修正に失敗しました。");
+        }
+
+        return "redirect:/yearly_attendance";
+    }
+
+    // 入力パラメータが無効かどうかを確認するメソッド
+    private boolean isInvalidTimeParameter(String newClockOutStr, String currentClockOutStr) {
+        return newClockOutStr == null || newClockOutStr.isEmpty() ||
+               currentClockOutStr == null || currentClockOutStr.isEmpty();
+    }
+
+    // 現在の退勤時刻から日付部分を抽出するメソッド
+    private String extractDatePart(String currentClockOutStr) {
+        if (currentClockOutStr == null || !currentClockOutStr.contains(" ")) {
+            throw new ArrayIndexOutOfBoundsException("Invalid format for currentClockOut.");
+        }
+        return currentClockOutStr.split(" ")[0];
+    }
+
+    // 日付部分と新しい退勤時間を結合してタイムスタンプに変換するメソッド
+    private Timestamp createTimestamp(String datePart, String newClockOutStr) {
+        String newClockOutFullStr = datePart + " " + newClockOutStr + ":00";
+        try {
+            return Timestamp.valueOf(newClockOutFullStr);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid format for newClockOut.");
+        }
+    }
 
     /**
      * 任意の月の勤怠履歴を表示するメソッド
@@ -94,16 +284,21 @@ public class AttendanceRecordController {
      */
     @GetMapping("/yearly_attendance")
     public String showYearlyAttendance(
-            @RequestParam(value = "month", defaultValue = "1") int month, 
+            @RequestParam(value = "month", required = false) Integer month, 
             Model model
     ) {
+        // month が null なら、現在の月を使用する
+        if (month == null) {
+            month = LocalDate.now().getMonthValue();
+        }
+        
         List<AttendanceRecord> yearlyAttendance = attendanceRecordService.getYearlyAttendanceForMonth(month);
 
         // データが存在しない場合は、エラーメッセージをモデルに追加し、早期にリターン
         if (yearlyAttendance.isEmpty()) {
             model.addAttribute("message", "選択された月のデータはありません。");
             model.addAttribute("selectedMonth", month); // 選択された月もモデルに追加
-            return "attendance/yearly_attendance";
+            return "yearly_attendance";
         }
 
         // データが存在する場合、勤怠記録をモデルに追加
@@ -112,7 +307,7 @@ public class AttendanceRecordController {
         // 選択された月をモデルに追加
         model.addAttribute("selectedMonth", month);
 
-        return "attendance/yearly_attendance";
+        return "yearly_attendance";
     }
     
     /**

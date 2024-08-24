@@ -2,7 +2,9 @@ package com.levels.ShiftSync.service.impl;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,23 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         record.setClockIn(new Timestamp(System.currentTimeMillis()));
         attendanceRecordMapper.clockIn(record);
     }
+    
+    /**
+     * 出勤時刻を更新するメソッド
+     * 
+     * @param recordId 出退勤レコードのID。どのレコードを更新するかを特定するために使用します。
+     * @param employeeId 従業員のID。どの従業員の出勤時刻を更新するかを特定するために使用します。
+     * @param newClockIn 新しい出勤時刻。タイムスタンプ形式（yyyy-MM-dd HH:mm:ss）で指定します。
+     */
+    @Override
+    public void updateClockInTime(Integer recordId, Integer employeeId, Timestamp newClockIn) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("recordId", recordId);
+        params.put("employeeId", employeeId);
+        params.put("newClockIn", newClockIn);
+
+        attendanceRecordMapper.updateClockInTime(params);
+    }
 
     /**
      * 退勤時間をデータベースに挿入するメソッド
@@ -44,6 +63,23 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         record.setEmployeeId(getEmployeeIdFromSecurityContext());
         record.setClockOut(new Timestamp(System.currentTimeMillis()));
         attendanceRecordMapper.clockOut(record);
+    }
+    
+    /**
+     * 退勤時刻を更新するメソッド
+     * 
+     * @param recordId 出退勤レコードのID。どのレコードを更新するかを特定するために使用します。
+     * @param employeeId 従業員のID。どの従業員の退勤時刻を更新するかを特定するために使用します。
+     * @param newClockOut 新しい退勤時刻。タイムスタンプ形式（yyyy-MM-dd HH:mm:ss）で指定します。
+     */
+    @Override
+    public void updateClockOutTime(Integer recordId, Integer employeeId, Timestamp newClockOut) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("recordId", recordId);
+        params.put("employeeId", employeeId);
+        params.put("newClockOut", newClockOut);
+
+        attendanceRecordMapper.updateClockOutTime(params);
     }
 
     /**

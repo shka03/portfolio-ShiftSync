@@ -2,57 +2,70 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 
-<link>
-    <meta charset="UTF-8">
-    <title>勤怠記録</title>
+<head>
+    <!-- head共通部分 -->
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
     <link href="../static/css/attendance.css" th:href="@{/css/attendance.css}" rel="stylesheet" />
     <script src="../static/js/attendance.js" th:src="@{/js/attendance.js}"></script>
+    <title th:fragment="title">勤怠記録 - ShiftSync</title>
 </head>
 
 <body>
+    <!-- header共通部分 -->
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+
     <div class="container">
-        <h1>勤怠記録</h1>
-        <p th:if="${clockInSuccessMessage}"th:text="${clockInSuccessMessage}" style="color: blue;"></p>
-        <p th:if="${clockInErrorMessage}"th:text="${clockInErrorMessage}" style="color: red;"></p>
-        <p th:if="${clockOutSuccessMessage}"th:text="${clockOutSuccessMessage}" style="color: blue;"></p>
-        <p th:if="${clockOutErrorMessage}"th:text="${clockOutErrorMessage}" style="color: red;"></p>
-
-        <div sec:authentication="name"></div>
-
+        <h1 class="mb-4">勤怠記録</h1>
+        
+        <!-- メッセージ表示 -->
+        <div class="alert alert-info" th:if="${clockInSuccessMessage}" th:text="${clockInSuccessMessage}"></div>
+        <div class="alert alert-danger" th:if="${clockInErrorMessage}" th:text="${clockInErrorMessage}"></div>
+        <div class="alert alert-info" th:if="${clockOutSuccessMessage}" th:text="${clockOutSuccessMessage}"></div>
+        <div class="alert alert-danger" th:if="${clockOutErrorMessage}" th:text="${clockOutErrorMessage}"></div>
+        
+        <div class="text-center">
+            <p class="mb-1">現在の日時</p>
+            <span id="currentDateTime" class="form-control-plaintext">-</span>
+        </div>
+        
         <!-- 出退勤表示 -->
-		<div class="display-row">
-		    <div>
-		        <p>現在の日時</p>
-		        <span id="currentDateTime"></span>
-		    </div>
-		    <div>
-		        <p>出勤時刻</p>
-		        <span th:text="${clockInTime != null ? #dates.format(clockInTime, 'yyyy-MM-dd HH:mm:ss') : '未出勤'}"></span>
-		    </div>
-		    <div>
-		        <p>退勤時刻</p>
-		        <span th:text="${clockOutTime != null ? #dates.format(clockOutTime, 'yyyy-MM-dd HH:mm:ss') : '未退勤'}"></span>
-		    </div>
-		</div>
+        <div class="display-row mb-4">
+            <div class="text-center">
+                <p class="mb-1">出勤時刻</p>
+                <span th:text="${clockInTime != null ? #dates.format(clockInTime, 'yyyy-MM-dd HH:mm:ss') : '未出勤'}" class="form-control-plaintext">-</span>
+            </div>
+            <div class="text-center">
+                <p class="mb-1">退勤時刻</p>
+                <span th:text="${clockOutTime != null ? #dates.format(clockOutTime, 'yyyy-MM-dd HH:mm:ss') : '未退勤'}" class="form-control-plaintext">-</span>
+            </div>
+        </div>
 
         <!-- 出退勤打刻 -->
-        <div class="record-row">
-            <form th:action="@{/clock-in}" method="post">
-                <button type="submit">出勤</button>
-            </form>
+        <div class="d-flex justify-content-center mb-4">
+            <div class="btn-group">
+                <form th:action="@{/clock-in}" method="post">
+                    <button type="submit" class="btn btn-primary btn-lg mx-2">出勤</button>
+                </form>
+                <form th:action="@{/clock-out}" method="post">
+                    <button type="submit" class="btn btn-primary btn-lg mx-2">退勤</button>
+                </form>
+            </div>
+        </div>
 
-            <form th:action="@{/clock-out}" method="post">
-                <button type="submit">退勤</button>
+        <div class="text-center mb-4">
+            <a th:href="@{yearly_attendance}" class="btn btn-secondary btn-lg">勤怠履歴</a>
+        </div>
+        
+        <!-- ログアウト -->
+        <div class="text-center">
+            <form th:action="@{/logout}" method="post">
+                <input type="submit" value="ログアウト" class="btn btn-danger btn-lg">
             </form>
         </div>
-		<br>
-		<a th:href="@{yearly_attendance}">今月の勤怠履歴</a>
-		
-        <!-- ログアウト -->
-        <form th:action="@{/logout}" method="post">
-            <input type="submit" value="ログアウト" class="logout-form">
-        </form>
     </div>
-</body>
 
+    <!-- footer共通部分 -->
+    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
+    
+</body>
 </html>

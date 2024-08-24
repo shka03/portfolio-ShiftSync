@@ -1,5 +1,6 @@
 package com.levels.ShiftSync.service;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
@@ -17,10 +18,28 @@ public interface AttendanceRecordService {
     void clockInTime();
 
     /**
+     * 出勤時刻を更新するメソッド
+     * 
+     * @param recordId 出退勤レコードのID。どのレコードを更新するかを特定するために使用します。
+     * @param employeeId 従業員のID。どの従業員の出勤時刻を更新するかを特定するために使用します。
+     * @param newClockIn 新しい出勤時刻。タイムスタンプ形式（yyyy-MM-dd HH:mm:ss）で指定します。
+     */
+    void updateClockInTime(Integer recordId, Integer employeeId, Timestamp newClockIn);
+    
+    /**
      * 従業員の退勤時間を登録するメソッド
      * 現在の時刻を退勤時間としてデータベースに保存します。
      */
     void clockOutTime();
+    
+    /**
+     * 退勤時刻を更新するメソッド
+     * 
+     * @param recordId 出退勤レコードのID。どのレコードを更新するかを特定するために使用します。
+     * @param employeeId 従業員のID。どの従業員の退勤時刻を更新するかを特定するために使用します。
+     * @param newClockOut 新しい退勤時刻。タイムスタンプ形式（yyyy-MM-dd HH:mm:ss）で指定します。
+     */
+    void updateClockOutTime(Integer recordId, Integer employeeId, Timestamp newClockOut);
 
     /**
      * 従業員の当日の出退勤時間を取得するメソッド

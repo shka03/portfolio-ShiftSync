@@ -1,36 +1,55 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-	<head>
-		<title>ログイン</title>
-	</head>
-	<body>
-		<h1>ログイン画面</h1>
-		
-		<!-- エラー表示 -->
-		<div th:if="${param.error}">
-			<p style="color: red;">employeeIdまたはpasswordが違います</p>
-		</div>
-		
-		<!--ログアウト表示 -->
-		<div th:if="${param.logout}">
-			<p style="color: blue">ログアウトしました</p>
-		</div>
-		
-		<form th:action="@{/authentication}" method="post" th:object="${loginForm}">	
-			<!-- ユーザー名 -->
-			<div>
-				<label for="employeeIdInput">employeeId</label>
-				<input type="text" th:field="*{employeeIdInput}">
-			</div>
-			
-			<!-- パスワード -->
-			<div>
-				<label for="passwordInput">password</label>
-				<input type="password" th:field="*{passwordInput}">
-			</div>
-			<div>
-				<input type="submit" value="ログイン">
-			</div>
-		</form>
-	</body>
+
+<head>
+    <!-- head共通部分 -->
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+    </style>
+    <title>ログイン - ShiftSync</title>
+</head>
+
+<body>
+    <!-- header共通部分 -->
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+
+    <main class="d-flex justify-content-center align-items-center flex-column flex-grow-1 py-4">
+        <h2 class="mb-4">ログイン画面</h2>
+
+        <!-- エラー表示 -->
+        <div th:if="${param.error}" class="alert alert-danger">
+            <p>従業員IDまたはパスワードが違います。</p>
+        </div>
+
+        <!-- ログアウト表示 -->
+        <div th:if="${param.logout}" class="alert alert-info">
+            <p>ログアウトしました。</p>
+        </div>
+
+        <form th:action="@{/authentication}" method="post" th:object="${loginForm}" class="w-100" style="max-width: 400px;">
+            <div class="form-group mb-3">
+                <label for="employeeIdInput">従業員ID</label>
+                <input type="text" id="employeeIdInput" th:field="*{employeeIdInput}" class="form-control">
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="passwordInput">パスワード</label>
+                <input type="password" id="passwordInput" th:field="*{passwordInput}" class="form-control">
+            </div>
+
+            <div class="text-center mt-4">
+                <input type="submit" value="ログイン" class="btn btn-primary">
+            </div>
+        </form>
+    </main>
+
+    <!-- footer共通部分 -->
+    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
 </html>

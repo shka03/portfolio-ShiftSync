@@ -1,55 +1,48 @@
-/* 全体 */
-.container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
 }
 
-/* 出退勤表示 */
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    padding: 20px;
+    /* その他の必要なスタイルがあれば追加 */
+}
+
+footer {
+    background-color: #343a40;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+    position: relative;
+}
+
 .display-row {
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* 各要素間のスペース */
+    margin-bottom: 20px;
 }
 
 .display-row div {
-    flex: 1;
     text-align: center;
-    padding: 0 10px;
-    box-sizing: border-box;
+    width: 200px;
+    height: 57.79px;
 }
 
-/* 出退勤記録 */
-.record-row {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
+.display-row p {
+    margin-bottom: 5px;
 }
 
-.record-row form {
-    flex: 1;
-    text-align: center;
-}
-
-.record-row button {
-    width: 90%;
-    padding: 10px;
-    font-size: 16px;
-    cursor: pointer; /* ボタンにポインタを表示 */
-}
-
-.record-row button:disabled {
-    background-color: #d3d3d3; /* ボタンが無効な時の色 */
-    cursor: not-allowed; /* 無効な時のカーソル */
-}
-
-/* ログアウト */
-.logout-form {
-    margin-top: 30px;
-    text-align: center;
-}
-
-.logout-form input[type="submit"] {
-    padding: 10px 20px;
-    font-size: 16px;
+.display-row span {
+    display: block;
+    font-size: 1.2em; /* フォントサイズの調整 */
+    font-weight: bold; /* フォントを太く */
 }
