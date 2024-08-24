@@ -27,6 +27,10 @@
 
         <!-- 選択した月を表示 -->
         <p th:text="'選択された月: ' + ${selectedMonth} + '月の勤怠履歴'"></p>
+        
+ 		<!-- CSVダウンロードリンク (Thymeleafを利用してサーバーサイドで解決する場合) -->
+		<a th:href="@{/download-csv(month=${selectedMonth})}" class="btn btn-primary">Download CSV</a>
+
 
         <!-- 勤怠テーブル -->
         <table class="attendance-table">
