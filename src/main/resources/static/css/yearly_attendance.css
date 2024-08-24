@@ -1,7 +1,31 @@
-/* 勤怠テーブル */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    padding: 20px;
+}
+
+footer {
+    background-color: #343a40;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+    position: relative;
+}
+
 .attendance-table {
-    width:500px;
+    width: 500px;
     border-collapse: collapse;
+    margin: 20px 0;
 }
 
 .attendance-table th, .attendance-table td {
