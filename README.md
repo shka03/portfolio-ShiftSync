@@ -20,7 +20,8 @@
     - 記録済の勤怠データを日付単位で修正できる機能。<br>
 ![clock_record_list](https://github.com/user-attachments/assets/5dc8c130-6be1-495c-b5f4-abfb995ef48e)<br>
 - エラーページの表示
-    - 403/404エラーのページをカスタムした内容で表示する機能。
+    - 403/404/500エラーのページをカスタムした内容で表示する機能。<br>
+![error_page](https://github.com/user-attachments/assets/30343198-f6ae-4f14-bea2-fdec986414c5)<br>
 
 # セットアップ
 THB
