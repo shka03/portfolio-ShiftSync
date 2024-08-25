@@ -40,7 +40,7 @@ THB
     - GUIツール：Pgadmin4
 
 # テストツール
-- テストケース管理：QuorityFoward
+- テストケース管理：QualityForward
 - テスト技法：GIHOZ
 - バグ管理：JIRA
 - 単体テストツール：Junit5
