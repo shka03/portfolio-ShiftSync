@@ -1,22 +1,23 @@
--- 従業員テーブルのダミーデータ挿入
-INSERT INTO employees (employee_id, name, email, department, phone_number, date_of_birth)
-VALUES
-	(0, 'dash John', 'dashJohn@example.com', 'Sales', '555-0101', '1985-05-15'),
-    (1, 'John Doe', 'john.doe@example.com', 'Sales', '555-0101', '1985-05-15'),
-    (2, 'Jane Smith', 'jane.smith@example.com', 'Marketing', '555-0102', '1990-10-20');
+# テスト実施前の準備内容の紹介
+※不明点は調べたうえで相談してく頂けると助かります。
 
--- 認証テーブルへのダミーデータの追加
--- password：adminpass
-INSERT INTO authentications (employee_id, username, password, authority)
-VALUES (0, 'admin', '$2a$10$4ws3NzLezXw7nxFY4MRdOuGEqpKEPRmAwRAMnJGvAUOqdagyLd376', 'ADMIN');
--- password：adminpass
-INSERT INTO authentications (employee_id, username, password, authority)
-VALUES (1, 'admin', '$2a$10$4ws3NzLezXw7nxFY4MRdOuGEqpKEPRmAwRAMnJGvAUOqdagyLd376', 'ADMIN');
--- password：userpass
-INSERT INTO authentications (employee_id, username, password, authority)
-VALUES (2, 'user', '$2a$10$/jar9xXQ6lrnVjLvLGv5BepFkLnGIO49RrGx42p2i.1hQt1BZ/7E2', 'USER');
+1. [Eclipse](https://willbrains.jp/)をDLする。※可能であればEclipse2023-12を使用してください。
+2. Eclipseの設定ファイルを下記手順に従って変更して下さい。
+- 下記、画像の様にEclipseの設定ファイル「eclipse.ini」を開きます。
+![2024-08-25_16h40_16](https://github.com/user-attachments/assets/04678334-2579-477f-bdca-6b59ae89b357)
+- JavaのVer21に変更してください。※画像の箇所の部分です。すでに21の場合は本作業は不要。
+![2024-08-25_16h42_55](https://github.com/user-attachments/assets/88e607d4-f2e6-4c35-be5f-fb47686add6c)
+3. 本GithubのTagからシステムテストしたい内容をDLする。
+4. Eclipseにテスト対象のプロジェクト（DLしたTag）をGradleを利用して下記手順でインポートする。
+- eclipseを開いて、ヘッダーにある「ファイル」→「インポート」を選択し、表示される「インポート」画面にて、「既存のGradleプロジェクト」を選択し、「次へ」ボタンをクリックします。
+![2024-08-25_16h28_25](https://github.com/user-attachments/assets/b5eaa071-3d72-4186-a718-e99ce7612290)
+- 解凍したプロジェクトフォルダを設定し、「完了」ボタンをクリックする。
+![2024-08-25_16h28_25](https://github.com/user-attachments/assets/ad43512f-e234-4118-9f30-3854649afd4b)
 
--- 勤怠記録テーブルにデータを挿入
+# タグについて
+- 2024/08/25より前のタグはテストデータを挿入するSQLを組み込んでません。<br>
+下記、SQL文を src/main/resources/data.sql に挿入してください。<br>
+<br>
 INSERT INTO attendance_records (record_id, employee_id, clock_in, clock_out) VALUES
 (105, 0, '2024-01-02 08:00:00', '2024-01-02 17:00:00'),
 (209, 0, '2024-01-03 08:15:00', '2024-01-03 17:10:00'),
