@@ -22,6 +22,9 @@
 - エラーページの表示
     - 403/404/500エラーのページをカスタムした内容で表示する機能。<br>
 ![error_page](https://github.com/user-attachments/assets/30343198-f6ae-4f14-bea2-fdec986414c5)<br>
+- 勤怠履歴のCSVダウンロード
+    - 選択した月の勤怠履歴をCSVダウンロードする機能。<br>
+![csv_download](https://github.com/user-attachments/assets/e102aa73-2fd5-4a92-a728-16d881504dcb)<br>
 
 # セットアップ
 THB
