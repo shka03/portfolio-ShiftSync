@@ -36,6 +36,7 @@
         <table class="attendance-table">
             <thead>
             <tr>
+				<th>年月日</th>
                 <th>出勤時間</th>
                 <th>退勤時刻</th>
                 <th>出勤データ修正</th>
@@ -44,11 +45,12 @@
             </thead>
             <tbody>
             <tr th:if="${#lists.isEmpty(attendance_records)}">
-                <td colspan="4" th:text="${message}">データがありません</td>
+                <td colspan="6" th:text="${message}">データがありません</td>
             </tr>
             <tr th:each="attendance_record : ${attendance_records}">
-                <td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                <td th:text="${#dates.format(attendance_record.clockOut, 'yyyy-MM-dd HH:mm:ss')}"></td>
+				<td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd')}"></td>
+                <td th:text="${#dates.format(attendance_record.clockIn, 'HH:mm:ss')}"></td>
+                <td th:text="${#dates.format(attendance_record.clockOut, 'HH:mm:ss')}"></td>
                 <td>
                     <!-- 出勤時間修正フォーム -->
                     <form th:action="@{/updateClockInTime}" method="post" style="display:inline;">
