@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AttendanceRecordController {
 
-    private final AttendanceRecordServiceImpl attendanceRecordService;
+    private final AttendanceRecordServiceImpl attendanceRecordServiceImpl;
     
     @Autowired
     private CsvExportServiceImpl csvExportServiceImpl;
@@ -41,7 +41,7 @@ public class AttendanceRecordController {
      */
     @GetMapping
     public String showAttendancePage(Model model) {
-        List<AttendanceRecord> todayAttendance = attendanceRecordService.getTodayAttendance();
+        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
         populateAttendanceModel(model, todayAttendance);
         return "attendance";
     }
@@ -53,7 +53,7 @@ public class AttendanceRecordController {
      */
     @PostMapping("/clock-in")
     public String clockIn(RedirectAttributes attributes) {
-        List<AttendanceRecord> todayAttendance = attendanceRecordService.getTodayAttendance();
+        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
 
         // 既に出勤済みの場合の処理
         if (!todayAttendance.isEmpty()) {
@@ -62,8 +62,8 @@ public class AttendanceRecordController {
         }
 
         // 出勤処理を実行
-        attendanceRecordService.clockInTime();
-        todayAttendance = attendanceRecordService.getTodayAttendance();
+        attendanceRecordServiceImpl.clockInTime();
+        todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
         addClockInSuccessAttributes(attributes, todayAttendance.get(0).getClockIn());
         return "redirect:/";
     }
@@ -171,7 +171,7 @@ public class AttendanceRecordController {
     private String updateClockInTime(Integer recordId, Integer employeeId, Timestamp newClockIn, RedirectAttributes attributes) {
         try {
             // 出勤時刻の更新処理
-            attendanceRecordService.updateClockInTime(recordId, employeeId, newClockIn);
+            attendanceRecordServiceImpl.updateClockInTime(recordId, employeeId, newClockIn);
             attributes.addFlashAttribute("message", "出勤時刻を修正しました。");
         } catch (Exception e) {
             // 更新処理中の例外処理
@@ -188,7 +188,7 @@ public class AttendanceRecordController {
      */
     @PostMapping("/clock-out")
     public String clockOut(RedirectAttributes attributes) {
-        List<AttendanceRecord> todayAttendance = attendanceRecordService.getTodayAttendance();
+        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
 
         // 出勤記録がない場合の処理
         if (todayAttendance.isEmpty()) {
@@ -204,8 +204,8 @@ public class AttendanceRecordController {
         }
 
         // 退勤処理を実行
-        attendanceRecordService.clockOutTime();
-        todayAttendance = attendanceRecordService.getTodayAttendance();
+        attendanceRecordServiceImpl.clockOutTime();
+        todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
         addClockOutSuccessAttributes(attributes, todayAttendance.get(0).getClockOut());
         return "redirect:/";
     }
@@ -253,7 +253,7 @@ public class AttendanceRecordController {
 
         // 退勤時間の修正を実行
         try {
-            attendanceRecordService.updateClockOutTime(recordId, employeeId, newClockOut);
+            attendanceRecordServiceImpl.updateClockOutTime(recordId, employeeId, newClockOut);
             attributes.addFlashAttribute("message", "退勤時刻を修正しました。");
         } catch (Exception e) {
             attributes.addFlashAttribute("message", "退勤時刻の修正に失敗しました。");
@@ -302,7 +302,7 @@ public class AttendanceRecordController {
             month = LocalDate.now().getMonthValue();
         }
         
-        List<AttendanceRecord> yearlyAttendance = attendanceRecordService.getYearlyAttendanceForMonth(month);
+        List<AttendanceRecord> yearlyAttendance = attendanceRecordServiceImpl.getYearlyAttendanceForMonth(month);
 
         // データが存在しない場合は、エラーメッセージをモデルに追加し、早期にリターン
         if (yearlyAttendance.isEmpty()) {
@@ -333,7 +333,7 @@ public class AttendanceRecordController {
             month = LocalDate.now().getMonthValue();
         }
 
-        List<AttendanceRecord> records = attendanceRecordService.getYearlyAttendanceForMonth(month);
+        List<AttendanceRecord> records = attendanceRecordServiceImpl.getYearlyAttendanceForMonth(month);
         String csvData = csvExportServiceImpl.exportToCsv(records);
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream(csvData.getBytes());
