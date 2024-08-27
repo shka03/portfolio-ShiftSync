@@ -45,5 +45,7 @@ CREATE TABLE attendance_records (
     -- 出勤時間
     clock_in timestamp without time zone,
     -- 退勤時間
-    clock_out timestamp without time zone
+    clock_out timestamp without time zone,
+    -- 勤務時間
+    work_duration interval
 );

@@ -30,6 +30,15 @@
 	    SET clock_out = date_trunc('second', #{newClockOut}::timestamp without time zone)
 	    WHERE record_id = #{recordId} AND employee_id = #{employeeId}
 	</update>
+	
+	<!-- 勤怠データを登録/更新 -->
+	<insert id="upsertWorkDuration" parameterType="map">
+	    INSERT INTO attendance_records (record_id, work_duration)
+    	VALUES (#{recordId}, AGE(#{clockOut}, #{clockIn}))
+    	ON CONFLICT (record_id) 
+    	DO UPDATE SET
+    		work_duration = AGE(#{clockOut}, #{clockIn})
+	</insert>
 
 	<!-- 当日の勤怠データを取得 -->
 	<select id="getTodayAttendance" parameterType="java.lang.Integer" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
@@ -37,7 +46,8 @@
 	        record_id AS recordId,
 		    employee_id AS employeeId,
 		    clock_in AS clockIn,
-		    clock_out AS clockOut
+		    clock_out AS clockOut,
+		    TO_CHAR(work_duration, 'HH24:MI:SS') AS workDuration 
 	    FROM attendance_records
 	    WHERE employee_id = #{employeeId}
 	    AND  DATE(clock_in) = current_date
@@ -50,7 +60,8 @@
 	        record_id AS recordId,
 	        employee_id AS employeeId,
 	        clock_in AS clockIn,
-	        clock_out AS clockOut
+	        clock_out AS clockOut,
+		    TO_CHAR(work_duration, 'HH24:MI:SS') AS workDuration 
 	    FROM attendance_records
 	    WHERE employee_id = #{employeeId}
 	    AND clock_in >= date_trunc('month', to_date(#{yearMonth}, 'YYYY-MM'))

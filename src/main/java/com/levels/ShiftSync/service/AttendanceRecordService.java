@@ -40,6 +40,18 @@ public interface AttendanceRecordService {
      * @param newClockOut 新しい退勤時刻。タイムスタンプ形式（yyyy-MM-dd HH:mm:ss）で指定します。
      */
     void updateClockOutTime(Integer recordId, Integer employeeId, Timestamp newClockOut);
+    
+    /**
+     * 当日の勤怠時間を登録・更新するメソッド
+     * 当日の計算した勤怠時間としてデータベースに保存します。
+     */
+    void upsertTodayWorkDuration();
+    
+    /**
+     * 修正した出退勤レコードの勤怠時間を登録・更新するメソッド
+     * 修正した出退勤レコードの勤怠時間としてデータベースに保存します。
+     */
+    void upsertWorkDuration(Integer recordId, Timestamp newClockOut, Timestamp newClockIn);
 
     /**
      * 従業員の当日の出退勤時間を取得するメソッド

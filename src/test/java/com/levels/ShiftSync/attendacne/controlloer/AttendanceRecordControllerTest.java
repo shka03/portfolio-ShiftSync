@@ -61,7 +61,8 @@ public class AttendanceRecordControllerTest {
             .thenReturn(List.of(new AttendanceRecord(
                 1, // employeeId
                 null, now, // clockIn
-                null))); // clockOut
+                null, // clockOut
+                null))); // workDuration
 
         mockMvc.perform(post("/clock-in"))
             .andExpect(status().is3xxRedirection())
@@ -82,7 +83,7 @@ public class AttendanceRecordControllerTest {
     void testClockInAlreadyClockedIn() throws Exception {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         List<AttendanceRecord> records = new ArrayList<>();
-        records.add(new AttendanceRecord(1, 1, now, null));
+        records.add(new AttendanceRecord(1, 1, now, null,null));
         when(attendanceRecordServiceImpl.getTodayAttendance()).thenReturn(records);
 
         mockMvc.perform(post("/clock-in"))
@@ -184,7 +185,7 @@ public class AttendanceRecordControllerTest {
     void testClockOutSuccess() throws Exception {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         List<AttendanceRecord> records = new ArrayList<>();
-        records.add(new AttendanceRecord(1, 1, now, null));
+        records.add(new AttendanceRecord(1, 1, now, null, null));
         when(attendanceRecordServiceImpl.getTodayAttendance()).thenReturn(records);
 
         mockMvc.perform(post("/clock-out"))
@@ -223,7 +224,7 @@ public class AttendanceRecordControllerTest {
     void testClockOutAlreadyClockedOut() throws Exception {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         List<AttendanceRecord> records = new ArrayList<>();
-        records.add(new AttendanceRecord(1, 1, now, now));
+        records.add(new AttendanceRecord(1, 1, now, now, null));
         when(attendanceRecordServiceImpl.getTodayAttendance()).thenReturn(records);
 
         mockMvc.perform(post("/clock-out"))

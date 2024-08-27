@@ -39,6 +39,7 @@
 				<th>年月日</th>
                 <th>出勤時刻</th>
                 <th>退勤時刻</th>
+                <th>勤務時間</th>
                 <th>出勤データ修正</th>
                 <th>退勤データ修正</th>
             </tr>
@@ -51,6 +52,7 @@
 				<td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd')}"></td>
                 <td th:text="${#dates.format(attendance_record.clockIn, 'HH:mm:ss')}"></td>
                 <td th:text="${#dates.format(attendance_record.clockOut, 'HH:mm:ss')}"></td>
+                <td th:text="${attendance_record.workDuration}"></td>
                 <td>
                     <!-- 出勤時間修正フォーム -->
                     <form th:action="@{/updateClockInTime}" method="post" style="display:inline;">

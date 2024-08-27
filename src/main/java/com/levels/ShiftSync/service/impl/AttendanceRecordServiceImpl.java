@@ -81,6 +81,25 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
         attendanceRecordMapper.updateClockOutTime(params);
     }
+    
+    /**
+     * 当日の勤怠時間を登録・更新するメソッド
+     * 当日の計算した勤怠時間としてデータベースに保存します。
+     */
+    @Override
+    public void upsertTodayWorkDuration() {
+    	List<AttendanceRecord> todayRecord = getTodayAttendance();
+    	attendanceRecordMapper.upsertWorkDuration(todayRecord.getFirst().getRecordId(), todayRecord.getFirst().getClockOut(), todayRecord.getFirst().getClockIn());
+    }
+
+    /**
+     * 従業員の当日の出退勤時間を取得するメソッド
+     * 
+     */
+    @Override
+    public void upsertWorkDuration(Integer recordId, Timestamp newClockOut, Timestamp newClockIn) {
+    	attendanceRecordMapper.upsertWorkDuration(recordId, newClockOut, newClockIn);
+    }
 
     /**
      * 従業員の当日の出退勤時間を取得するメソッド
@@ -91,6 +110,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         Integer employeeId = getEmployeeIdFromSecurityContext();
         return attendanceRecordMapper.getTodayAttendance(employeeId);
     }
+
     
     /**
      * 任意の月の勤怠記録を取得するメソッド
@@ -121,4 +141,5 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         // LoginUserから従業員IDを取得
         return loginUser.getEmployeeId();
     }
+
 }

@@ -1,5 +1,6 @@
 package com.levels.ShiftSync.repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,14 @@ public interface AttendanceRecordMapper {
     void updateClockOutTime(Map<String, Object> params);
 
     /**
+     * 当日の勤怠時間を登録・更新するメソッド
+     * @param recordId 当日の出退勤レコードID
+     * @param clockIn 出勤時刻
+     * @param clockOut 退勤時刻
+     */
+    void upsertWorkDuration(Integer recordId, Timestamp clockOut, Timestamp clockIn);
+    
+    /**
      * 従業員の当日の出退勤時間を取得するメソッド
      * @param employeeId 従業員のID
      * @return 当日の出退勤時間のリスト。出勤または退勤記録がない場合は空のリストを返します。
@@ -52,4 +61,6 @@ public interface AttendanceRecordMapper {
      * @return 指定された月の出退勤時間のリスト。出勤または退勤記録がない場合は空のリストを返します。
      */
     List<AttendanceRecord> getMonthlyAttendanceForYear(Integer employeeId, String yearMonth);
+    
+//    TODO：void getMonthlyTotalWorkHours();月の合計勤務時間 
 }

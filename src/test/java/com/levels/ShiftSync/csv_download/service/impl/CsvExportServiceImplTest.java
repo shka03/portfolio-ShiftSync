@@ -25,7 +25,7 @@ public class CsvExportServiceImplTest {
     public void testExportToCsv() {
         // Mockデータの準備
         List<AttendanceRecord> records = Collections.singletonList(new AttendanceRecord(
-            1, 1, Timestamp.valueOf("2024-08-24 08:00:00"), Timestamp.valueOf("2024-08-24 17:00:00")
+            1, 1, Timestamp.valueOf("2024-08-24 08:00:00"), Timestamp.valueOf("2024-08-24 17:00:00"),null
         ));
 
         // CSVデータの生成
@@ -47,7 +47,7 @@ public class CsvExportServiceImplTest {
         doThrow(new RuntimeException("Test exception")).when(faultyCsvExportServiceImpl).exportToCsv(anyList());
 
         // Mockデータの準備
-        List<AttendanceRecord> records = Collections.singletonList(new AttendanceRecord(1, 1, Timestamp.valueOf("2024-08-24 08:00:00"), Timestamp.valueOf("2024-08-24 17:00:00")));
+        List<AttendanceRecord> records = Collections.singletonList(new AttendanceRecord(1, 1, Timestamp.valueOf("2024-08-24 08:00:00"), Timestamp.valueOf("2024-08-24 17:00:00"),null));
 
         // 例外が発生する場合のテスト
         RuntimeException thrownException = assertThrows(RuntimeException.class, () -> {

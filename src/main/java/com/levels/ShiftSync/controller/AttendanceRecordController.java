@@ -177,6 +177,7 @@ public class AttendanceRecordController {
             // 更新処理中の例外処理
             attributes.addFlashAttribute("message", "出勤時刻の修正に失敗しました。");
         }
+        
         // 更新後、年次勤怠ページにリダイレクト
         return "redirect:/yearly_attendance";
     }
@@ -207,6 +208,10 @@ public class AttendanceRecordController {
         attendanceRecordServiceImpl.clockOutTime();
         todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
         addClockOutSuccessAttributes(attributes, todayAttendance.get(0).getClockOut());
+        
+        // 当日の勤務時間を登録
+        attendanceRecordServiceImpl.upsertTodayWorkDuration();
+        
         return "redirect:/";
     }
     

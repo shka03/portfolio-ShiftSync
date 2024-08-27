@@ -33,4 +33,9 @@ public class AttendanceRecord {
      * 退勤時間
      */
     private Timestamp clockOut;
+
+    /**
+     * 勤務時間
+     */
+    private String workDuration;
 }
