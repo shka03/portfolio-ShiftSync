@@ -41,7 +41,7 @@ public interface AttendanceRecordMapper {
 
     /**
      * 当日の勤怠時間を登録・更新するメソッド
-     * @param recordId 当日の出退勤レコードID
+     * @param recordId 出退勤レコードID
      * @param clockIn 出勤時刻
      * @param clockOut 退勤時刻
      */

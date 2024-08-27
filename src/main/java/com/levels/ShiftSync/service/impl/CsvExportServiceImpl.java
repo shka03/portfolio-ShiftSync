@@ -31,7 +31,7 @@ public class CsvExportServiceImpl implements CsvExportService {
         StringWriter stringWriter = new StringWriter();
         try (CSVWriter csvWriter = new CSVWriter(stringWriter)) {
             // ヘッダーの書き込み
-            csvWriter.writeNext(new String[]{"Record ID", "Employee ID", "Clock In", "Clock Out"});
+            csvWriter.writeNext(new String[]{"Record ID", "Employee ID", "Clock In", "Clock Out", "Work Duration"});
             
             // 勤怠記録の各データ行をCSVに書き込む
             for (AttendanceRecord record : records) {
@@ -44,7 +44,8 @@ public class CsvExportServiceImpl implements CsvExportService {
                         record.getRecordId().toString(),
                         record.getEmployeeId().toString(),
                         clockInFormatted,
-                        clockOutFormatted
+                        clockOutFormatted,
+                        record.getWorkDuration()
                 });
             }
         } catch (IOException e) {

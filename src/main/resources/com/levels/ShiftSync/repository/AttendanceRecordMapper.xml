@@ -34,10 +34,12 @@
 	<!-- 勤怠データを登録/更新 -->
 	<insert id="upsertWorkDuration" parameterType="map">
 	    INSERT INTO attendance_records (record_id, work_duration)
-    	VALUES (#{recordId}, AGE(#{clockOut}, #{clockIn}))
-    	ON CONFLICT (record_id) 
-    	DO UPDATE SET
-    		work_duration = AGE(#{clockOut}, #{clockIn})
+	    VALUES (#{recordId}, 
+	            INTERVAL '1 SECOND' * ROUND(EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) / 600) * 600)
+	    ON CONFLICT (record_id)
+	    DO UPDATE SET
+	        work_duration = 
+	            INTERVAL '1 SECOND' * ROUND(EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) / 600) * 600;
 	</insert>
 
 	<!-- 当日の勤怠データを取得 -->
