@@ -33,13 +33,25 @@
 	
 	<!-- 勤怠データを登録/更新 -->
 	<insert id="upsertWorkDuration" parameterType="map">
-	    INSERT INTO attendance_records (record_id, work_duration)
-	    VALUES (#{recordId}, 
-	            INTERVAL '1 SECOND' * ROUND(EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) / 600) * 600)
-	    ON CONFLICT (record_id)
-	    DO UPDATE SET
-	        work_duration = 
-	            INTERVAL '1 SECOND' * ROUND(EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) / 600) * 600;
+		INSERT INTO attendance_records (record_id, work_duration)
+		VALUES (#{recordId}, 
+		        INTERVAL '1 SECOND' * 
+		        CASE 
+		            WHEN EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) >= 600 THEN 
+		                ROUND(EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) / 600) * 600
+		            ELSE 
+		                EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP)))
+		        END)
+		ON CONFLICT (record_id)
+		DO UPDATE SET
+		    work_duration = 
+		        INTERVAL '1 SECOND' * 
+		        CASE 
+		            WHEN EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) >= 600 THEN 
+		                ROUND(EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) / 600) * 600
+		            ELSE 
+		                EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP)))
+		        END;
 	</insert>
 
 	<!-- 当日の勤怠データを取得 -->
@@ -70,6 +82,18 @@
 	    AND clock_in < date_trunc('month', to_date(#{yearMonth}, 'YYYY-MM')) + interval '1 month'
 	    ORDER BY clock_in ASC
 	    ]]>
+	</select>
+	
+	<!-- 特定のレコードIDから勤怠データの取得 -->
+	<select id="getCurrentRecord" parameterType="map" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
+		SELECT
+			record_id AS recordId,
+		    employee_id AS employeeId,
+		    clock_in AS clockIn,
+		    clock_out AS clockOut,
+		    TO_CHAR(work_duration, 'HH24:MI:SS') AS workDuration 
+		FROM attendance_records
+		WHERE record_id = #{recordId}
 	</select>
 
 </mapper>

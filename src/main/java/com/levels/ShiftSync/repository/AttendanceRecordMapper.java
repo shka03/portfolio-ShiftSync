@@ -63,4 +63,11 @@ public interface AttendanceRecordMapper {
     List<AttendanceRecord> getMonthlyAttendanceForYear(Integer employeeId, String yearMonth);
     
 //    TODO：void getMonthlyTotalWorkHours();月の合計勤務時間 
+
+    /**
+     * 任意の月の勤怠記録を取得するメソッド
+     * @param recordId 勤怠データのレコードID
+     * @return 指定されたレコードのリストを返します。
+     */
+    AttendanceRecord getCurrentRecord(Integer recordId);
 }

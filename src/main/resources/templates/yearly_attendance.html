@@ -56,6 +56,7 @@
                 <td>
                     <!-- 出勤時間修正フォーム -->
                     <form th:action="@{/updateClockInTime}" method="post" style="display:inline;">
+						<input type="hidden" name="month" th:value="${selectedMonth}" />
                         <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
                         <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />
                         <input type="hidden" name="currentClockIn" th:value="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}" />
@@ -66,6 +67,7 @@
                 <td>
                     <!-- 退勤時間修正フォーム -->
                     <form th:action="@{/updateClockOutTime}" method="post" style="display:inline;">
+						<input type="hidden" name="month" th:value="${selectedMonth}" />
                         <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
                         <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />
                         <input type="hidden" name="currentClockOut" th:value="${#dates.format(attendance_record.clockOut, 'yyyy-MM-dd HH:mm:ss')}" />

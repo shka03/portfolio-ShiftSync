@@ -83,6 +83,7 @@ public class AttendanceRecordController {
             @RequestParam("employeeId") Integer employeeId,
             @RequestParam("newClockIn") String newClockInStr,
             @RequestParam("currentClockIn") String currentClockInStr,
+            @RequestParam(value = "month", required = false) Integer month,
             RedirectAttributes attributes) {
 
         // 入力パラメータの検証
@@ -103,8 +104,17 @@ public class AttendanceRecordController {
             return "redirect:/yearly_attendance";
         }
 
-        // 出勤時間の更新と結果の設定
-        return updateClockInTime(recordId, employeeId, newClockIn, attributes);
+        try {
+            // 出勤時刻の更新処理
+            attendanceRecordServiceImpl.updateClockInTime(recordId, employeeId, newClockIn);
+            attributes.addFlashAttribute("message", "出勤時刻を修正しました。");
+        } catch (Exception e) {
+            // 更新処理中の例外処理
+            attributes.addFlashAttribute("message", "出勤時刻の修正に失敗しました。");
+        }
+        
+        attributes.addAttribute("month", month); // 月のパラメータを追加
+        return "redirect:/yearly_attendance";
     }
 
     /**
@@ -161,28 +171,6 @@ public class AttendanceRecordController {
     }
 
     /**
-     * 出勤時刻をデータベースで更新し、結果に応じてメッセージを設定します。
-     * @param recordId 出退勤レコードのID
-     * @param employeeId 従業員のID
-     * @param newClockIn 新しい出勤時刻のTimestamp
-     * @param attributes リダイレクト時にFlashAttributesにデータを追加
-     * @return リダイレクト先のURL
-     */
-    private String updateClockInTime(Integer recordId, Integer employeeId, Timestamp newClockIn, RedirectAttributes attributes) {
-        try {
-            // 出勤時刻の更新処理
-            attendanceRecordServiceImpl.updateClockInTime(recordId, employeeId, newClockIn);
-            attributes.addFlashAttribute("message", "出勤時刻を修正しました。");
-        } catch (Exception e) {
-            // 更新処理中の例外処理
-            attributes.addFlashAttribute("message", "出勤時刻の修正に失敗しました。");
-        }
-        
-        // 更新後、年次勤怠ページにリダイレクト
-        return "redirect:/yearly_attendance";
-    }
-
-    /**
      * 退勤処理を行うメソッド
      * @param attributes リダイレクト時にFlashAttributesにデータを追加
      * @return リダイレクト先のURL
@@ -230,6 +218,7 @@ public class AttendanceRecordController {
             @RequestParam("employeeId") Integer employeeId,
             @RequestParam("newClockOut") String newClockOutStr,
             @RequestParam("currentClockOut") String currentClockOutStr,
+            @RequestParam(value = "month", required = false) Integer month,
             RedirectAttributes attributes) {
 
         // 入力パラメータの検証
@@ -264,6 +253,7 @@ public class AttendanceRecordController {
             attributes.addFlashAttribute("message", "退勤時刻の修正に失敗しました。");
         }
 
+        attributes.addAttribute("month", month);
         return "redirect:/yearly_attendance";
     }
 

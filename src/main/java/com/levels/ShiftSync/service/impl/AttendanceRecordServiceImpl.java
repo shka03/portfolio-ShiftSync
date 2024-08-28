@@ -45,12 +45,15 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
      */
     @Override
     public void updateClockInTime(Integer recordId, Integer employeeId, Timestamp newClockIn) {
-        Map<String, Object> params = new HashMap<>();
+    	Map<String, Object> params = new HashMap<>();
         params.put("recordId", recordId);
         params.put("employeeId", employeeId);
         params.put("newClockIn", newClockIn);
 
         attendanceRecordMapper.updateClockInTime(params);
+        
+        Timestamp currClockOut = getCurrentRecord(recordId).getClockOut();
+        attendanceRecordMapper.upsertWorkDuration(recordId, currClockOut, newClockIn);
     }
 
     /**
@@ -80,6 +83,9 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         params.put("newClockOut", newClockOut);
 
         attendanceRecordMapper.updateClockOutTime(params);
+        
+        Timestamp currClockIn = getCurrentRecord(recordId).getClockIn();
+        attendanceRecordMapper.upsertWorkDuration(recordId, newClockOut, currClockIn);
     }
     
     /**
@@ -93,7 +99,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     }
 
     /**
-     * 従業員の当日の出退勤時間を取得するメソッド
+     * 従業員の出退勤時間を登録・更新するメソッド
      * 
      */
     @Override
@@ -140,6 +146,11 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         // LoginUserから従業員IDを取得
         return loginUser.getEmployeeId();
+    }
+    
+    private AttendanceRecord getCurrentRecord(Integer recordId) {
+    	AttendanceRecord currRecord = attendanceRecordMapper.getCurrentRecord(recordId);
+    	return currRecord;
     }
 
 }
