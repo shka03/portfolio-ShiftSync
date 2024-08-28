@@ -25,15 +25,15 @@ public class CsvExportServiceImplTest {
     public void testExportToCsv() {
         // Mockデータの準備
         List<AttendanceRecord> records = Collections.singletonList(new AttendanceRecord(
-            1, 1, Timestamp.valueOf("2024-08-24 08:00:00"), Timestamp.valueOf("2024-08-24 17:00:00"),null
+            1, 1, Timestamp.valueOf("2024-08-24 08:00:00"), Timestamp.valueOf("2024-08-24 17:00:00"), "9:00:00"
         ));
 
         // CSVデータの生成
         String csvData = csvExportServiceImpl.exportToCsv(records);
 
         // 生成されたCSVデータの検証
-        String expectedCsvData = "\"Record ID\",\"Employee ID\",\"Clock In\",\"Clock Out\"\n" +
-                                 "\"1\",\"1\",\"2024-08-24 08:00:00\",\"2024-08-24 17:00:00\"";
+        String expectedCsvData = "\"Record ID\",\"Employee ID\",\"Clock In\",\"Clock Out\",\"Work Duration\"\n" +
+                                 "\"1\",\"1\",\"2024-08-24 08:00:00\",\"2024-08-24 17:00:00\",\"9:00:00\"";
         assertEquals(
             normalizeSpaces(normalizeLineEndings(expectedCsvData)),
             normalizeSpaces(normalizeLineEndings(csvData))
