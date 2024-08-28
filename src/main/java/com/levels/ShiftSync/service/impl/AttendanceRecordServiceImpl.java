@@ -101,6 +101,9 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     /**
      * 従業員の出退勤時間を登録・更新するメソッド
      * 
+     * @param recordId 出退勤レコードのID。どのレコードを更新するかを特定するために使用します。
+     * @param newClockOut 新しい退勤時刻。タイムスタンプ形式（yyyy-MM-dd HH:mm:ss）で指定します。
+     * @param newClockIn 新しい出勤時刻。タイムスタンプ形式（yyyy-MM-dd HH:mm:ss）で指定します。
      */
     @Override
     public void upsertWorkDuration(Integer recordId, Timestamp newClockOut, Timestamp newClockIn) {

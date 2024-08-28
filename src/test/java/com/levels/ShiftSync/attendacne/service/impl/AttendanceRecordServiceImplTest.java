@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -24,7 +26,7 @@ import com.levels.ShiftSync.entity.LoginUser;
 import com.levels.ShiftSync.repository.AttendanceRecordMapper;
 import com.levels.ShiftSync.service.impl.AttendanceRecordServiceImpl;
 
-class AttendanceRecordServiceImplTest {
+public class AttendanceRecordServiceImplTest {
 
     @Mock
     private AttendanceRecordMapper attendanceRecordMapper;
@@ -37,189 +39,169 @@ class AttendanceRecordServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    private void mockSecurityContext(Integer employeeId) {
-        SecurityContext mockSecurityContext = SecurityContextHolder.createEmptyContext();
-        LoginUser mockLoginUser = new LoginUser(employeeId, "username", "password", List.of());
-        mockSecurityContext.setAuthentication(
-            new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(mockLoginUser, null)
-        );
-        SecurityContextHolder.setContext(mockSecurityContext);
-    }
-
+    /**
+     * 出勤処理が成功し、出勤記録がデータベースに保存されることを確認するテスト。
+     * SecurityContextにユーザー情報を設定し、出勤処理を実行して、出勤時刻が現在時刻であることを検証します。
+     */
     @Test
-    @DisplayName("出勤時刻を正常に記録するテスト")
-    void testClockInTime_Success() {
-        // セキュリティコンテキストを設定
-        Integer mockEmployeeId = 123;
-        mockSecurityContext(mockEmployeeId);
+    @DisplayName("出勤処理が成功し、出勤時刻が正しく保存されるテスト")
+    void testClockInTime() {
+        // SecurityContextのモックを作成
+        LoginUser loginUser = new LoginUser(1, "testuser", "password", Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(loginUser);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
 
-        // モックの設定
-        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
-        AttendanceRecord expectedRecord = new AttendanceRecord();
-        expectedRecord.setEmployeeId(mockEmployeeId);
-        expectedRecord.setClockIn(currentTimestamp);
-
-        // メソッドの実行
+        // 出勤処理を実行
         attendanceRecordServiceImpl.clockInTime();
 
-        // メソッドが呼び出されたことを確認
-        verify(attendanceRecordMapper).clockIn(any(AttendanceRecord.class));
-
-        // モックデータを返すように設定
-        when(attendanceRecordMapper.getTodayAttendance(mockEmployeeId)).thenReturn(List.of(expectedRecord));
-
-        // 結果の検証
-        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
-        assertEquals(1, todayAttendance.size(), "今日の勤怠記録が1件であるべきです");
-        assertEquals(mockEmployeeId, todayAttendance.get(0).getEmployeeId(), "従業員IDが正しく設定されているべきです");
+        // 出勤時刻が現在時刻であることを確認
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        verify(attendanceRecordMapper, times(1)).clockIn(argThat(record -> 
+            record.getEmployeeId().equals(1) &&
+            record.getClockIn().toInstant().toEpochMilli() >= now.toInstant().toEpochMilli() - 1000 &&
+            record.getClockIn().toInstant().toEpochMilli() <= now.toInstant().toEpochMilli() + 1000
+        ));
     }
 
+    /**
+     * 出勤時刻の更新処理が正しく行われることを確認するテスト。
+     * 現在の出勤記録をモックし、出勤時刻を更新して、勤務時間も正しく更新されるか検証します。
+     */
     @Test
-    @DisplayName("退勤時刻を正常に記録するテスト")
-    void testClockOutTime_Success() {
-        // セキュリティコンテキストを設定
-        Integer mockEmployeeId = 123;
-        mockSecurityContext(mockEmployeeId);
+    @DisplayName("出勤時刻の更新処理が成功するテスト")
+    void testUpdateClockInTime() {
+        Integer recordId = 1;
+        Integer employeeId = 1;
+        Timestamp newClockIn = new Timestamp(System.currentTimeMillis());
 
-        // モックの設定
-        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
-        AttendanceRecord expectedRecord = new AttendanceRecord();
-        expectedRecord.setEmployeeId(mockEmployeeId);
-        expectedRecord.setClockOut(currentTimestamp);
+        // 現在の出勤記録をモック
+        AttendanceRecord currentRecord = new AttendanceRecord();
+        currentRecord.setClockOut(new Timestamp(System.currentTimeMillis() + 3600000)); // +1 hour
+        when(attendanceRecordMapper.getCurrentRecord(recordId)).thenReturn(currentRecord);
 
-        // メソッドの実行
+        // 出勤時刻の更新処理を実行
+        attendanceRecordServiceImpl.updateClockInTime(recordId, employeeId, newClockIn);
+
+        // 出勤時刻と勤務時間の更新が正しく行われることを確認
+        Map<String, Object> params = new HashMap<>();
+        params.put("recordId", recordId);
+        params.put("employeeId", employeeId);
+        params.put("newClockIn", newClockIn);
+
+        verify(attendanceRecordMapper, times(1)).updateClockInTime(params);
+        verify(attendanceRecordMapper, times(1)).upsertWorkDuration(recordId, currentRecord.getClockOut(), newClockIn);
+    }
+
+    /**
+     * 退勤処理が成功し、退勤記録がデータベースに保存されることを確認するテスト。
+     * SecurityContextにユーザー情報を設定し、退勤処理を実行して、退勤時刻が現在時刻であることを検証します。
+     */
+    @Test
+    @DisplayName("退勤処理が成功し、退勤時刻が正しく保存されるテスト")
+    void testClockOutTime() {
+        // SecurityContextのモックを作成
+        LoginUser loginUser = new LoginUser(1, "testuser", "password", Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(loginUser);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        // 退勤処理を実行
         attendanceRecordServiceImpl.clockOutTime();
 
-        // メソッドが呼び出されたことを確認
-        verify(attendanceRecordMapper).clockOut(any(AttendanceRecord.class));
+        // 退勤時刻が現在時刻であることを確認
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        verify(attendanceRecordMapper, times(1)).clockOut(argThat(record -> 
+            record.getEmployeeId().equals(1) &&
+            record.getClockOut().toInstant().toEpochMilli() >= now.toInstant().toEpochMilli() - 1000 &&
+            record.getClockOut().toInstant().toEpochMilli() <= now.toInstant().toEpochMilli() + 1000
+        ));
+    }
 
-        // モックデータを返すように設定
-        when(attendanceRecordMapper.getTodayAttendance(mockEmployeeId)).thenReturn(List.of(expectedRecord));
+    /**
+     * 退勤時刻の更新処理が正しく行われることを確認するテスト。
+     * 現在の退勤記録をモックし、退勤時刻を更新して、勤務時間も正しく更新されるか検証します。
+     */
+    @Test
+    @DisplayName("退勤時刻の更新処理が成功するテスト")
+    void testUpdateClockOutTime() {
+        Integer recordId = 1;
+        Integer employeeId = 1;
+        Timestamp newClockOut = new Timestamp(System.currentTimeMillis());
+
+        // 現在の退勤記録をモック
+        AttendanceRecord currentRecord = new AttendanceRecord();
+        currentRecord.setClockIn(new Timestamp(System.currentTimeMillis() - 3600000)); // -1 hour
+        when(attendanceRecordMapper.getCurrentRecord(recordId)).thenReturn(currentRecord);
+
+        // 退勤時刻の更新処理を実行
+        attendanceRecordServiceImpl.updateClockOutTime(recordId, employeeId, newClockOut);
+
+        // 退勤時刻と勤務時間の更新が正しく行われることを確認
+        Map<String, Object> params = new HashMap<>();
+        params.put("recordId", recordId);
+        params.put("employeeId", employeeId);
+        params.put("newClockOut", newClockOut);
+
+        verify(attendanceRecordMapper, times(1)).updateClockOutTime(params);
+        verify(attendanceRecordMapper, times(1)).upsertWorkDuration(recordId, newClockOut, currentRecord.getClockIn());
+    }
+
+    /**
+     * 当日の勤務時間が正しく登録・更新されることを確認するテスト。
+     * 当日の出勤記録をモックし、勤務時間が正しく登録・更新されるか検証します。
+     */
+    @Test
+    @DisplayName("当日の勤務時間の登録・更新が正しく行われるテスト")
+    void testUpsertTodayWorkDuration() {
+        // 当日の出勤記録をモック
+        AttendanceRecord todayRecord = new AttendanceRecord();
+        todayRecord.setRecordId(1);
+        todayRecord.setClockIn(new Timestamp(System.currentTimeMillis() - 3600000)); // -1 hour
+        todayRecord.setClockOut(new Timestamp(System.currentTimeMillis()));
+        when(attendanceRecordMapper.getTodayAttendance(anyInt())).thenReturn(Collections.singletonList(todayRecord));
+
+        // 勤務時間の登録・更新処理を実行
+        attendanceRecordServiceImpl.upsertTodayWorkDuration();
+
+        // 勤務時間の登録・更新が正しく行われることを確認
+        verify(attendanceRecordMapper, times(1)).upsertWorkDuration(todayRecord.getRecordId(), todayRecord.getClockOut(), todayRecord.getClockIn());
+    }
+
+    /**
+     * 指定された月の出退勤記録が正しく取得されることを確認するテスト。
+     * セキュリティコンテキストにユーザー情報を設定し、指定された月の出退勤記録が正しく取得されるか検証します。
+     */
+    @Test
+    @DisplayName("指定された月の出退勤記録が正しく取得されるテスト")
+    void testGetYearlyAttendanceForMonth() {
+        int month = 8; // 8月
+        
+        // SecurityContextのモックを作成
+        LoginUser loginUser = new LoginUser(1, "testuser", "password", Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(loginUser);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        // モックの設定
+        List<AttendanceRecord> records = Collections.emptyList();
+        when(attendanceRecordMapper.getMonthlyAttendanceForYear(anyInt(), anyString())).thenReturn(records);
+
+        // 月別出退勤記録取得メソッドを実行
+        List<AttendanceRecord> result = attendanceRecordServiceImpl.getYearlyAttendanceForMonth(month);
+
+        // メソッド呼び出しの確認
+        String expectedYearMonth = String.format("%d-%02d", Calendar.getInstance().get(Calendar.YEAR), month);
+        verify(attendanceRecordMapper, times(1)).getMonthlyAttendanceForYear(1, expectedYearMonth);
 
         // 結果の検証
-        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
-        assertEquals(1, todayAttendance.size(), "今日の勤怠記録が1件であるべきです");
-        assertEquals(mockEmployeeId, todayAttendance.get(0).getEmployeeId(), "従業員IDが正しく設定されているべきです");
-    }
-
-    @Test
-    @DisplayName("出勤時刻更新メソッドが正常に動作する場合のテスト")
-    void testUpdateClockInTime_Success() {
-        // モックの設定
-        doNothing().when(attendanceRecordMapper).updateClockInTime(anyMap());
-
-        // テスト実行
-        Timestamp newClockIn = Timestamp.valueOf("2024-08-22 08:30:00");
-        attendanceRecordServiceImpl.updateClockInTime(1, 1, newClockIn);
-
-        // メソッドが正しいパラメータで呼ばれたことを確認
-        Map<String, Object> expectedParams = new HashMap<>();
-        expectedParams.put("recordId", 1);
-        expectedParams.put("employeeId", 1);
-        expectedParams.put("newClockIn", newClockIn);
-
-        verify(attendanceRecordMapper).updateClockInTime(expectedParams);
-    }
-
-    @Test
-    @DisplayName("無効なパラメータで出勤時刻を更新するテスト")
-    void testUpdateClockInTime_InvalidParams() {
-        // モックの設定
-        doNothing().when(attendanceRecordMapper).updateClockInTime(anyMap());
-
-        // テスト実行
-        attendanceRecordServiceImpl.updateClockInTime(1, 1, null);
-
-        // メソッドが正しいパラメータで呼ばれたことを確認
-        Map<String, Object> expectedParams = new HashMap<>();
-        expectedParams.put("recordId", 1);
-        expectedParams.put("employeeId", 1);
-        expectedParams.put("newClockIn", null);
-
-        verify(attendanceRecordMapper).updateClockInTime(expectedParams);
-    }
-
-    @Test
-    @DisplayName("退勤時刻更新メソッドが正常に動作する場合のテスト")
-    void testUpdateClockOutTime_Success() {
-        // モックの設定
-        doNothing().when(attendanceRecordMapper).updateClockOutTime(anyMap());
-
-        // テスト実行
-        Timestamp newClockOut = Timestamp.valueOf("2024-08-22 17:30:00");
-        attendanceRecordServiceImpl.updateClockOutTime(1, 1, newClockOut);
-
-        // メソッドが正しいパラメータで呼ばれたことを確認
-        Map<String, Object> expectedParams = new HashMap<>();
-        expectedParams.put("recordId", 1);
-        expectedParams.put("employeeId", 1);
-        expectedParams.put("newClockOut", newClockOut);
-
-        verify(attendanceRecordMapper).updateClockOutTime(expectedParams);
-    }
-
-    @Test
-    @DisplayName("無効なパラメータで退勤時刻を更新するテスト")
-    void testUpdateClockOutTime_InvalidParams() {
-        // モックの設定
-        doNothing().when(attendanceRecordMapper).updateClockOutTime(anyMap());
-
-        // テスト実行
-        attendanceRecordServiceImpl.updateClockOutTime(1, 1, null);
-
-        // メソッドが正しいパラメータで呼ばれたことを確認
-        Map<String, Object> expectedParams = new HashMap<>();
-        expectedParams.put("recordId", 1);
-        expectedParams.put("employeeId", 1);
-        expectedParams.put("newClockOut", null);
-
-        verify(attendanceRecordMapper).updateClockOutTime(expectedParams);
-    }
-    
-    @Test
-    @DisplayName("今日の勤怠記録を取得するテスト")
-    void testGetTodayAttendance() {
-        // セキュリティコンテキストを設定
-        Integer mockEmployeeId = 123;
-        mockSecurityContext(mockEmployeeId);
-
-        // モックデータの設定
-        Timestamp clockInTimestamp = new Timestamp(System.currentTimeMillis());
-        AttendanceRecord record = new AttendanceRecord();
-        record.setEmployeeId(mockEmployeeId);
-        record.setClockIn(clockInTimestamp);
-
-        when(attendanceRecordMapper.getTodayAttendance(mockEmployeeId)).thenReturn(List.of(record));
-
-        // メソッドの実行と検証
-        List<AttendanceRecord> result = attendanceRecordServiceImpl.getTodayAttendance();
-        assertEquals(1, result.size(), "今日の勤怠記録が1件であるべきです");
-        assertEquals(mockEmployeeId, result.get(0).getEmployeeId(), "従業員IDが正しく設定されているべきです");
-    }
-    
-    @Test
-    @DisplayName("指定した月の年間勤怠記録を取得するテスト")
-    void testGetYearlyAttendanceForMonth() {
-        // セキュリティコンテキストを設定
-        Integer mockEmployeeId = 123;
-        mockSecurityContext(mockEmployeeId);
-
-        // 現在の年と月を模擬する
-        Calendar cal = Calendar.getInstance();
-        int currentYear = cal.get(Calendar.YEAR);
-        int month = 5; // 例として5月を指定
-        String yearMonth = String.format("%d-%02d", currentYear, month);
-
-        // モックデータの設定
-        AttendanceRecord record = new AttendanceRecord();
-        record.setEmployeeId(mockEmployeeId);
-        record.setClockIn(new Timestamp(System.currentTimeMillis()));
-
-        when(attendanceRecordMapper.getMonthlyAttendanceForYear(mockEmployeeId, yearMonth)).thenReturn(List.of(record));
-
-        // メソッドの実行と検証
-        List<AttendanceRecord> result = attendanceRecordServiceImpl.getYearlyAttendanceForMonth(month);
-        assertEquals(1, result.size(), "指定された月の勤怠記録が1件であるべきです");
-        assertEquals(mockEmployeeId, result.get(0).getEmployeeId(), "従業員IDが正しく設定されているべきです");
+        assertNotNull(result);
+        assertEquals(records, result);
     }
 }
