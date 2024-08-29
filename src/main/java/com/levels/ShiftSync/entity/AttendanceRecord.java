@@ -14,28 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AttendanceRecord {
-    /**
-     * 勤怠記録の一意なID
-     */
     private Integer recordId;
-
-    /**
-     * 従業員のID
-     */
     private Integer employeeId;
-
-    /**
-     * 出勤時間
-     */
     private Timestamp clockIn;
-
-    /**
-     * 退勤時間
-     */
     private Timestamp clockOut;
-
-    /**
-     * 勤務時間
-     */
     private String workDuration;
 }
