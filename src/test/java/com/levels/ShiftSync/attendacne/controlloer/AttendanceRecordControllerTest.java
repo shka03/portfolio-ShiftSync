@@ -110,7 +110,7 @@ public class AttendanceRecordControllerTest {
                 .param("currentClockIn", "2024-08-22 08:00")
                 .flashAttr("message", "出勤時刻を修正しました。"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/yearly_attendance"))
+                .andExpect(redirectedUrl("/attendance-yearly"))
                 .andExpect(flash().attribute("message", "出勤時刻を修正しました。"));
 
         // モックメソッドの呼び出し確認
@@ -127,7 +127,7 @@ public class AttendanceRecordControllerTest {
                 .param("newClockIn", "08:30")
                 .param("currentClockIn", "invalid_format"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/yearly_attendance"))
+                .andExpect(redirectedUrl("/attendance-yearly"))
                 .andExpect(flash().attribute("message", "現在の出勤時刻の形式が不正です。"));
     }
 
@@ -141,7 +141,7 @@ public class AttendanceRecordControllerTest {
                 .param("newClockIn", "invalid_time")
                 .param("currentClockIn", "2024-08-22 08:00:00"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/yearly_attendance"))
+                .andExpect(redirectedUrl("/attendance-yearly"))
                 .andExpect(flash().attribute("message", "新しい出勤時刻の形式が不正です。"));
     }
 
@@ -155,7 +155,7 @@ public class AttendanceRecordControllerTest {
                 .param("newClockIn", "")
                 .param("currentClockIn", ""))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/yearly_attendance"))
+                .andExpect(redirectedUrl("/attendance-yearly"))
                 .andExpect(flash().attribute("message", "出勤時刻が無効です。"));
     }
 
@@ -172,7 +172,7 @@ public class AttendanceRecordControllerTest {
                 .param("newClockIn", "08:30")
                 .param("currentClockIn", "2024-08-22 08:00"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/yearly_attendance"))
+                .andExpect(redirectedUrl("/attendance-yearly"))
                 .andExpect(flash().attribute("message", "出勤時刻の修正に失敗しました。"));
     }
 
@@ -251,7 +251,7 @@ public class AttendanceRecordControllerTest {
                 .param("currentClockOut", "2024-08-22 17:00")
                 .flashAttr("message", "退勤時刻を修正しました。"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/yearly_attendance"))
+                .andExpect(redirectedUrl("/attendance-yearly"))
                 .andExpect(flash().attribute("message", "退勤時刻を修正しました。"));
 
         // モックメソッドの呼び出し確認
@@ -267,7 +267,7 @@ public class AttendanceRecordControllerTest {
                 .param("newClockOut", "invalid_format")
                 .param("currentClockOut", "2024-08-22 17:00:00"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/yearly_attendance"));
+                .andExpect(redirectedUrl("/attendance-yearly"));
 
         verify(attendanceRecordServiceImpl, never()).updateClockOutTime(any(), any(), any());
     }
@@ -281,7 +281,7 @@ public class AttendanceRecordControllerTest {
                 .param("newClockOut", "")
                 .param("currentClockOut", "2024-08-24 17:30:00"))
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl("/yearly_attendance"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/attendance-yearly"))
                 .andExpect(MockMvcResultMatchers.flash().attribute("message", "退勤時刻が無効です。"))
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -295,7 +295,7 @@ public class AttendanceRecordControllerTest {
                 .param("newClockOut", "17:30") // 正しい形式の新しい退勤時刻
                 .param("currentClockOut", "invalid_time")) // 不正な形式の現在の退勤時刻
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl("/yearly_attendance"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/attendance-yearly"))
                 .andExpect(MockMvcResultMatchers.flash().attribute("message", "現在の退勤時刻の形式が不正です。"))
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -309,7 +309,7 @@ public class AttendanceRecordControllerTest {
                 .param("newClockOut", "invalid_time")
                 .param("currentClockOut", "2024-08-24 17:30:00"))
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl("/yearly_attendance"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/attendance-yearly"))
                 .andExpect(MockMvcResultMatchers.flash().attribute("message", "新しい退勤時刻の形式が不正です。"))
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -325,7 +325,7 @@ public class AttendanceRecordControllerTest {
                 .param("newClockOut", "17:30")
                 .param("currentClockOut", "2024-08-24 17:30:00"))
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl("/yearly_attendance"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/attendance-yearly"))
                 .andExpect(MockMvcResultMatchers.flash().attribute("message", "退勤時刻の修正に失敗しました。"))
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -339,10 +339,10 @@ public class AttendanceRecordControllerTest {
     void testShowYearlyAttendance_NoData() throws Exception {
         when(attendanceRecordServiceImpl.getYearlyAttendanceForMonth(anyInt())).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(get("/yearly_attendance")
+        mockMvc.perform(get("/attendance-yearly")
                 .param("month", "8"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("yearly_attendance"))
+                .andExpect(view().name("attendance-yearly"))
                 .andExpect(model().attributeExists("message"))
                 .andExpect(model().attribute("message", "選択された月のデータはありません。"))
                 .andExpect(model().attribute("selectedMonth", 8));
@@ -359,10 +359,10 @@ public class AttendanceRecordControllerTest {
         attendanceRecords.add(new AttendanceRecord(/* ここで必要なプロパティを設定 */));
         when(attendanceRecordServiceImpl.getYearlyAttendanceForMonth(anyInt())).thenReturn(attendanceRecords);
 
-        mockMvc.perform(get("/yearly_attendance")
+        mockMvc.perform(get("/attendance-yearly")
                 .param("month", "8"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("yearly_attendance"))
+                .andExpect(view().name("attendance-yearly"))
                 .andExpect(model().attributeExists("attendance_records"))
                 .andExpect(model().attribute("selectedMonth", 8));
     }
@@ -378,9 +378,9 @@ public class AttendanceRecordControllerTest {
         attendanceRecords.add(new AttendanceRecord(/* ここで必要なプロパティを設定 */));
         when(attendanceRecordServiceImpl.getYearlyAttendanceForMonth(LocalDate.now().getMonthValue())).thenReturn(attendanceRecords);
 
-        mockMvc.perform(get("/yearly_attendance"))
+        mockMvc.perform(get("/attendance-yearly"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("yearly_attendance"))
+                .andExpect(view().name("attendance-yearly"))
                 .andExpect(model().attributeExists("attendance_records"))
                 .andExpect(model().attribute("selectedMonth", LocalDate.now().getMonthValue()));
     }

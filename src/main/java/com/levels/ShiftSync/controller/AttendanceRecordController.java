@@ -89,19 +89,19 @@ public class AttendanceRecordController {
         // 入力パラメータの検証
         if (isInvalidClockInParameter(newClockInStr, currentClockInStr)) {
             attributes.addFlashAttribute("message", "出勤時刻が無効です。");
-            return "redirect:/yearly_attendance";
+            return "redirect:/attendance-yearly";
         }
 
         // 現在の出勤時刻から日付部分を取得
         String datePart = extractDatePartFromCurrentClockIn(currentClockInStr, attributes);
         if (datePart == null) {
-            return "redirect:/yearly_attendance";
+            return "redirect:/attendance-yearly";
         }
 
         // 新しい出勤時刻のパースと検証
         Timestamp newClockIn = parseNewClockIn(datePart, newClockInStr, attributes);
         if (newClockIn == null) {
-            return "redirect:/yearly_attendance";
+            return "redirect:/attendance-yearly";
         }
 
         try {
@@ -114,7 +114,7 @@ public class AttendanceRecordController {
         }
         
         attributes.addAttribute("month", month); // 月のパラメータを追加
-        return "redirect:/yearly_attendance";
+        return "redirect:/attendance-yearly";
     }
 
     /**
@@ -224,7 +224,7 @@ public class AttendanceRecordController {
         // 入力パラメータの検証
         if (isInvalidTimeParameter(newClockOutStr, currentClockOutStr)) {
             attributes.addFlashAttribute("message", "退勤時刻が無効です。");
-            return "redirect:/yearly_attendance";
+            return "redirect:/attendance-yearly";
         }
 
         // 現在の退勤時刻から日付部分を取得
@@ -233,7 +233,7 @@ public class AttendanceRecordController {
             datePart = extractDatePart(currentClockOutStr);
         } catch (ArrayIndexOutOfBoundsException e) {
             attributes.addFlashAttribute("message", "現在の退勤時刻の形式が不正です。");
-            return "redirect:/yearly_attendance";
+            return "redirect:/attendance-yearly";
         }
 
         // 日付部分と新しい退勤時間部分を結合してタイムスタンプ形式に変換
@@ -242,7 +242,7 @@ public class AttendanceRecordController {
             newClockOut = createTimestamp(datePart, newClockOutStr);
         } catch (IllegalArgumentException e) {
             attributes.addFlashAttribute("message", "新しい退勤時刻の形式が不正です。");
-            return "redirect:/yearly_attendance";
+            return "redirect:/attendance-yearly";
         }
 
         // 退勤時間の修正を実行
@@ -254,7 +254,7 @@ public class AttendanceRecordController {
         }
 
         attributes.addAttribute("month", month);
-        return "redirect:/yearly_attendance";
+        return "redirect:/attendance-yearly";
     }
 
     // 入力パラメータが無効かどうかを確認するメソッド
@@ -285,9 +285,9 @@ public class AttendanceRecordController {
      * 任意の月の勤怠履歴を表示するメソッド
      * @param month 表示する月 (1月 = 1, 12月 = 12)
      * @param model Thymeleafテンプレートにデータを渡すためのモデル
-     * @return "yearly_attendance" テンプレート名
+     * @return "attendance-yearly" テンプレート名
      */
-    @GetMapping("/yearly_attendance")
+    @GetMapping("/attendance-yearly")
     public String showYearlyAttendance(
             @RequestParam(value = "month", required = false) Integer month, 
             Model model
@@ -303,7 +303,7 @@ public class AttendanceRecordController {
         if (yearlyAttendance.isEmpty()) {
             model.addAttribute("message", "選択された月のデータはありません。");
             model.addAttribute("selectedMonth", month); // 選択された月もモデルに追加
-            return "yearly_attendance";
+            return "attendance-yearly";
         }
 
         // データが存在する場合、勤怠記録をモデルに追加
@@ -312,7 +312,7 @@ public class AttendanceRecordController {
         // 選択された月をモデルに追加
         model.addAttribute("selectedMonth", month);
 
-        return "yearly_attendance";
+        return "attendance-yearly";
     }
     
     /**

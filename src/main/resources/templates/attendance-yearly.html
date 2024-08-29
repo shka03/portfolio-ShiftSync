@@ -16,7 +16,7 @@
         <h2>勤怠履歴</h2>
 
         <!-- 月の選択ドロップダウン -->
-        <form th:action="@{/yearly_attendance}" method="get">
+        <form th:action="@{/attendance-yearly}" method="get">
             <label for="month">月を選択:</label>
             <select name="month" id="month">
                 <option th:each="i : ${#numbers.sequence(1,12)}"
