@@ -13,4 +13,18 @@
         ORDER BY yearMonth DESC;
     </select>
 
+    <!-- 承認状態を取得する -->
+    <select id="getApprovalStatus" parameterType="map" resultType="java.lang.String">
+        SELECT status
+        FROM attendance_requests
+        WHERE employee_id = #{employeeId} AND year_month = #{yearMonth}
+    </select>
+
+    <!-- 承認状態の登録と更新をする -->
+    <update id="updateApproveStatus">
+	    UPDATE attendance_requests
+	    SET status = #{status}
+	    WHERE employee_id = #{employeeId} AND year_month = #{yearMonth}
+	</update>
+
 </mapper>

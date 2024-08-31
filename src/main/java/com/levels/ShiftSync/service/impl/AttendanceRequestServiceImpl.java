@@ -30,8 +30,12 @@ public class AttendanceRequestServiceImpl implements AttendanceRequestService {
         return attendanceRecordMapper.getMonthlyAttendanceForYear(employeeId, yearMonth);
     }
     
-//    @Override
-//    public void updateApproveStatus(Integer employeeId, String yearMonth) {
-//    	AttendanceRequestMapper.updateApproveStatus(employeeId, yearMonth);
-//    }
+    @Override
+    public void updateApproveStatus(Integer employeeId, String yearMonth, String status) {
+    	attendanceRequestMapper.updateApproveStatus(employeeId, yearMonth, status);
+    }
+    
+    public String getApprovalStatus(Integer employeeId, String yearMonth) {
+        return attendanceRequestMapper.getApprovalStatus(employeeId, yearMonth);
+    }
 }

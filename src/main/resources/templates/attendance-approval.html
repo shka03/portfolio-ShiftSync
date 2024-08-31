@@ -40,17 +40,19 @@
 
         <!-- 申請承認 -->
         <div th:if="${!#lists.isEmpty(attendance_records)}">
-	        <form th:action="@{/update-approve-status}" method="post">
-	            <input type="hidden" name="employeeId" />
-	            <input type="hidden" name="yearMonth" />
-	            <button type="submit">承認する</button>
-	        </form>
-	        
-	        <form th:action="@{/update-approve-status}" method="post">
-	            <input type="hidden" name="employeeId" />
-	            <input type="hidden" name="yearMonth" />
-	            <button type="submit">解除する</button>
-	        </form>
+			<form th:action="@{/update-approve-status}" method="post" th:if="${status == '未'}">
+			    <input type="hidden" name="employeeId" th:value="${employeeId}" />
+			    <input type="hidden" name="yearMonth" th:value="${yearMonth}" />
+			    <input type="hidden" name="status" value="済" />
+			    <button type="submit">承認する</button>
+			</form>
+			
+			<form th:action="@{/update-approve-status}" method="post" th:if="${status == '済'}">
+			    <input type="hidden" name="employeeId" th:value="${employeeId}" />
+			    <input type="hidden" name="yearMonth" th:value="${yearMonth}" />
+			    <input type="hidden" name="status" value="未" />
+			    <button type="submit">解除する</button>
+			</form>
         </div>
 
         <a th:href="@{/attendance-requests-list}">勤怠申請一覧に戻る</a>

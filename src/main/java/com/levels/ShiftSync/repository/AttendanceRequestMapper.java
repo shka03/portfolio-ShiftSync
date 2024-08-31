@@ -27,13 +27,21 @@ public interface AttendanceRequestMapper {
     		@Param("employeeId") Integer employeeId,
     		@Param("yearMonth") String yearMonth);
 
-    // TODO: 承認状態の変更
-//    /**
-//     * 従業員IDと指定年月に基づいて勤怠申請の承認状態を変更するメソッド
-//     * @param employeeId 従業員ID
-//     * @param yearMonth 年月
-//     */
-//    void updateApproveStatus(
-//    		@Param("employeeId") Integer employeeId,
-//    		@Param("yearMonth") String yearMonth);
+    /**
+     * 従業員IDと指定年月に基づいて勤怠申請の承認状態を変更するメソッド
+     * @param employeeId 従業員ID
+     * @param yearMonth 年月
+     */
+    void updateApproveStatus(
+    		@Param("employeeId") Integer employeeId,
+    		@Param("yearMonth") String yearMonth,
+    		@Param("status") String status);
+    
+    /**
+     * 従業員IDと指定年月に基づいて勤怠承認申請を取得するメソッド
+     * @param employeeId 従業員ID
+     * @param yearMonth 年月
+     * @return 従業員の指定年月の承認状態
+     */
+    String getApprovalStatus(Integer employeeId, String yearMonth);
 }
