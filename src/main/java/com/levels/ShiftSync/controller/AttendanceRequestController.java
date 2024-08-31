@@ -7,7 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.AttendanceRequest;
@@ -30,8 +30,7 @@ public class AttendanceRequestController {
     public String showRequestsByEmployee(
             @PathVariable("employeeId") Integer employeeId,
             @PathVariable("yearMonth") String yearMonth,
-            Model model,
-            RedirectAttributes attributes) {
+            Model model) {
         List<AttendanceRecord> requestRecords = attendanceRequestServiceImpl.getEmployeeMonthRequests(employeeId, yearMonth);
         
         if(requestRecords.isEmpty()) {
@@ -43,6 +42,11 @@ public class AttendanceRequestController {
         model.addAttribute("yearMonth", yearMonth);
         
         return "attendance-approval";
+    }
+    
+    @PostMapping("/update-approve-status")
+    public String updateApproveStatus() {
+    	return "attendance-approval";
     }
     
 }

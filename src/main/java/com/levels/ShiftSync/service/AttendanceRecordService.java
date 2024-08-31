@@ -49,18 +49,31 @@ public interface AttendanceRecordService {
     
     /**
      * 修正した出退勤レコードの勤怠時間を登録・更新するメソッド
-     * 修正した出退勤レコードの勤怠時間としてデータベースに保存します。
+     * 
+     * @param recordId 出退勤レコードのID。どのレコードを更新するかを特定するために使用します。
+     * @param newClockIn 新しい出勤時刻。タイムスタンプ形式（yyyy-MM-dd HH:mm:ss）で指定します。
+     * @param newClockOut 新しい退勤時刻。タイムスタンプ形式（yyyy-MM-dd HH:mm:ss）で指定します。
      */
     void upsertWorkDuration(Integer recordId, Timestamp newClockOut, Timestamp newClockIn);
 
     /**
+     * 指定した月の勤怠履歴の承認申請を登録・更新するメソッド
+     * 
+     * @param employeeId 従業員ID。どの従業に関する勤怠履歴を更新するかを特定するために使用します。
+     * @param yearMonth 承認対象の年月。年月（yyyy-MM）形式で指定します。
+     */
+    void upsertApproveRequest(Integer employeeId, String yearMonth);
+    
+    /**
      * 従業員の当日の出退勤時間を取得するメソッド
+     * 
      * @return 当日の出退勤時間のリスト。出勤または退勤記録がない場合は空のリストを返します。
      */
     List<AttendanceRecord> getTodayAttendance();
 
     /**
      * 任意の月の勤怠記録を取得するメソッド
+     * 
      * @param month 取得したい月 (1月 = 1, 12月 = 12)
      * @return 指定された月の出退勤時間のリスト。出勤または退勤記録がない場合は空のリストを返します。
      */

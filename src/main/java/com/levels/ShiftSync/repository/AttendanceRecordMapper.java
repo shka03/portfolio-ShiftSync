@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 
@@ -48,6 +49,22 @@ public interface AttendanceRecordMapper {
     void upsertWorkDuration(Integer recordId, Timestamp clockOut, Timestamp clockIn);
     
     /**
+     * 指定した月の勤怠履歴の承認申請を登録・更新するメソッド
+     * 
+     * @param employeeId 従業員ID。どの従業に関する勤怠履歴を更新するかを特定するために使用します。
+     * @param yearMonth 承認対象の年月。年月（yyyy-MM）形式で指定します。
+     */
+    void upsertApproveRequest(Integer employeeId, String yearMonth);
+    
+    /**
+     * 承認申請のステータスをチェックするメソッド
+     * @param employeeId 従業員のID
+     * @param yearMonth 承認対象の年月。年月（yyyy-MM）形式で指定します。
+     * @return 指定年月の承認ステータスが未のレコード数を返します。
+     */
+    boolean hasApprovalPending(@Param("employeeId") Integer employeeId, @Param("yearMonth") String yearMonth);
+    
+    /**
      * 従業員の当日の出退勤時間を取得するメソッド
      * @param employeeId 従業員のID
      * @return 当日の出退勤時間のリスト。出勤または退勤記録がない場合は空のリストを返します。
@@ -61,8 +78,6 @@ public interface AttendanceRecordMapper {
      * @return 指定された月の出退勤時間のリスト。出勤または退勤記録がない場合は空のリストを返します。
      */
     List<AttendanceRecord> getMonthlyAttendanceForYear(Integer employeeId, String yearMonth);
-    
-//    TODO：void getMonthlyTotalWorkHours();月の合計勤務時間 
 
     /**
      * 指定したレコードIDの勤怠データを取得するメソッド

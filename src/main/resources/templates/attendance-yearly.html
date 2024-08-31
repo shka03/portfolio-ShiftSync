@@ -28,9 +28,21 @@
         <!-- 選択した月を表示 -->
         <p th:text="'選択された月: ' + ${selectedMonth} + '月の勤怠履歴'"></p>
         
- 		<!-- CSVダウンロードリンク (Thymeleafを利用してサーバーサイドで解決する場合) -->
+ 		<!-- CSVダウンロードリンク -->
 		<a th:href="@{/download-csv(month=${selectedMonth})}" class="btn btn-primary">Download CSV</a>
 
+    	<!-- メッセージの表示 -->
+		<div th:if="${approveSuccessMessage}" class="alert alert-success">
+		    <p th:text="${approveSuccessMessage}"></p>
+		</div>
+    
+        <!-- 承認申請フォーム -->
+        <form th:action="@{/upsert-approve-request}" method="post" th:if="${hasApprovalPending == false}">
+            <input type="hidden" name="month" th:value="${selectedMonth}" />
+            <button class="btn btn-primary" type="submit">承認申請</button>
+        </form>
+
+        <a th:href="@{/}">戻る</a>
 
         <!-- 勤怠テーブル -->
         <table class="attendance-table">
@@ -44,42 +56,39 @@
                 <th>退勤データ修正</th>
             </tr>
             </thead>
-            <tbody>
-            <tr th:if="${#lists.isEmpty(attendance_records)}">
-                <td colspan="6" th:text="${message}">データがありません</td>
-            </tr>
-            <tr th:each="attendance_record : ${attendance_records}">
-				<td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd')}"></td>
-                <td th:text="${#dates.format(attendance_record.clockIn, 'HH:mm:ss')}"></td>
-                <td th:text="${#dates.format(attendance_record.clockOut, 'HH:mm:ss')}"></td>
-                <td th:text="${attendance_record.workDuration}"></td>
-                <td>
-                    <!-- 出勤時間修正フォーム -->
-                    <form th:action="@{/updateClockInTime}" method="post" style="display:inline;">
-						<input type="hidden" name="month" th:value="${selectedMonth}" />
-                        <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
-                        <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />
-                        <input type="hidden" name="currentClockIn" th:value="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}" />
-                        <input type="time" name="newClockIn" placeholder="時間" required />
-                        <button type="submit">出勤時刻の修正</button>
-                    </form>
-                </td>
-                <td>
-                    <!-- 退勤時間修正フォーム -->
-                    <form th:action="@{/updateClockOutTime}" method="post" style="display:inline;">
-						<input type="hidden" name="month" th:value="${selectedMonth}" />
-                        <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
-                        <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />
-                        <input type="hidden" name="currentClockOut" th:value="${#dates.format(attendance_record.clockOut, 'yyyy-MM-dd HH:mm:ss')}" />
-                        <input type="time" name="newClockOut" placeholder="時間" required />
-                        <button type="submit">退勤時刻の修正</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
+			<tbody>
+			<tr th:if="${#lists.isEmpty(attendance_records)}">
+			    <td colspan="6" th:text="${message}">データがありません</td>
+			</tr>
+			<tr th:each="attendance_record : ${attendance_records}">
+			    <td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd')}"></td>
+			    <td th:text="${#dates.format(attendance_record.clockIn, 'HH:mm:ss')}"></td>
+			    <td th:text="${#dates.format(attendance_record.clockOut, 'HH:mm:ss')}"></td>
+			    <td th:text="${attendance_record.workDuration}"></td>
+			    <td>
+			        <form th:action="@{/updateClockInTime}" method="post" style="display:inline;" th:if="${!hasApprovalPending}">
+			            <input type="hidden" name="month" th:value="${selectedMonth}" />
+			            <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
+			            <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />
+			            <input type="hidden" name="currentClockIn" th:value="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}" />
+			            <input type="time" name="newClockIn" placeholder="時間" required />
+			            <button type="submit">出勤時刻の修正</button>
+			        </form>
+			    </td>
+			    <td>
+			        <form th:action="@{/updateClockOutTime}" method="post" style="display:inline;" th:if="${!hasApprovalPending}">
+			            <input type="hidden" name="month" th:value="${selectedMonth}" />
+			            <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
+			            <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />
+			            <input type="hidden" name="currentClockOut" th:value="${#dates.format(attendance_record.clockOut, 'yyyy-MM-dd HH:mm:ss')}" />
+			            <input type="time" name="newClockOut" placeholder="時間" required />
+			            <button type="submit">退勤時刻の修正</button>
+			        </form>
+			    </td>
+			</tr>
+			</tbody>
         </table>
 
-        <a th:href="@{/}">戻る</a>
     </div>
 
     <!-- footer共通部分 -->

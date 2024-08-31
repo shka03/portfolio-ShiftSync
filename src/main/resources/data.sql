@@ -17,9 +17,9 @@ INSERT INTO authentications (employee_id, username, password, authority)
 VALUES (2, 'user', '$2a$10$/jar9xXQ6lrnVjLvLGv5BepFkLnGIO49RrGx42p2i.1hQt1BZ/7E2', 'USER');
 
 -- 勤怠承認テーブルにデータを挿入
-INSERT INTO attendance_requests (request_id, employee_id, year_month, status) VALUES
-(1, 0, '2024-07', '未'),
-(2, 1, '2024-07', '未');
+INSERT INTO attendance_requests (employee_id, year_month, status) VALUES
+(0, '2024-07', '未'),
+(1, '2024-07', '未');
 
 -- 勤怠記録テーブルにデータを挿入
 INSERT INTO attendance_records (employee_id, clock_in, clock_out, work_duration) VALUES

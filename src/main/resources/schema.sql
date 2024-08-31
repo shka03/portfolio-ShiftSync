@@ -59,5 +59,7 @@ CREATE TABLE attendance_requests (
     -- 年月
     year_month VARCHAR(7) NOT NULL,
     -- ステータス
-    status VARCHAR(3)
+    status VARCHAR(3),
+    -- ユニーク制約
+    CONSTRAINT uq_employee_year_month UNIQUE(employee_id, year_month)
 );

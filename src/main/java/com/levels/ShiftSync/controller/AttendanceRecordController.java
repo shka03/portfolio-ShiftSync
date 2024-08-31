@@ -21,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.service.impl.AttendanceRecordServiceImpl;
 import com.levels.ShiftSync.service.impl.CsvExportServiceImpl;
+import com.levels.ShiftSync.utility.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -311,6 +312,12 @@ public class AttendanceRecordController {
 
         // 選択された月をモデルに追加
         model.addAttribute("selectedMonth", month);
+        
+        // 承認申請のステータスを取得してモデルに追加
+        Integer employeeId = SecurityUtils.getEmployeeIdFromSecurityContext();
+        String yearMonth = String.format("%d-%02d", LocalDate.now().getYear(), month);
+        boolean hasApprovalPending = attendanceRecordServiceImpl.hasApprovalPending(employeeId, yearMonth);
+        model.addAttribute("hasApprovalPending", hasApprovalPending);
 
         return "attendance-yearly";
     }
@@ -342,6 +349,29 @@ public class AttendanceRecordController {
                 .headers(headers)
                 .contentType(MediaType.parseMediaType("text/csv"))
                 .body(new InputStreamResource(inputStream));
+    }
+    
+    /**
+     * 承認申請依頼の処理を行うメソッド
+     * @return リダイレクト先のURL
+     */
+    @PostMapping("/upsert-approve-request")
+    public String upsertApproveRequest(
+            @RequestParam("month") Integer month,
+            RedirectAttributes redirectAttributes) {
+        Integer employeeId = SecurityUtils.getEmployeeIdFromSecurityContext();
+        String yearMonth = String.format("%d-%02d", LocalDate.now().getYear(), month);
+
+        // 勤怠履歴が存在するかどうか確認
+        if (!attendanceRecordServiceImpl.hasRecordsForMonth(employeeId, yearMonth)) {
+            redirectAttributes.addFlashAttribute("approveErrorMessage", "指定された年月に勤怠履歴が存在しないため、承認申請ができません。");
+            return "redirect:/attendance-yearly?month=" + month;
+        }
+
+        // 承認申請を実行
+        attendanceRecordServiceImpl.upsertApproveRequest(employeeId, yearMonth);
+        redirectAttributes.addFlashAttribute("approveSuccessMessage", "承認申請をしました。");
+        return "redirect:/attendance-yearly?month=" + month;
     }
     
     /**

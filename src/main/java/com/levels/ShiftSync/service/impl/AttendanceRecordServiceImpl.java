@@ -14,6 +14,7 @@ import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.LoginUser;
 import com.levels.ShiftSync.repository.AttendanceRecordMapper;
 import com.levels.ShiftSync.service.AttendanceRecordService;
+import com.levels.ShiftSync.utility.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +32,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     @Override
     public void clockInTime() {
         AttendanceRecord record = new AttendanceRecord();
-        record.setEmployeeId(getEmployeeIdFromSecurityContext());
+        record.setEmployeeId(SecurityUtils.getEmployeeIdFromSecurityContext());
         record.setClockIn(new Timestamp(System.currentTimeMillis()));
         attendanceRecordMapper.clockIn(record);
     }
@@ -63,7 +64,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     @Override
     public void clockOutTime() {
         AttendanceRecord record = new AttendanceRecord();
-        record.setEmployeeId(getEmployeeIdFromSecurityContext());
+        record.setEmployeeId(SecurityUtils.getEmployeeIdFromSecurityContext());
         record.setClockOut(new Timestamp(System.currentTimeMillis()));
         attendanceRecordMapper.clockOut(record);
     }
@@ -109,6 +110,17 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     public void upsertWorkDuration(Integer recordId, Timestamp newClockOut, Timestamp newClockIn) {
     	attendanceRecordMapper.upsertWorkDuration(recordId, newClockOut, newClockIn);
     }
+    
+    /**
+     * 指定した月の勤怠履歴の承認申請を登録・更新するメソッド
+     * 
+     * @param employeeId 従業員ID。どの従業に関する勤怠履歴を更新するかを特定するために使用します。
+     * @param yearMonth 承認対象の年月。年月（yyyy-MM）形式で指定します。
+     */
+    @Override
+    public void upsertApproveRequest(Integer employeeId, String yearMonth) {
+    	attendanceRecordMapper.upsertApproveRequest(employeeId, yearMonth);
+    }
 
     /**
      * 従業員の当日の出退勤時間を取得するメソッド
@@ -116,7 +128,7 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
      */
     @Override
     public List<AttendanceRecord> getTodayAttendance() {
-        Integer employeeId = getEmployeeIdFromSecurityContext();
+        Integer employeeId = SecurityUtils.getEmployeeIdFromSecurityContext();
         return attendanceRecordMapper.getTodayAttendance(employeeId);
     }
 
@@ -139,21 +151,20 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
         // MyBatisで勤怠記録を取得
         return attendanceRecordMapper.getMonthlyAttendanceForYear(employeeId, yearMonth);
     }
+    
+    public boolean hasApprovalPending(Integer employeeId, String yearMonth) {
+        return attendanceRecordMapper.hasApprovalPending(employeeId, yearMonth);
+    }
 
-    /**
-     * 認証情報から従業員IDを取得するメソッド
-     * @return 現在認証されているユーザーの従業員ID
-     */
-    private Integer getEmployeeIdFromSecurityContext() {
-        // SecurityContextから認証情報を取得
-        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        // LoginUserから従業員IDを取得
-        return loginUser.getEmployeeId();
+
+    public boolean hasRecordsForMonth(Integer employeeId, String yearMonth) {
+    	List<AttendanceRecord> records = attendanceRecordMapper.getMonthlyAttendanceForYear(employeeId, yearMonth);
+    	return !records.isEmpty();
     }
     
     private AttendanceRecord getCurrentRecord(Integer recordId) {
     	AttendanceRecord currRecord = attendanceRecordMapper.getCurrentRecord(recordId);
     	return currRecord;
     }
-
+    
 }

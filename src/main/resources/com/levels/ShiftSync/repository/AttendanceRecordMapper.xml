@@ -53,6 +53,24 @@
 	                    EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) - 3600
 	            END;
 	</insert>
+	
+	<!-- 承認申請を作成 -->
+	<insert id="upsertApproveRequest" parameterType="map">
+	    INSERT INTO attendance_requests (employee_id, year_month, status)
+	    VALUES(#{employeeId}, #{yearMonth}, '未')
+	    ON CONFLICT (employee_id, year_month)
+	    DO UPDATE SET
+	        status = '未';
+	</insert>
+	
+	<!-- 承認申請のステータスを確認 -->
+	<select id="hasApprovalPending" parameterType="map" resultType="boolean">
+	    SELECT COUNT(*) > 0
+	    FROM attendance_requests
+	    WHERE employee_id = #{employeeId}
+	      AND year_month = #{yearMonth}
+	      AND status = '未'
+	</select>
 
 	<!-- 当日の勤怠データを取得 -->
 	<select id="getTodayAttendance" parameterType="java.lang.Integer" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
@@ -95,9 +113,5 @@
 		FROM attendance_records
 		WHERE record_id = #{recordId}
 	</select>
-	
-	<!-- 承認申請を作成 -->
-<!--	<upsert id="">-->
-<!--	</upsert>-->
 
 </mapper>

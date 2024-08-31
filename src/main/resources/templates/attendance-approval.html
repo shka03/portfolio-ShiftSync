@@ -40,13 +40,13 @@
 
         <!-- 申請承認 -->
         <div th:if="${!#lists.isEmpty(attendance_records)}">
-	        <form th:action="@{/approveAttendance}" method="post">
+	        <form th:action="@{/update-approve-status}" method="post">
 	            <input type="hidden" name="employeeId" />
 	            <input type="hidden" name="yearMonth" />
 	            <button type="submit">承認する</button>
 	        </form>
 	        
-	        <form th:action="@{/approveAttendance}" method="post">
+	        <form th:action="@{/update-approve-status}" method="post">
 	            <input type="hidden" name="employeeId" />
 	            <input type="hidden" name="yearMonth" />
 	            <button type="submit">解除する</button>
