@@ -38,12 +38,18 @@
             </tbody>
         </table>
 
-        <!-- 勤怠承認ボタン -->
+        <!-- 申請承認 -->
         <div th:if="${!#lists.isEmpty(attendance_records)}">
 	        <form th:action="@{/approveAttendance}" method="post">
-	            <input type="hidden" name="employeeId" th:value="${selectedEmployeeId}" />
-	            <input type="hidden" name="yearMonth" th:value="${selectedYearMonth}" />
-	            <button type="submit">勤怠を承認する</button>
+	            <input type="hidden" name="employeeId" />
+	            <input type="hidden" name="yearMonth" />
+	            <button type="submit">承認する</button>
+	        </form>
+	        
+	        <form th:action="@{/approveAttendance}" method="post">
+	            <input type="hidden" name="employeeId" />
+	            <input type="hidden" name="yearMonth" />
+	            <button type="submit">解除する</button>
 	        </form>
         </div>
 
