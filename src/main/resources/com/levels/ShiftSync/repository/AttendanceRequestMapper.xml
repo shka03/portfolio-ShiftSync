@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.levels.ShiftSync.repository.AttendanceRequestMapper">
+
+    <!-- 全ての勤怠承認申請を取得 -->
+    <select id="getAllAttendanceRequests" resultType="com.levels.ShiftSync.entity.AttendanceRequest">
+        SELECT request_id AS requestId,
+               employee_id AS employeeId,
+               year_month AS yearMonth,
+               status
+        FROM attendance_requests
+        ORDER BY yearMonth DESC;
+    </select>
+
+    <!-- 従業員IDに基づいて勤怠承認申請を取得 -->
+    <select id="getAttendanceRequestsByEmployeeId" parameterType="java.lang.Integer" resultType="com.levels.ShiftSync.entity.AttendanceRequest">
+        SELECT request_id AS requestId,
+               employee_id AS employeeId,
+               year_month AS yearMonth,
+               status
+        FROM attendance_requests
+        WHERE employee_id = #{employeeId}
+        ORDER BY yearMonth DESC;
+    </select>
+
+</mapper>

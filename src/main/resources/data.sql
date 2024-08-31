@@ -53,3 +53,7 @@ INSERT INTO attendance_records (record_id, employee_id, clock_in, clock_out) VAL
 (3318, 0, '2024-07-03 08:10:00', '2024-07-03 17:15:00'),
 (3417, 0, '2024-07-04 08:15:00', '2024-07-04 17:20:00'),
 (3513, 0, '2024-07-05 08:00:00', '2024-07-05 17:00:00');
+
+-- 勤怠承認テーブルにデータを挿入
+INSERT INTO attendance_requests (request_id, employee_id, year_month, status) VALUES
+(1, 0, '2024-07', '未')

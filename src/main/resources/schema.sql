@@ -1,14 +1,14 @@
--- テーブルが存在したら削除する（依存オブジェクトも削除する）
+-- 既存のテーブルと型を削除する
 DROP TABLE IF EXISTS attendance_records CASCADE;
 DROP TABLE IF EXISTS authentications CASCADE;
 DROP TABLE IF EXISTS employees CASCADE;
+DROP TABLE IF EXISTS attendance_requests CASCADE;
 DROP TYPE IF EXISTS role CASCADE;
 
--- 権限用のENUM型
+-- 権限用のENUM型を作成する
 CREATE TYPE role AS ENUM ('ADMIN', 'USER');
 
-
--- 従業員情報を格納するテーブル
+-- 従業員情報を格納するテーブルを作成する
 CREATE TABLE employees (
     -- 従業員ID：主キー
     employee_id INTEGER PRIMARY KEY,
@@ -24,7 +24,7 @@ CREATE TABLE employees (
     date_of_birth DATE
 );
 
--- 認証情報を格納するテーブル
+-- 認証情報を格納するテーブルを作成する
 CREATE TABLE authentications (
     -- 従業員ID：外部キーとして定義
     employee_id INTEGER PRIMARY KEY REFERENCES employees(employee_id),
@@ -36,7 +36,7 @@ CREATE TABLE authentications (
     authority role NOT NULL
 );
 
--- 勤怠記録を格納するテーブル
+-- 勤怠記録を格納するテーブルを作成する
 CREATE TABLE attendance_records (
     -- レコードID：主キー
     record_id SERIAL PRIMARY KEY,
@@ -48,4 +48,16 @@ CREATE TABLE attendance_records (
     clock_out timestamp without time zone,
     -- 勤務時間
     work_duration interval
+);
+
+-- 勤怠リクエストを格納するテーブルを作成する
+CREATE TABLE attendance_requests (
+    -- リクエストID：主キー
+    request_id SERIAL PRIMARY KEY,
+    -- 従業員ID：外部キー
+    employee_id INTEGER REFERENCES employees(employee_id),
+    -- 年月
+    year_month VARCHAR(7) NOT NULL,
+    -- ステータス
+    status VARCHAR(3)
 );

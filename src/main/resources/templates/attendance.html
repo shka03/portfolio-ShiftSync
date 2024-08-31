@@ -56,6 +56,10 @@
             <a th:href="@{attendance-yearly}" class="btn btn-secondary btn-lg">勤怠履歴</a>
         </div>
         
+        <div class="text-center mb-4">
+            <a th:href="@{/attendance-requests-list}" class="btn btn-secondary btn-lg">勤怠承認</a>
+        </div>
+        
         <!-- ログアウト -->
         <div class="text-center">
             <form th:action="@{/logout}" method="post">
