@@ -27,7 +27,7 @@
             <tr th:each="request : ${attendance_requests}">
                 <td th:text="${request.employeeId}"></td>
                 <td>
-                    <a th:href="@{/attendance-approval(employeeId=${request.employeeId}, yearMonth=${request.yearMonth})}" th:text="${request.yearMonth}"></a>
+                    <a th:href="@{/attendance-approval/{employeeId}/{yearMonth}(employeeId=${request.employeeId}, yearMonth=${request.yearMonth})}" th:text="${request.yearMonth}"></a>
                 </td>
                 <td th:text="${request.status}"></td>
             </tr>

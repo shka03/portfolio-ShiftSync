@@ -56,4 +56,5 @@ INSERT INTO attendance_records (record_id, employee_id, clock_in, clock_out) VAL
 
 -- 勤怠承認テーブルにデータを挿入
 INSERT INTO attendance_requests (request_id, employee_id, year_month, status) VALUES
-(1, 0, '2024-07', '未')
+(1, 0, '2024-07', '未'),
+(2, 1, '2024-07', '未')

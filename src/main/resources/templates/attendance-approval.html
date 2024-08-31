@@ -15,23 +15,6 @@
     <div class="container">
         <h2>勤怠承認</h2>
 
-        <!-- 従業員IDと年月の入力フォーム -->
-        <form th:action="@{/attendanceApproval}" method="get">
-            <label for="employeeId">従業員IDを入力:</label>
-            <input type="text" id="employeeId" name="employeeId" placeholder="従業員IDを入力" required />
-
-            <label for="yearMonth">年月を入力:</label>
-            <input type="month" id="yearMonth" name="yearMonth" required />
-
-            <button type="submit">表示</button>
-        </form>
-
-        <!-- 選択した従業員IDと年月を表示 -->
-        <p th:text="'選択された従業員ID: ' + ${selectedEmployeeId} + '、年月: ' + ${selectedYearMonth} + 'の勤怠履歴'"></p>
-        
-        <!-- CSVダウンロードリンク -->
-        <a th:href="@{/download-csv(employeeId=${selectedEmployeeId}, yearMonth=${selectedYearMonth})}" class="btn btn-primary">Download CSV</a>
-
         <!-- 勤怠テーブル -->
         <table class="attendance-table">
             <thead>
@@ -44,7 +27,7 @@
             </thead>
             <tbody>
             <tr th:if="${#lists.isEmpty(attendance_records)}">
-                <td colspan="6" th:text="${message}">データがありません</td>
+                <td colspan="6" th:text="${message}"></td>
             </tr>
             <tr th:each="attendance_record : ${attendance_records}">
                 <td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd')}"></td>
@@ -56,13 +39,15 @@
         </table>
 
         <!-- 勤怠承認ボタン -->
-        <form th:action="@{/approveAttendance}" method="post">
-            <input type="hidden" name="employeeId" th:value="${selectedEmployeeId}" />
-            <input type="hidden" name="yearMonth" th:value="${selectedYearMonth}" />
-            <button type="submit">勤怠を承認する</button>
-        </form>
+        <div th:if="${!#lists.isEmpty(attendance_records)}">
+	        <form th:action="@{/approveAttendance}" method="post">
+	            <input type="hidden" name="employeeId" th:value="${selectedEmployeeId}" />
+	            <input type="hidden" name="yearMonth" th:value="${selectedYearMonth}" />
+	            <button type="submit">勤怠を承認する</button>
+	        </form>
+        </div>
 
-        <a th:href="@{/}">戻る</a>
+        <a th:href="@{/attendance-requests-list}">勤怠申請一覧に戻る</a>
     </div>
 
     <!-- footer共通部分 -->

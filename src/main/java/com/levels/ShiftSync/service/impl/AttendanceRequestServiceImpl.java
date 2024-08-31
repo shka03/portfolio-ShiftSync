@@ -5,29 +5,33 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.AttendanceRequest;
+import com.levels.ShiftSync.repository.AttendanceRecordMapper;
 import com.levels.ShiftSync.repository.AttendanceRequestMapper;
+import com.levels.ShiftSync.service.AttendanceRequestService;
 
 @Service
-public class AttendanceRequestServiceImpl {
+public class AttendanceRequestServiceImpl implements AttendanceRequestService {
 
     @Autowired
     private AttendanceRequestMapper attendanceRequestMapper;
+    
+    @Autowired
+    private AttendanceRecordMapper attendanceRecordMapper;
 
-    /**
-     * 全ての勤怠承認申請を取得するメソッド
-     * @return 勤怠承認申請リスト
-     */
-    public List<AttendanceRequest> getAllAttendanceRequests() {
-        return attendanceRequestMapper.getAllAttendanceRequests();
+    @Override
+    public List<AttendanceRequest> getAllRequests() {
+        return attendanceRequestMapper.getAllRequests();
     }
 
-    /**
-     * 従業員IDに基づいて勤怠承認申請を取得するメソッド
-     * @param employeeId 従業員ID
-     * @return 勤怠承認申請リスト
-     */
-    public List<AttendanceRequest> getAttendanceRequestsByEmployeeId(Integer employeeId) {
-        return attendanceRequestMapper.getAttendanceRequestsByEmployeeId(employeeId);
+    @Override
+	public List<AttendanceRecord> getEmployeeMonthRequests(Integer employeeId, String yearMonth) {
+        return attendanceRecordMapper.getMonthlyAttendanceForYear(employeeId, yearMonth);
     }
+    
+//    @Override
+//    public void updateApproveStatus(Integer employeeId, String yearMonth) {
+//    	AttendanceRequestMapper.updateApproveStatus(employeeId, yearMonth);
+//    }
 }

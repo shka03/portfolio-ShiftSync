@@ -95,5 +95,9 @@
 		FROM attendance_records
 		WHERE record_id = #{recordId}
 	</select>
+	
+	<!-- 承認申請を作成 -->
+<!--	<upsert id="">-->
+<!--	</upsert>-->
 
 </mapper>

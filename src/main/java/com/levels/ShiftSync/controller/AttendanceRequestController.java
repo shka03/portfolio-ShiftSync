@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.AttendanceRequest;
 import com.levels.ShiftSync.service.impl.AttendanceRequestServiceImpl;
 
@@ -17,9 +20,29 @@ public class AttendanceRequestController {
     private AttendanceRequestServiceImpl attendanceRequestServiceImpl;
 
     @GetMapping("/attendance-requests-list")
-    public String showAttendanceRequests(Model model) {
-        List<AttendanceRequest> attendanceRequests = attendanceRequestServiceImpl.getAllAttendanceRequests();
+    public String showRequests(Model model) {
+        List<AttendanceRequest> attendanceRequests = attendanceRequestServiceImpl.getAllRequests();
         model.addAttribute("attendance_requests", attendanceRequests);
         return "attendance-requests-list";
     }
+    
+    @GetMapping("/attendance-approval/{employeeId}/{yearMonth}")
+    public String showRequestsByEmployee(
+            @PathVariable("employeeId") Integer employeeId,
+            @PathVariable("yearMonth") String yearMonth,
+            Model model,
+            RedirectAttributes attributes) {
+        List<AttendanceRecord> requestRecords = attendanceRequestServiceImpl.getEmployeeMonthRequests(employeeId, yearMonth);
+        
+        if(requestRecords.isEmpty()) {
+        	 model.addAttribute("message", "対象データがありません");
+        	return "attendance-approval";
+        }
+        
+        model.addAttribute("attendance_records", requestRecords);
+        model.addAttribute("yearMonth", yearMonth);
+        
+        return "attendance-approval";
+    }
+    
 }
