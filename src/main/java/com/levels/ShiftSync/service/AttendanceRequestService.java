@@ -21,6 +21,8 @@ public interface AttendanceRequestService {
      */
     List<AttendanceRecord> getEmployeeMonthRequests(Integer employeeId, String yearMonth);
     
+    String getApprovalStatus(Integer employeeId, String yearMonth);
+    
     /**
      * 従業員IDと指定年月に基づいて勤怠申請の承認状態を変更するメソッド
      * @param employeeId 従業員ID
@@ -28,5 +30,7 @@ public interface AttendanceRequestService {
      * @param status 承認状態
      */
     void updateApproveStatus(Integer employeeId, String yearMonth, String status);
+    
+    void deleteRequest(Integer employeeId, String yearMonth);
 
 }

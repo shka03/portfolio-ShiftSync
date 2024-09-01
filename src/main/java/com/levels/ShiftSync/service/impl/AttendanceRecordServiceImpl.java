@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
+import com.levels.ShiftSync.entity.AttendanceRequest;
 import com.levels.ShiftSync.entity.LoginUser;
 import com.levels.ShiftSync.repository.AttendanceRecordMapper;
+import com.levels.ShiftSync.repository.AttendanceRequestMapper;
 import com.levels.ShiftSync.service.AttendanceRecordService;
 import com.levels.ShiftSync.utility.SecurityUtils;
 
@@ -24,6 +26,8 @@ import lombok.RequiredArgsConstructor;
 public class AttendanceRecordServiceImpl implements AttendanceRecordService {
 
     private final AttendanceRecordMapper attendanceRecordMapper;
+    
+    private final AttendanceRequestMapper attendanceRequestMapper;
 
     /**
      * 出勤時間をデータベースに挿入するメソッド
@@ -118,9 +122,9 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
      * @param yearMonth 承認対象の年月。年月（yyyy-MM）形式で指定します。
      */
     @Override
-    public void upsertApproveRequest(Integer employeeId, String yearMonth) {
-    	attendanceRecordMapper.upsertApproveRequest(employeeId, yearMonth);
-    }
+    public void insertApproveRequest(Integer employeeId, String yearMonth) {
+    	attendanceRecordMapper.insertApproveRequest(employeeId, yearMonth);
+    }    
 
     /**
      * 従業員の当日の出退勤時間を取得するメソッド
@@ -155,7 +159,16 @@ public class AttendanceRecordServiceImpl implements AttendanceRecordService {
     public boolean hasApprovalPending(Integer employeeId, String yearMonth) {
         return attendanceRecordMapper.hasApprovalPending(employeeId, yearMonth);
     }
-
+    
+    // TODO:実装する
+    public boolean isNoRequest(Integer employeeId, String yearMonth) {
+    	return attendanceRecordMapper.isNoRequest(employeeId, yearMonth);
+    }
+    
+    public boolean hasRequestsForMonth(Integer employeeId, String yearMonth) {
+    	List<AttendanceRequest> records = attendanceRecordMapper.getRequestsForMonth(employeeId, yearMonth);
+    	return !records.isEmpty();
+    }
 
     public boolean hasRecordsForMonth(Integer employeeId, String yearMonth) {
     	List<AttendanceRecord> records = attendanceRecordMapper.getMonthlyAttendanceForYear(employeeId, yearMonth);

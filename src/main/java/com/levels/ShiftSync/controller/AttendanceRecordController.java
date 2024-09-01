@@ -3,6 +3,7 @@ package com.levels.ShiftSync.controller;
 import java.io.ByteArrayInputStream;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
+import com.levels.ShiftSync.entity.LoginUser;
 import com.levels.ShiftSync.service.impl.AttendanceRecordServiceImpl;
 import com.levels.ShiftSync.service.impl.CsvExportServiceImpl;
 import com.levels.ShiftSync.utility.SecurityUtils;
@@ -309,15 +312,21 @@ public class AttendanceRecordController {
 
         // データが存在する場合、勤怠記録をモデルに追加
         model.addAttribute("attendance_records", yearlyAttendance);
-
-        // 選択された月をモデルに追加
         model.addAttribute("selectedMonth", month);
+        model.addAttribute("message", null); // エラーメッセージをクリア
+
         
-        // 承認申請のステータスを取得してモデルに追加
-        Integer employeeId = SecurityUtils.getEmployeeIdFromSecurityContext();
-        String yearMonth = String.format("%d-%02d", LocalDate.now().getYear(), month);
-        boolean hasApprovalPending = attendanceRecordServiceImpl.hasApprovalPending(employeeId, yearMonth);
-        model.addAttribute("hasApprovalPending", hasApprovalPending);
+        // コントローラーのロジックに応じて変更する必要がある場合は、ここに追加
+        // ログイン中のユーザーIDを取得
+        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Integer employeeId = loginUser.getEmployeeId();
+
+        // 現在の年と選択された月を "YYYY-MM" 形式で取得
+        Calendar cal = Calendar.getInstance();
+        String yearMonth = String.format("%d-%02d", cal.get(Calendar.YEAR), month);
+        boolean hasRequest = attendanceRecordServiceImpl.hasRequestsForMonth(employeeId, yearMonth);
+        boolean isNoRequest = attendanceRecordServiceImpl.isNoRequest(employeeId, yearMonth);
+        model.addAttribute("isNoRequest", isNoRequest && !hasRequest);
 
         return "attendance-yearly";
     }
@@ -355,8 +364,8 @@ public class AttendanceRecordController {
      * 承認申請依頼の処理を行うメソッド
      * @return リダイレクト先のURL
      */
-    @PostMapping("/upsert-approve-request")
-    public String upsertApproveRequest(
+    @PostMapping("/insert-approve-request")
+    public String insertApproveRequest(
             @RequestParam("month") Integer month,
             RedirectAttributes redirectAttributes) {
         Integer employeeId = SecurityUtils.getEmployeeIdFromSecurityContext();
@@ -369,7 +378,7 @@ public class AttendanceRecordController {
         }
 
         // 承認申請を実行
-        attendanceRecordServiceImpl.upsertApproveRequest(employeeId, yearMonth);
+        attendanceRecordServiceImpl.insertApproveRequest(employeeId, yearMonth);
         redirectAttributes.addFlashAttribute("approveSuccessMessage", "承認申請をしました。");
         return "redirect:/attendance-yearly?month=" + month;
     }

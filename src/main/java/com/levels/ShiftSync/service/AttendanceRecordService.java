@@ -57,12 +57,12 @@ public interface AttendanceRecordService {
     void upsertWorkDuration(Integer recordId, Timestamp newClockOut, Timestamp newClockIn);
 
     /**
-     * 指定した月の勤怠履歴の承認申請を登録・更新するメソッド
+     * 指定した月の勤怠履歴の承認申請を登録するメソッド
      * 
      * @param employeeId 従業員ID。どの従業に関する勤怠履歴を更新するかを特定するために使用します。
      * @param yearMonth 承認対象の年月。年月（yyyy-MM）形式で指定します。
      */
-    void upsertApproveRequest(Integer employeeId, String yearMonth);
+    void insertApproveRequest(Integer employeeId, String yearMonth);
     
     /**
      * 従業員の当日の出退勤時間を取得するメソッド

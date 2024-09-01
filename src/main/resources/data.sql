@@ -18,8 +18,9 @@ VALUES (2, 'user', '$2a$10$/jar9xXQ6lrnVjLvLGv5BepFkLnGIO49RrGx42p2i.1hQt1BZ/7E2
 
 -- 勤怠承認テーブルにデータを挿入
 INSERT INTO attendance_requests (employee_id, year_month, status) VALUES
-(0, '2024-07', '未'),
-(1, '2024-07', '未');
+(0, '2024-01', '承認済'),
+(0, '2024-07', '提出済'),
+(1, '2024-07', '提出済');
 
 -- 勤怠記録テーブルにデータを挿入
 INSERT INTO attendance_records (employee_id, clock_in, clock_out, work_duration) VALUES

@@ -62,4 +62,16 @@ public class AttendanceRequestController {
         return "redirect:/attendance-approval/" + employeeId + "/" + yearMonth;
     }
     
+    @PostMapping("/delete-request")
+    public String deleteRequest(
+            @RequestParam("employeeId") Integer employeeId,
+            @RequestParam("yearMonth") String yearMonth,
+            Model model) {
+        attendanceRequestServiceImpl.deleteRequest(employeeId, yearMonth);
+        model.addAttribute("employeeId", employeeId);
+        model.addAttribute("yearMonth", yearMonth);
+        
+        return "redirect:/attendance-approval/" + employeeId + "/" + yearMonth;
+    }
+    
 }

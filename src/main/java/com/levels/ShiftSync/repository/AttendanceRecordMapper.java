@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
+import com.levels.ShiftSync.entity.AttendanceRequest;
 
 /**
  * 従業員の勤怠記録を操作するためのMyBatisマッパーインターフェース
@@ -54,7 +54,7 @@ public interface AttendanceRecordMapper {
      * @param employeeId 従業員ID。どの従業に関する勤怠履歴を更新するかを特定するために使用します。
      * @param yearMonth 承認対象の年月。年月（yyyy-MM）形式で指定します。
      */
-    void upsertApproveRequest(Integer employeeId, String yearMonth);
+    void insertApproveRequest(Integer employeeId, String yearMonth);
     
     /**
      * 承認申請のステータスをチェックするメソッド
@@ -62,7 +62,24 @@ public interface AttendanceRecordMapper {
      * @param yearMonth 承認対象の年月。年月（yyyy-MM）形式で指定します。
      * @return 指定年月の承認ステータスが未のレコード数を返します。
      */
-    boolean hasApprovalPending(@Param("employeeId") Integer employeeId, @Param("yearMonth") String yearMonth);
+    boolean hasApprovalPending(Integer employeeId, String yearMonth);
+    
+    /**
+     * 承認申請のステータスを確認するメソッド
+     * @param employeeId 従業員のID
+     * @param yearMonth 承認対象の年月。年月（yyyy-MM）形式で指定します。
+     * @return 指定年月の承認ステータスを返します。
+     */    
+    boolean isNoRequest(Integer employeeId, String yearMonth);
+    
+    /**
+     * 指定した月の承認申請を取得するメソッド
+     * 
+     * @param employeeId 従業員ID
+     * @param yearMonth 年月 (YYYY-MM)
+     * @return 指定された月の承認申請リスト。申請がない場合は空のリストを返します。
+     */
+    List<AttendanceRequest> getRequestsForMonth(Integer employeeId, String yearMonth);
     
     /**
      * 従業員の当日の出退勤時間を取得するメソッド

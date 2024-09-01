@@ -20,11 +20,17 @@
         WHERE employee_id = #{employeeId} AND year_month = #{yearMonth}
     </select>
 
-    <!-- 承認状態の登録と更新をする -->
+    <!-- 承認状態の更新をする -->
     <update id="updateApproveStatus">
 	    UPDATE attendance_requests
 	    SET status = #{status}
 	    WHERE employee_id = #{employeeId} AND year_month = #{yearMonth}
 	</update>
+	
+	<!-- 承認申請を解除する -->
+	<delete id="deleteRequest">
+		DELETE FROM attendance_requests
+		WHERE employee_id = #{employeeId} AND year_month = #{yearMonth}
+	</delete>
 
 </mapper>

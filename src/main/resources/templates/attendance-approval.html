@@ -40,17 +40,16 @@
 
         <!-- 申請承認 -->
         <div th:if="${!#lists.isEmpty(attendance_records)}">
-			<form th:action="@{/update-approve-status}" method="post" th:if="${status == '未'}">
+			<form th:action="@{/update-approve-status}" method="post" th:if="${status == '提出済'}">
 			    <input type="hidden" name="employeeId" th:value="${employeeId}" />
 			    <input type="hidden" name="yearMonth" th:value="${yearMonth}" />
-			    <input type="hidden" name="status" value="済" />
+			    <input type="hidden" name="status" value="承認済" />
 			    <button type="submit">承認する</button>
 			</form>
 			
-			<form th:action="@{/update-approve-status}" method="post" th:if="${status == '済'}">
+			<form th:action="@{/delete-request}" method="post" th:if="${status == '承認済'}">
 			    <input type="hidden" name="employeeId" th:value="${employeeId}" />
 			    <input type="hidden" name="yearMonth" th:value="${yearMonth}" />
-			    <input type="hidden" name="status" value="未" />
 			    <button type="submit">解除する</button>
 			</form>
         </div>

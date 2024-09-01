@@ -31,6 +31,7 @@ public interface AttendanceRequestMapper {
      * 従業員IDと指定年月に基づいて勤怠申請の承認状態を変更するメソッド
      * @param employeeId 従業員ID
      * @param yearMonth 年月
+     * @param status 承認ステータス
      */
     void updateApproveStatus(
     		@Param("employeeId") Integer employeeId,
@@ -44,4 +45,13 @@ public interface AttendanceRequestMapper {
      * @return 従業員の指定年月の承認状態
      */
     String getApprovalStatus(Integer employeeId, String yearMonth);
+    
+    /**
+     * 従業員IDと指定年月に基づいて勤怠承認申請を取得するメソッド
+     * @param employeeId 従業員ID
+     * @param yearMonth 年月
+     */
+    void deleteRequest(
+       		@Param("employeeId") Integer employeeId,
+    		@Param("yearMonth") String yearMonth);
 }
