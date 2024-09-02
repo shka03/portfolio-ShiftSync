@@ -55,7 +55,7 @@
 	</insert>
 	
 	<!-- 承認申請を作成 -->
-	<insert id="insertApproveRequest">
+	<insert id="insertApproveRequest" parameterType="map">
 	    INSERT INTO attendance_requests (employee_id, year_month, status)
 	    VALUES(#{employeeId}, #{yearMonth}, '提出済')
 	</insert>
@@ -81,7 +81,7 @@
 	</select>
 
 	<!-- 当日の勤怠データを取得 -->
-	<select id="getTodayAttendance" parameterType="java.lang.Integer" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
+	<select id="getTodayRecordForEmployee" parameterType="java.lang.Integer" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
 	    SELECT
 	        record_id AS recordId,
 		    employee_id AS employeeId,
@@ -94,7 +94,7 @@
 	</select>
 
 	<!-- 特定の月の勤怠データを取得 -->
-	<select id="getMonthlyAttendanceForYear" parameterType="map" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
+	<select id="getRecordForYearByMonth" parameterType="map" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
 	    <![CDATA[
 	    SELECT
 	        record_id AS recordId,

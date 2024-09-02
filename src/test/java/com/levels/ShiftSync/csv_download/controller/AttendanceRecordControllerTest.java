@@ -40,7 +40,7 @@ public class AttendanceRecordControllerTest {
     public void testDownloadCsv_WithMonth() throws Exception {
         // Mockデータの準備
         List<AttendanceRecord> records = Collections.singletonList(new AttendanceRecord(1, 1, Timestamp.valueOf("2024-08-24 08:00:00"), Timestamp.valueOf("2024-08-24 17:00:00"), null));
-        when(attendanceRecordServiceImpl.getYearlyAttendanceForMonth(8)).thenReturn(records);
+        when(attendanceRecordServiceImpl.getRecordForYearByMonth(8)).thenReturn(records);
         when(csvExportServiceImpl.exportToCsv(records)).thenReturn("Record ID,Employee ID,Clock In,Clock Out\n1,1,2024-08-24 08:00:00,2024-08-24 17:00:00");
 
         // リクエストの送信とレスポンスの検証
@@ -56,7 +56,7 @@ public class AttendanceRecordControllerTest {
     public void testDownloadCsv_WithoutMonth() throws Exception {
         // Mockデータの準備
         List<AttendanceRecord> records = Collections.singletonList(new AttendanceRecord(1, 1, Timestamp.valueOf("2024-08-24 08:00:00"), Timestamp.valueOf("2024-08-24 17:00:00"), null));
-        when(attendanceRecordServiceImpl.getYearlyAttendanceForMonth(LocalDate.now().getMonthValue())).thenReturn(records);
+        when(attendanceRecordServiceImpl.getRecordForYearByMonth(LocalDate.now().getMonthValue())).thenReturn(records);
         when(csvExportServiceImpl.exportToCsv(records)).thenReturn("Record ID,Employee ID,Clock In,Clock Out\n1,1,2024-08-24 08:00:00,2024-08-24 17:00:00");
 
         // リクエストの送信とレスポンスの検証

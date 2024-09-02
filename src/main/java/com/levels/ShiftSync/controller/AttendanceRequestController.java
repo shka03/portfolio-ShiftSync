@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.AttendanceRequest;
+import com.levels.ShiftSync.repository.AttendanceRecordMapper;
 import com.levels.ShiftSync.service.impl.AttendanceRequestServiceImpl;
 
 @Controller
@@ -19,6 +20,9 @@ public class AttendanceRequestController {
 
     @Autowired
     private AttendanceRequestServiceImpl attendanceRequestServiceImpl;
+    
+    @Autowired
+    private AttendanceRecordMapper attendanceRecordMapper;
 
     @GetMapping("/attendance-requests-list")
     public String showRequests(Model model) {
@@ -32,7 +36,7 @@ public class AttendanceRequestController {
             @PathVariable("employeeId") Integer employeeId,
             @PathVariable("yearMonth") String yearMonth,
             Model model) {
-        List<AttendanceRecord> requestRecords = attendanceRequestServiceImpl.getEmployeeMonthRequests(employeeId, yearMonth);
+        List<AttendanceRecord> requestRecords = attendanceRecordMapper.getRecordForYearByMonth(employeeId, yearMonth);
         
         if(requestRecords.isEmpty()) {
         	 model.addAttribute("message", "対象データがありません");

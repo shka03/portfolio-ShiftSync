@@ -45,7 +45,7 @@ public class AttendanceRecordController {
      */
     @GetMapping
     public String showAttendancePage(Model model) {
-        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayRecordForEmployee();
         populateAttendanceModel(model, todayAttendance);
         return "attendance";
     }
@@ -57,7 +57,7 @@ public class AttendanceRecordController {
      */
     @PostMapping("/clock-in")
     public String clockIn(RedirectAttributes attributes) {
-        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayRecordForEmployee();
 
         // 既に出勤済みの場合の処理
         if (!todayAttendance.isEmpty()) {
@@ -67,7 +67,7 @@ public class AttendanceRecordController {
 
         // 出勤処理を実行
         attendanceRecordServiceImpl.clockInTime();
-        todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+        todayAttendance = attendanceRecordServiceImpl.getTodayRecordForEmployee();
         addClockInSuccessAttributes(attributes, todayAttendance.get(0).getClockIn());
         return "redirect:/";
     }
@@ -81,7 +81,7 @@ public class AttendanceRecordController {
      * @param attributes リダイレクト時にFlashAttributesにデータを追加
      * @return リダイレクト先のURL
      */
-    @PostMapping("/updateClockInTime")
+    @PostMapping("/update-clock-in-time")
     public String updateClockInTime(
             @RequestParam("recordId") Integer recordId,
             @RequestParam("employeeId") Integer employeeId,
@@ -93,19 +93,19 @@ public class AttendanceRecordController {
         // 入力パラメータの検証
         if (isInvalidClockInParameter(newClockInStr, currentClockInStr)) {
             attributes.addFlashAttribute("message", "出勤時刻が無効です。");
-            return "redirect:/attendance-yearly";
+            return "redirect:/attendance-year-month";
         }
 
         // 現在の出勤時刻から日付部分を取得
         String datePart = extractDatePartFromCurrentClockIn(currentClockInStr, attributes);
         if (datePart == null) {
-            return "redirect:/attendance-yearly";
+            return "redirect:/attendance-year-month";
         }
 
         // 新しい出勤時刻のパースと検証
         Timestamp newClockIn = parseNewClockIn(datePart, newClockInStr, attributes);
         if (newClockIn == null) {
-            return "redirect:/attendance-yearly";
+            return "redirect:/attendance-year-month";
         }
 
         try {
@@ -118,7 +118,7 @@ public class AttendanceRecordController {
         }
         
         attributes.addAttribute("month", month); // 月のパラメータを追加
-        return "redirect:/attendance-yearly";
+        return "redirect:/attendance-year-month";
     }
 
     /**
@@ -181,7 +181,7 @@ public class AttendanceRecordController {
      */
     @PostMapping("/clock-out")
     public String clockOut(RedirectAttributes attributes) {
-        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+        List<AttendanceRecord> todayAttendance = attendanceRecordServiceImpl.getTodayRecordForEmployee();
 
         // 出勤記録がない場合の処理
         if (todayAttendance.isEmpty()) {
@@ -198,7 +198,7 @@ public class AttendanceRecordController {
 
         // 退勤処理を実行
         attendanceRecordServiceImpl.clockOutTime();
-        todayAttendance = attendanceRecordServiceImpl.getTodayAttendance();
+        todayAttendance = attendanceRecordServiceImpl.getTodayRecordForEmployee();
         addClockOutSuccessAttributes(attributes, todayAttendance.get(0).getClockOut());
         
         // 当日の勤務時間を登録
@@ -216,7 +216,7 @@ public class AttendanceRecordController {
      * @param attributes リダイレクト時にFlashAttributesにデータを追加
      * @return リダイレクト先のURL
      */
-    @PostMapping("/updateClockOutTime")
+    @PostMapping("/update-clock-out-time")
     public String updateClockOutTime(
             @RequestParam("recordId") Integer recordId,
             @RequestParam("employeeId") Integer employeeId,
@@ -228,7 +228,7 @@ public class AttendanceRecordController {
         // 入力パラメータの検証
         if (isInvalidTimeParameter(newClockOutStr, currentClockOutStr)) {
             attributes.addFlashAttribute("message", "退勤時刻が無効です。");
-            return "redirect:/attendance-yearly";
+            return "redirect:/attendance-year-month";
         }
 
         // 現在の退勤時刻から日付部分を取得
@@ -237,7 +237,7 @@ public class AttendanceRecordController {
             datePart = extractDatePart(currentClockOutStr);
         } catch (ArrayIndexOutOfBoundsException e) {
             attributes.addFlashAttribute("message", "現在の退勤時刻の形式が不正です。");
-            return "redirect:/attendance-yearly";
+            return "redirect:/attendance-year-month";
         }
 
         // 日付部分と新しい退勤時間部分を結合してタイムスタンプ形式に変換
@@ -246,7 +246,7 @@ public class AttendanceRecordController {
             newClockOut = createTimestamp(datePart, newClockOutStr);
         } catch (IllegalArgumentException e) {
             attributes.addFlashAttribute("message", "新しい退勤時刻の形式が不正です。");
-            return "redirect:/attendance-yearly";
+            return "redirect:/attendance-year-month";
         }
 
         // 退勤時間の修正を実行
@@ -258,7 +258,7 @@ public class AttendanceRecordController {
         }
 
         attributes.addAttribute("month", month);
-        return "redirect:/attendance-yearly";
+        return "redirect:/attendance-year-month";
     }
 
     // 入力パラメータが無効かどうかを確認するメソッド
@@ -291,7 +291,7 @@ public class AttendanceRecordController {
      * @param model Thymeleafテンプレートにデータを渡すためのモデル
      * @return "attendance-yearly" テンプレート名
      */
-    @GetMapping("/attendance-yearly")
+    @GetMapping("/attendance-year-month")
     public String showYearlyAttendance(
             @RequestParam(value = "month", required = false) Integer month, 
             Model model
@@ -301,7 +301,7 @@ public class AttendanceRecordController {
             month = LocalDate.now().getMonthValue();
         }
         
-        List<AttendanceRecord> yearlyAttendance = attendanceRecordServiceImpl.getYearlyAttendanceForMonth(month);
+        List<AttendanceRecord> yearlyAttendance = attendanceRecordServiceImpl.getRecordForYearByMonth(month);
 
         // データが存在しない場合は、エラーメッセージをモデルに追加し、早期にリターン
         if (yearlyAttendance.isEmpty()) {
@@ -315,8 +315,6 @@ public class AttendanceRecordController {
         model.addAttribute("selectedMonth", month);
         model.addAttribute("message", null); // エラーメッセージをクリア
 
-        
-        // コントローラーのロジックに応じて変更する必要がある場合は、ここに追加
         // ログイン中のユーザーIDを取得
         LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Integer employeeId = loginUser.getEmployeeId();
@@ -326,7 +324,7 @@ public class AttendanceRecordController {
         String yearMonth = String.format("%d-%02d", cal.get(Calendar.YEAR), month);
         boolean hasRequest = attendanceRecordServiceImpl.hasRequestsForMonth(employeeId, yearMonth);
         boolean isNoRequest = attendanceRecordServiceImpl.isNoRequest(employeeId, yearMonth);
-        model.addAttribute("isNoRequest", isNoRequest && !hasRequest);
+        model.addAttribute("canApproveRequest", isNoRequest && !hasRequest);
 
         return "attendance-yearly";
     }
@@ -344,7 +342,7 @@ public class AttendanceRecordController {
             month = LocalDate.now().getMonthValue();
         }
 
-        List<AttendanceRecord> records = attendanceRecordServiceImpl.getYearlyAttendanceForMonth(month);
+        List<AttendanceRecord> records = attendanceRecordServiceImpl.getRecordForYearByMonth(month);
         String csvData = csvExportServiceImpl.exportToCsv(records);
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream(csvData.getBytes());
@@ -374,13 +372,13 @@ public class AttendanceRecordController {
         // 勤怠履歴が存在するかどうか確認
         if (!attendanceRecordServiceImpl.hasRecordsForMonth(employeeId, yearMonth)) {
             redirectAttributes.addFlashAttribute("approveErrorMessage", "指定された年月に勤怠履歴が存在しないため、承認申請ができません。");
-            return "redirect:/attendance-yearly?month=" + month;
+            return "redirect:/attendance-year-month?month=" + month;
         }
 
         // 承認申請を実行
         attendanceRecordServiceImpl.insertApproveRequest(employeeId, yearMonth);
         redirectAttributes.addFlashAttribute("approveSuccessMessage", "承認申請をしました。");
-        return "redirect:/attendance-yearly?month=" + month;
+        return "redirect:/attendance-year-month?month=" + month;
     }
     
     /**

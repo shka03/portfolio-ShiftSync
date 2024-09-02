@@ -18,6 +18,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -27,6 +30,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import com.levels.ShiftSync.controller.AttendanceRecordController;
 import com.levels.ShiftSync.entity.AttendanceRecord;
+import com.levels.ShiftSync.entity.LoginUser;
 import com.levels.ShiftSync.service.impl.AttendanceRecordServiceImpl;
 
 public class AttendanceRecordControllerTest {
@@ -46,6 +50,11 @@ public class AttendanceRecordControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(attendanceRecordController)
                 .setViewResolvers(new InternalResourceViewResolver("/WEB-INF/views/", ".jsp"))
                 .build();
+        
+        LoginUser loginUser = new LoginUser(1, "testuser", "password", List.of());
+        UsernamePasswordAuthenticationToken auth = 
+            new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     /**
@@ -56,7 +65,7 @@ public class AttendanceRecordControllerTest {
     @DisplayName("出勤処理が成功し、成功メッセージが表示されるテスト")
     void testClockInSuccess() throws Exception {
         Timestamp now = new Timestamp(System.currentTimeMillis());
-        when(attendanceRecordServiceImpl.getTodayAttendance())
+        when(attendanceRecordServiceImpl.getTodayRecordForEmployee())
             .thenReturn(new ArrayList<>()) // 出勤前には空のリスト
             .thenReturn(List.of(new AttendanceRecord(
                 1, // employeeId
@@ -84,7 +93,7 @@ public class AttendanceRecordControllerTest {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         List<AttendanceRecord> records = new ArrayList<>();
         records.add(new AttendanceRecord(1, 1, now, null,null));
-        when(attendanceRecordServiceImpl.getTodayAttendance()).thenReturn(records);
+        when(attendanceRecordServiceImpl.getTodayRecordForEmployee()).thenReturn(records);
 
         mockMvc.perform(post("/clock-in"))
                .andExpect(status().is3xxRedirection())
@@ -103,14 +112,14 @@ public class AttendanceRecordControllerTest {
         doNothing().when(attendanceRecordServiceImpl).updateClockInTime(anyInt(), anyInt(), any(Timestamp.class));
 
         // リクエストのシミュレーション
-        mockMvc.perform(post("/updateClockInTime")
+        mockMvc.perform(post("/update-clock-in-time")
                 .param("recordId", "1")
                 .param("employeeId", "1")
                 .param("newClockIn", "08:30")
                 .param("currentClockIn", "2024-08-22 08:00")
                 .flashAttr("message", "出勤時刻を修正しました。"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/attendance-yearly"))
+                .andExpect(redirectedUrl("/attendance-year-month"))
                 .andExpect(flash().attribute("message", "出勤時刻を修正しました。"));
 
         // モックメソッドの呼び出し確認
@@ -121,13 +130,13 @@ public class AttendanceRecordControllerTest {
     @DisplayName("無効な現在の出勤時刻形式でエラーメッセージが表示されるテスト")
     void testUpdateClockInTime_InvalidCurrentClockInFormat() throws Exception {
         // リクエストのシミュレーション
-        mockMvc.perform(post("/updateClockInTime")
+        mockMvc.perform(post("/update-clock-in-time")
                 .param("recordId", "1")
                 .param("employeeId", "1")
                 .param("newClockIn", "08:30")
                 .param("currentClockIn", "invalid_format"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/attendance-yearly"))
+                .andExpect(redirectedUrl("/attendance-year-month"))
                 .andExpect(flash().attribute("message", "現在の出勤時刻の形式が不正です。"));
     }
 
@@ -135,13 +144,13 @@ public class AttendanceRecordControllerTest {
     @DisplayName("無効な新しい出勤時刻形式でエラーメッセージが表示されるテスト")
     void testUpdateClockInTime_InvalidNewClockInFormat() throws Exception {
         // リクエストのシミュレーション
-        mockMvc.perform(post("/updateClockInTime")
+        mockMvc.perform(post("/update-clock-in-time")
                 .param("recordId", "1")
                 .param("employeeId", "1")
                 .param("newClockIn", "invalid_time")
                 .param("currentClockIn", "2024-08-22 08:00:00"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/attendance-yearly"))
+                .andExpect(redirectedUrl("/attendance-year-month"))
                 .andExpect(flash().attribute("message", "新しい出勤時刻の形式が不正です。"));
     }
 
@@ -149,13 +158,13 @@ public class AttendanceRecordControllerTest {
     @DisplayName("出勤時刻がnullの場合にエラーメッセージが表示されるテスト")
     void testUpdateClockInTime_NullParameters() throws Exception {
         // リクエストのシミュレーション
-        mockMvc.perform(post("/updateClockInTime")
+        mockMvc.perform(post("/update-clock-in-time")
                 .param("recordId", "1")
                 .param("employeeId", "1")
                 .param("newClockIn", "")
                 .param("currentClockIn", ""))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/attendance-yearly"))
+                .andExpect(redirectedUrl("/attendance-year-month"))
                 .andExpect(flash().attribute("message", "出勤時刻が無効です。"));
     }
 
@@ -166,13 +175,13 @@ public class AttendanceRecordControllerTest {
         doThrow(new RuntimeException("DBエラー")).when(attendanceRecordServiceImpl).updateClockInTime(anyInt(), anyInt(), any(Timestamp.class));
 
         // リクエストのシミュレーション
-        mockMvc.perform(post("/updateClockInTime")
+        mockMvc.perform(post("/update-clock-in-time")
                 .param("recordId", "1")
                 .param("employeeId", "1")
                 .param("newClockIn", "08:30")
                 .param("currentClockIn", "2024-08-22 08:00"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/attendance-yearly"))
+                .andExpect(redirectedUrl("/attendance-year-month"))
                 .andExpect(flash().attribute("message", "出勤時刻の修正に失敗しました。"));
     }
 
@@ -186,7 +195,7 @@ public class AttendanceRecordControllerTest {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         List<AttendanceRecord> records = new ArrayList<>();
         records.add(new AttendanceRecord(1, 1, now, null, null));
-        when(attendanceRecordServiceImpl.getTodayAttendance()).thenReturn(records);
+        when(attendanceRecordServiceImpl.getTodayRecordForEmployee()).thenReturn(records);
 
         mockMvc.perform(post("/clock-out"))
                .andExpect(status().is3xxRedirection())
@@ -204,7 +213,7 @@ public class AttendanceRecordControllerTest {
     @Test
     @DisplayName("出勤記録がない場合の退勤処理でエラーメッセージが表示されるテスト")
     void testClockOutNoClockIn() throws Exception {
-        when(attendanceRecordServiceImpl.getTodayAttendance()).thenReturn(new ArrayList<>());
+        when(attendanceRecordServiceImpl.getTodayRecordForEmployee()).thenReturn(new ArrayList<>());
 
         mockMvc.perform(post("/clock-out"))
                .andExpect(status().is3xxRedirection())
@@ -225,7 +234,7 @@ public class AttendanceRecordControllerTest {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         List<AttendanceRecord> records = new ArrayList<>();
         records.add(new AttendanceRecord(1, 1, now, now, null));
-        when(attendanceRecordServiceImpl.getTodayAttendance()).thenReturn(records);
+        when(attendanceRecordServiceImpl.getTodayRecordForEmployee()).thenReturn(records);
 
         mockMvc.perform(post("/clock-out"))
                .andExpect(status().is3xxRedirection())
@@ -244,14 +253,14 @@ public class AttendanceRecordControllerTest {
         doNothing().when(attendanceRecordServiceImpl).updateClockOutTime(anyInt(), anyInt(), any(Timestamp.class));
 
         // リクエストのシミュレーション
-        mockMvc.perform(post("/updateClockOutTime")
+        mockMvc.perform(post("/update-clock-out-time")
                 .param("recordId", "1")
                 .param("employeeId", "1")
                 .param("newClockOut", "17:30")
                 .param("currentClockOut", "2024-08-22 17:00")
                 .flashAttr("message", "退勤時刻を修正しました。"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/attendance-yearly"))
+                .andExpect(redirectedUrl("/attendance-year-month"))
                 .andExpect(flash().attribute("message", "退勤時刻を修正しました。"));
 
         // モックメソッドの呼び出し確認
@@ -261,13 +270,13 @@ public class AttendanceRecordControllerTest {
     @Test
     @DisplayName("無効な退勤時刻パラメータが提供された場合、退勤時刻が更新されないテスト")
     public void testUpdateClockOutTime_InvalidClockOutFormat() throws Exception {
-        mockMvc.perform(post("/updateClockOutTime")
+        mockMvc.perform(post("/update-clock-out-time")
                 .param("recordId", "1")
                 .param("employeeId", "1")
                 .param("newClockOut", "invalid_format")
                 .param("currentClockOut", "2024-08-22 17:00:00"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/attendance-yearly"));
+                .andExpect(redirectedUrl("/attendance-year-month"));
 
         verify(attendanceRecordServiceImpl, never()).updateClockOutTime(any(), any(), any());
     }
@@ -275,13 +284,13 @@ public class AttendanceRecordControllerTest {
     @Test
     @DisplayName("退勤時刻が無効な場合にエラーメッセージが表示されるテスト")
     void testUpdateClockOutTime_InvalidClockOut() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/updateClockOutTime")
+        mockMvc.perform(MockMvcRequestBuilders.post("/update-clock-out-time")
                 .param("recordId", "1")
                 .param("employeeId", "1")
                 .param("newClockOut", "")
                 .param("currentClockOut", "2024-08-24 17:30:00"))
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl("/attendance-yearly"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/attendance-year-month"))
                 .andExpect(MockMvcResultMatchers.flash().attribute("message", "退勤時刻が無効です。"))
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -289,13 +298,13 @@ public class AttendanceRecordControllerTest {
     @Test
     @DisplayName("現在の退勤時刻形式が不正な場合にエラーメッセージが表示されるテスト")
     void testUpdateClockOutTime_InvalidCurrentClockOutFormat() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/updateClockOutTime")
+        mockMvc.perform(MockMvcRequestBuilders.post("/update-clock-out-time")
                 .param("recordId", "1")
                 .param("employeeId", "1")
                 .param("newClockOut", "17:30") // 正しい形式の新しい退勤時刻
                 .param("currentClockOut", "invalid_time")) // 不正な形式の現在の退勤時刻
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl("/attendance-yearly"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/attendance-year-month"))
                 .andExpect(MockMvcResultMatchers.flash().attribute("message", "現在の退勤時刻の形式が不正です。"))
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -303,13 +312,13 @@ public class AttendanceRecordControllerTest {
     @Test
     @DisplayName("新しい退勤時刻形式が不正な場合にエラーメッセージが表示されるテスト")
     void testUpdateClockOutTime_InvalidNewClockOutFormat() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/updateClockOutTime")
+        mockMvc.perform(MockMvcRequestBuilders.post("/update-clock-out-time")
                 .param("recordId", "1")
                 .param("employeeId", "1")
                 .param("newClockOut", "invalid_time")
                 .param("currentClockOut", "2024-08-24 17:30:00"))
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl("/attendance-yearly"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/attendance-year-month"))
                 .andExpect(MockMvcResultMatchers.flash().attribute("message", "新しい退勤時刻の形式が不正です。"))
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -319,13 +328,13 @@ public class AttendanceRecordControllerTest {
     void testUpdateClockOutTime_Failure() throws Exception {
         Mockito.doThrow(new RuntimeException("DB error")).when(attendanceRecordServiceImpl).updateClockOutTime(anyInt(), anyInt(), any(Timestamp.class));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/updateClockOutTime")
+        mockMvc.perform(MockMvcRequestBuilders.post("/update-clock-out-time")
                 .param("recordId", "1")
                 .param("employeeId", "1")
                 .param("newClockOut", "17:30")
                 .param("currentClockOut", "2024-08-24 17:30:00"))
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-                .andExpect(MockMvcResultMatchers.redirectedUrl("/attendance-yearly"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/attendance-year-month"))
                 .andExpect(MockMvcResultMatchers.flash().attribute("message", "退勤時刻の修正に失敗しました。"))
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -336,10 +345,10 @@ public class AttendanceRecordControllerTest {
      */
     @Test
     @DisplayName("勤怠データが存在しない月別勤怠リスト表示テスト")
-    void testShowYearlyAttendance_NoData() throws Exception {
-        when(attendanceRecordServiceImpl.getYearlyAttendanceForMonth(anyInt())).thenReturn(new ArrayList<>());
+    void testShowListByYearMonth_NoData() throws Exception {
+        when(attendanceRecordServiceImpl.getRecordForYearByMonth(anyInt())).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(get("/attendance-yearly")
+        mockMvc.perform(get("/attendance-year-month")
                 .param("month", "8"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("attendance-yearly"))
@@ -352,14 +361,20 @@ public class AttendanceRecordControllerTest {
      * 勤怠データが存在する場合の月別勤怠リスト表示テスト。
      * 月のパラメータが指定された場合にデータが表示されるか確認します。
      */
+    @WithMockUser(username = "testuser", roles = {"USER"})
     @Test
     @DisplayName("勤怠データが存在する月別勤怠リスト表示テスト")
-    void testShowYearlyAttendance_WithData() throws Exception {
+    void testShowListByYearMonth_WithData() throws Exception {
         List<AttendanceRecord> attendanceRecords = new ArrayList<>();
-        attendanceRecords.add(new AttendanceRecord(/* ここで必要なプロパティを設定 */));
-        when(attendanceRecordServiceImpl.getYearlyAttendanceForMonth(anyInt())).thenReturn(attendanceRecords);
+        AttendanceRecord record = new AttendanceRecord();
+        // 必要なプロパティを設定
+        record.setClockIn(Timestamp.valueOf("2024-08-01 09:00:00"));
+        record.setClockOut(Timestamp.valueOf("2024-08-01 17:00:00"));
+        attendanceRecords.add(record);
 
-        mockMvc.perform(get("/attendance-yearly")
+        when(attendanceRecordServiceImpl.getRecordForYearByMonth(anyInt())).thenReturn(attendanceRecords);
+
+        mockMvc.perform(get("/attendance-year-month")
                 .param("month", "8"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("attendance-yearly"))
@@ -371,14 +386,20 @@ public class AttendanceRecordControllerTest {
      * 月パラメータが指定されない場合に現在の月が使用されるテスト。
      * 月パラメータがnullの場合に現在の月のデータが表示されるか確認します。
      */
+    @WithMockUser(username = "testuser", roles = {"USER"})
     @Test
     @DisplayName("月パラメータがnullの場合に現在の月が使用されるテスト")
-    void testShowYearlyAttendance_DefaultMonth() throws Exception {
+    void testShowListByYearMonth_DefaultMonth() throws Exception {
         List<AttendanceRecord> attendanceRecords = new ArrayList<>();
-        attendanceRecords.add(new AttendanceRecord(/* ここで必要なプロパティを設定 */));
-        when(attendanceRecordServiceImpl.getYearlyAttendanceForMonth(LocalDate.now().getMonthValue())).thenReturn(attendanceRecords);
+        AttendanceRecord record = new AttendanceRecord();
+        // 必要なプロパティを設定
+        record.setClockIn(Timestamp.valueOf("2024-09-01 09:00:00"));
+        record.setClockOut(Timestamp.valueOf("2024-09-01 17:00:00"));
+        attendanceRecords.add(record);
 
-        mockMvc.perform(get("/attendance-yearly"))
+        when(attendanceRecordServiceImpl.getRecordForYearByMonth(LocalDate.now().getMonthValue())).thenReturn(attendanceRecords);
+
+        mockMvc.perform(get("/attendance-year-month"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("attendance-yearly"))
                 .andExpect(model().attributeExists("attendance_records"))

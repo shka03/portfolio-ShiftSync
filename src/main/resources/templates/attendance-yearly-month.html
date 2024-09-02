@@ -16,7 +16,7 @@
         <h2>勤怠履歴</h2>
 
         <!-- 月の選択ドロップダウン -->
-        <form th:action="@{/attendance-yearly}" method="get">
+        <form th:action="@{/attendance-year-month}" method="get">
             <label for="month">月を選択:</label>
             <select name="month" id="month">
                 <option th:each="i : ${#numbers.sequence(1,12)}"
@@ -37,7 +37,7 @@
         </div>
 
 		<!-- 承認申請フォーム -->
-		<form th:if="${isNoRequest}" th:action="@{/insert-approve-request}" method="post">
+		<form th:if="${canApproveRequest}" th:action="@{/insert-approve-request}" method="post">
 		    <input type="hidden" name="month" th:value="${selectedMonth}"/>
 		    <button type="submit"  class="btn btn-primary">承認申請</button>
 		</form>
@@ -66,7 +66,7 @@
                 <td th:text="${#dates.format(attendance_record.clockOut, 'HH:mm:ss')}"></td>
                 <td th:text="${attendance_record.workDuration}"></td>
                 <td>
-                    <form th:action="@{/updateClockInTime}" method="post" style="display:inline;" th:if="${isNoRequest}">
+                    <form th:action="@{/update-clock-in-time}" method="post" style="display:inline;" th:if="${canApproveRequest}">
                         <input type="hidden" name="month" th:value="${selectedMonth}" />
                         <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
                         <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />
@@ -76,7 +76,7 @@
                     </form>
                 </td>
                 <td>
-                    <form th:action="@{/updateClockOutTime}" method="post" style="display:inline;" th:if="${isNoRequest}">
+                    <form th:action="@{/update-clock-out-time}" method="post" style="display:inline;" th:if="${canApproveRequest}">
                         <input type="hidden" name="month" th:value="${selectedMonth}" />
                         <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
                         <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />

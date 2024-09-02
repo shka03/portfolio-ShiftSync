@@ -163,7 +163,7 @@ public class AttendanceRecordServiceImplTest {
         todayRecord.setRecordId(1);
         todayRecord.setClockIn(new Timestamp(System.currentTimeMillis() - 3600000)); // -1 hour
         todayRecord.setClockOut(new Timestamp(System.currentTimeMillis()));
-        when(attendanceRecordMapper.getTodayAttendance(anyInt())).thenReturn(Collections.singletonList(todayRecord));
+        when(attendanceRecordMapper.getTodayRecordForEmployee(anyInt())).thenReturn(Collections.singletonList(todayRecord));
 
         // 勤務時間の登録・更新処理を実行
         attendanceRecordServiceImpl.upsertTodayWorkDuration();
@@ -178,7 +178,7 @@ public class AttendanceRecordServiceImplTest {
      */
     @Test
     @DisplayName("指定された月の出退勤記録が正しく取得されるテスト")
-    void testGetYearlyAttendanceForMonth() {
+    void testGetYearMonthRecord() {
         int month = 8; // 8月
         
         // SecurityContextのモックを作成
@@ -191,14 +191,14 @@ public class AttendanceRecordServiceImplTest {
 
         // モックの設定
         List<AttendanceRecord> records = Collections.emptyList();
-        when(attendanceRecordMapper.getMonthlyAttendanceForYear(anyInt(), anyString())).thenReturn(records);
+        when(attendanceRecordMapper.getRecordForYearByMonth(anyInt(), anyString())).thenReturn(records);
 
         // 月別出退勤記録取得メソッドを実行
-        List<AttendanceRecord> result = attendanceRecordServiceImpl.getYearlyAttendanceForMonth(month);
+        List<AttendanceRecord> result = attendanceRecordServiceImpl.getRecordForYearByMonth(month);
 
         // メソッド呼び出しの確認
         String expectedYearMonth = String.format("%d-%02d", Calendar.getInstance().get(Calendar.YEAR), month);
-        verify(attendanceRecordMapper, times(1)).getMonthlyAttendanceForYear(1, expectedYearMonth);
+        verify(attendanceRecordMapper, times(1)).getRecordForYearByMonth(1, expectedYearMonth);
 
         // 結果の検証
         assertNotNull(result);
