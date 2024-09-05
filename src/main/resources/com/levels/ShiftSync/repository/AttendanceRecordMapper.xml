@@ -33,25 +33,25 @@
 	
 	<!-- 勤怠データを登録/更新 -->
 	<insert id="upsertWorkDuration" parameterType="map">
-	    INSERT INTO attendance_records (record_id, work_duration)
-	    VALUES (#{recordId}, 
-	            INTERVAL '1 SECOND' * 
-	            CASE 
-	                WHEN EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) - 3600 >= 600 THEN 
-	                    ROUND((EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) - 3600) / 600) * 600
-	                ELSE 
-	                    EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) - 3600
-	            END)
-	    ON CONFLICT (record_id)
-	    DO UPDATE SET
-	        work_duration = 
-	            INTERVAL '1 SECOND' * 
-	            CASE 
-	                WHEN EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) - 3600 >= 600 THEN 
-	                    ROUND((EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) - 3600) / 600) * 600
-	                ELSE 
-	                    EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) - 3600
-	            END;
+		INSERT INTO attendance_records (record_id, work_duration)
+		VALUES (#{recordId}, 
+		        INTERVAL '1 SECOND' * 
+		        CASE 
+		            WHEN EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) >= 3600 THEN 
+		                ROUND((EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) - 3600) / 60) * 60
+		            ELSE 
+		                ROUND(EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))))
+		        END)
+		ON CONFLICT (record_id)
+		DO UPDATE SET
+		    work_duration = 
+		        INTERVAL '1 SECOND' * 
+		        CASE 
+		            WHEN EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) >= 3600 THEN 
+		                ROUND((EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) - 3600) / 60) * 60
+		            ELSE 
+		                ROUND(EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))))
+		        END;
 	</insert>
 	
 	<!-- 承認申請を作成 -->

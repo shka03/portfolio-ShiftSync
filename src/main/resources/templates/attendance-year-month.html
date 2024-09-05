@@ -4,7 +4,7 @@
 <head>
     <!-- head共通部分 -->
     <th:block th:replace="~{fragments/head :: head}"></th:block>
-    <link href="../static/css/attendance-yearly.css" th:href="@{/css/attendance-yearly.css}" rel="stylesheet" />
+    <link href="../static/css/attendance-year-month.css" th:href="@{/css/attendance-year-month.css}" rel="stylesheet" />
     <title>勤怠履歴 - ShiftSync</title>
 </head>
 
@@ -58,7 +58,7 @@
             </thead>
             <tbody>
             <tr th:if="${#lists.isEmpty(attendance_records)}">
-                <td colspan="6" th:text="${message}">データがありません</td>
+                <td colspan="6" th:text="${message}"></td>
             </tr>
             <tr th:each="attendance_record : ${attendance_records}">
                 <td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd')}"></td>

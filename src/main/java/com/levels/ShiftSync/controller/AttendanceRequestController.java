@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.AttendanceRequest;
 import com.levels.ShiftSync.repository.AttendanceRecordMapper;
-import com.levels.ShiftSync.service.impl.AttendanceRequestServiceImpl;
+import com.levels.ShiftSync.service.attendance.approval.impl.AttendanceRequestServiceImpl;
 
 @Controller
 public class AttendanceRequestController {

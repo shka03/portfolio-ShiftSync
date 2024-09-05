@@ -1,4 +1,4 @@
-package com.levels.ShiftSync.service.impl;
+package com.levels.ShiftSync.service.attendance.approval.impl;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.levels.ShiftSync.entity.AttendanceRequest;
 import com.levels.ShiftSync.repository.AttendanceRequestMapper;
-import com.levels.ShiftSync.service.AttendanceRequestService;
+import com.levels.ShiftSync.service.attendance.approval.AttendanceRequestService;
 
 @Service
 public class AttendanceRequestServiceImpl implements AttendanceRequestService {

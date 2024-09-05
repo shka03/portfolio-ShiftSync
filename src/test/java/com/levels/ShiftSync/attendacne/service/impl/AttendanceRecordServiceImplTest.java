@@ -24,16 +24,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.LoginUser;
 import com.levels.ShiftSync.repository.AttendanceRecordMapper;
-import com.levels.ShiftSync.service.impl.AttendanceRecordServiceImpl;
+import com.levels.ShiftSync.service.attendance.record.impl.ClockInServiceImpl;
+import com.levels.ShiftSync.service.attendance.record.impl.ClockOutServiceImpl;
+import com.levels.ShiftSync.service.attendance.record.impl.WorkDurationServiceImpl;
 
 public class AttendanceRecordServiceImplTest {
 
     @Mock
     private AttendanceRecordMapper attendanceRecordMapper;
-
+    
     @InjectMocks
-    private AttendanceRecordServiceImpl attendanceRecordServiceImpl;
-
+    private ClockInServiceImpl clockInServiceImpl;
+    
+    @InjectMocks
+    private ClockOutServiceImpl clockOutServiceImpl;
+    
+    @InjectMocks
+    private WorkDurationServiceImpl workDurationServiceImpl;
+    
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -55,7 +63,7 @@ public class AttendanceRecordServiceImplTest {
         SecurityContextHolder.setContext(securityContext);
 
         // 出勤処理を実行
-        attendanceRecordServiceImpl.clockInTime();
+        clockInServiceImpl.clockInTime();
 
         // 出勤時刻が現在時刻であることを確認
         Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -83,7 +91,7 @@ public class AttendanceRecordServiceImplTest {
         when(attendanceRecordMapper.getCurrentRecord(recordId)).thenReturn(currentRecord);
 
         // 出勤時刻の更新処理を実行
-        attendanceRecordServiceImpl.updateClockInTime(recordId, employeeId, newClockIn);
+        clockInServiceImpl.updateClockInTime(recordId, employeeId, newClockIn);
 
         // 出勤時刻と勤務時間の更新が正しく行われることを確認
         Map<String, Object> params = new HashMap<>();
@@ -111,7 +119,7 @@ public class AttendanceRecordServiceImplTest {
         SecurityContextHolder.setContext(securityContext);
 
         // 退勤処理を実行
-        attendanceRecordServiceImpl.clockOutTime();
+        clockOutServiceImpl.clockOutTime();
 
         // 退勤時刻が現在時刻であることを確認
         Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -139,7 +147,7 @@ public class AttendanceRecordServiceImplTest {
         when(attendanceRecordMapper.getCurrentRecord(recordId)).thenReturn(currentRecord);
 
         // 退勤時刻の更新処理を実行
-        attendanceRecordServiceImpl.updateClockOutTime(recordId, employeeId, newClockOut);
+        clockOutServiceImpl.updateClockOutTime(recordId, employeeId, newClockOut);
 
         // 退勤時刻と勤務時間の更新が正しく行われることを確認
         Map<String, Object> params = new HashMap<>();
@@ -159,18 +167,26 @@ public class AttendanceRecordServiceImplTest {
     @DisplayName("当日の勤務時間の登録・更新が正しく行われるテスト")
     void testUpsertTodayWorkDuration() {
         // 当日の出勤記録をモック
+        Timestamp clockIn = new Timestamp(System.currentTimeMillis() - 3600000); // -1 hour
+        Timestamp clockOut = new Timestamp(System.currentTimeMillis());
         AttendanceRecord todayRecord = new AttendanceRecord();
         todayRecord.setRecordId(1);
-        todayRecord.setClockIn(new Timestamp(System.currentTimeMillis() - 3600000)); // -1 hour
-        todayRecord.setClockOut(new Timestamp(System.currentTimeMillis()));
+        todayRecord.setClockIn(clockIn);
+        todayRecord.setClockOut(clockOut);
+
         when(attendanceRecordMapper.getTodayRecordForEmployee(anyInt())).thenReturn(Collections.singletonList(todayRecord));
 
         // 勤務時間の登録・更新処理を実行
-        attendanceRecordServiceImpl.upsertTodayWorkDuration();
+        workDurationServiceImpl.upsertTodayWorkDuration();
 
         // 勤務時間の登録・更新が正しく行われることを確認
-        verify(attendanceRecordMapper, times(1)).upsertWorkDuration(todayRecord.getRecordId(), todayRecord.getClockOut(), todayRecord.getClockIn());
+        verify(attendanceRecordMapper, times(1)).upsertWorkDuration(
+            eq(todayRecord.getRecordId()),
+            eq(todayRecord.getClockOut()),
+            eq(todayRecord.getClockIn())
+        );
     }
+
 
     /**
      * 指定された月の出退勤記録が正しく取得されることを確認するテスト。
@@ -194,7 +210,7 @@ public class AttendanceRecordServiceImplTest {
         when(attendanceRecordMapper.getRecordForYearByMonth(anyInt(), anyString())).thenReturn(records);
 
         // 月別出退勤記録取得メソッドを実行
-        List<AttendanceRecord> result = attendanceRecordServiceImpl.getRecordForYearByMonth(month);
+        List<AttendanceRecord> result = workDurationServiceImpl.getRecordForYearByMonth(month);
 
         // メソッド呼び出しの確認
         String expectedYearMonth = String.format("%d-%02d", Calendar.getInstance().get(Calendar.YEAR), month);

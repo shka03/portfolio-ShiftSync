@@ -1,4 +1,4 @@
-package com.levels.ShiftSync.service;
+package com.levels.ShiftSync.service.attendance.approval;
 
 import java.util.List;
 
