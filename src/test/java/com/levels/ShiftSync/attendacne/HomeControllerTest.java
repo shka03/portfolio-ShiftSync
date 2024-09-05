@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -65,9 +64,6 @@ public class HomeControllerTest {
         LocalDateTime now = LocalDateTime.now().withNano(0);
         Timestamp clockIn = Timestamp.valueOf(now.minusHours(2));
         Timestamp clockOut = Timestamp.valueOf(now.plusHours(1));
-
-        // フォーマットの指定
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // .0は必要ない
 
         AttendanceRecord record = new AttendanceRecord();
         record.setClockIn(clockIn);
