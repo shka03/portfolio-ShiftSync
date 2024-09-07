@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.AttendanceRequest;
@@ -58,10 +59,12 @@ public class RequestController {
             @RequestParam("employeeId") Integer employeeId,
             @RequestParam("yearMonth") String yearMonth,
             @RequestParam("status") String status,
-            Model model) {
+            Model model,
+            RedirectAttributes redirectAttributes) {
         requestServiceImpl.updateApproveStatus(employeeId, yearMonth, status);
         model.addAttribute("employeeId", employeeId);
         model.addAttribute("yearMonth", yearMonth);
+        redirectAttributes.addFlashAttribute("approveMessage", "承認しました");
         
         return "redirect:/attendance-approval/" + employeeId + "/" + yearMonth;
     }
@@ -70,10 +73,12 @@ public class RequestController {
     public String deleteRequest(
             @RequestParam("employeeId") Integer employeeId,
             @RequestParam("yearMonth") String yearMonth,
-            Model model) {
+            Model model,
+            RedirectAttributes redirectAttributes) {
         requestServiceImpl.deleteRequest(employeeId, yearMonth);
         model.addAttribute("employeeId", employeeId);
         model.addAttribute("yearMonth", yearMonth);
+        redirectAttributes.addFlashAttribute("approveMessage", "承認を解除しました");
         
         return "redirect:/attendance-approval/" + employeeId + "/" + yearMonth;
     }

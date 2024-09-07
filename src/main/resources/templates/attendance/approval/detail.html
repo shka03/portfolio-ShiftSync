@@ -14,6 +14,31 @@
 
     <div class="container">
         <h2>勤怠承認</h2>
+        
+        <!-- メッセージの表示 -->
+        <div>
+            <p th:if="${approveMessage == '承認しました'}" th:text="${approveMessage}" class="alert alert-success"></p>
+            <p th:if="${approveMessage == '承認を解除しました'}" th:text="${approveMessage}" class="alert alert-danger"></p>
+        </div>
+
+
+        <div th:if="${!#lists.isEmpty(attendance_records)}" class="d-flex justify-content-center mb-4">
+			<!-- 申請承認 -->
+			<form th:action="@{/update-approve-status}" method="post" th:if="${status == '提出済'}">
+			    <input type="hidden" name="employeeId" th:value="${employeeId}" />
+			    <input type="hidden" name="yearMonth" th:value="${yearMonth}" />
+			    <input type="hidden" name="status" value="承認済" />
+			    <button type="submit" class="btn btn-primary mx-2">承認する</button>
+			</form>
+			
+			<form th:action="@{/delete-request}" method="post" th:if="${status == '承認済'}">
+			    <input type="hidden" name="employeeId" th:value="${employeeId}" />
+			    <input type="hidden" name="yearMonth" th:value="${yearMonth}" />
+			    <button type="submit" class="btn btn-danger mx-2">解除する</button>
+			</form>
+			
+			<a th:href="@{/attendance-requests-list}" class="btn btn-danger mx-2">勤怠申請一覧に戻る</a>
+        </div>
 
         <!-- 勤怠テーブル -->
         <table class="attendance-request-table">
@@ -38,23 +63,6 @@
             </tbody>
         </table>
 
-        <!-- 申請承認 -->
-        <div th:if="${!#lists.isEmpty(attendance_records)}">
-			<form th:action="@{/update-approve-status}" method="post" th:if="${status == '提出済'}">
-			    <input type="hidden" name="employeeId" th:value="${employeeId}" />
-			    <input type="hidden" name="yearMonth" th:value="${yearMonth}" />
-			    <input type="hidden" name="status" value="承認済" />
-			    <button type="submit" class="btn btn-primary mb-4">承認する</button>
-			</form>
-			
-			<form th:action="@{/delete-request}" method="post" th:if="${status == '承認済'}">
-			    <input type="hidden" name="employeeId" th:value="${employeeId}" />
-			    <input type="hidden" name="yearMonth" th:value="${yearMonth}" />
-			    <button type="submit" class="btn btn-danger mb-4">解除する</button>
-			</form>
-        </div>
-
-        <a th:href="@{/attendance-requests-list}" class="btn btn-danger">勤怠申請一覧に戻る</a>
     </div>
 
     <!-- footer共通部分 -->
