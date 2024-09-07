@@ -19,7 +19,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.repository.attendance.record.ClockOutMapper;
-import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.WorkDurationMapper;
 import com.levels.ShiftSync.service.attendance.record.impl.ClockOutServiceImpl;
 import com.levels.ShiftSync.utility.SecurityUtils;
 
@@ -29,7 +29,7 @@ class ClockOutServiceImplTest {
     private ClockOutMapper clockOutMapper;
     
     @Mock
-    private RecordMapper attendanceRecordMapper;
+    private WorkDurationMapper workDurationMapper;
 
     @InjectMocks
     private ClockOutServiceImpl clockOutServiceImpl;
@@ -81,7 +81,7 @@ class ClockOutServiceImplTest {
         params.put("newClockOut", newClockOut);
 
         verify(clockOutMapper, times(1)).update(params);
-        verify(attendanceRecordMapper, times(1)).upsertWorkDuration(recordId, newClockOut, existingRecord.getClockIn());
+        verify(workDurationMapper, times(1)).upsertWorkDuration(recordId, newClockOut, existingRecord.getClockIn());
     }
 
     @Test

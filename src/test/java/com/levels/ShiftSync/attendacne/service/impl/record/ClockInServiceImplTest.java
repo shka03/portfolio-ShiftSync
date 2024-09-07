@@ -17,7 +17,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.repository.attendance.record.ClockInMapper;
-import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.WorkDurationMapper;
 import com.levels.ShiftSync.service.attendance.record.impl.ClockInServiceImpl;
 import com.levels.ShiftSync.utility.SecurityUtils;
 
@@ -27,7 +27,7 @@ class ClockInServiceImplTest {
     private ClockInMapper clockInMapper;
     
 	@Mock
-	private RecordMapper recordMapper;
+	private WorkDurationMapper workDurationMapper;
 
     @InjectMocks
     private ClockInServiceImpl clockInServiceImpl;
@@ -72,7 +72,7 @@ class ClockInServiceImplTest {
 
         // 更新メソッドと勤怠時間再計算メソッドの呼び出しを確認
         verify(clockInMapper, times(1)).update(anyMap());
-        verify(recordMapper, times(1)).upsertWorkDuration(recordId, existingRecord.getClockOut(), newClockIn);
+        verify(workDurationMapper, times(1)).upsertWorkDuration(recordId, existingRecord.getClockOut(), newClockIn);
     }
 
     @Test

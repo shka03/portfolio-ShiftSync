@@ -1,4 +1,4 @@
-package com.levels.ShiftSync.service.attendance.record;
+package com.levels.ShiftSync.service.attendance.approval;
 
 /**
  * 勤怠承認申請に関する操作を管理するサービスインターフェース。

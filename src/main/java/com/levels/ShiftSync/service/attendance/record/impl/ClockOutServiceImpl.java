@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.repository.attendance.record.ClockOutMapper;
-import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.WorkDurationMapper;
 import com.levels.ShiftSync.service.attendance.record.RecordService;
 import com.levels.ShiftSync.utility.SecurityUtils;
 
@@ -20,7 +20,7 @@ public class ClockOutServiceImpl implements RecordService {
 	private ClockOutMapper clockOutMapper;
 	
 	@Autowired
-	private RecordMapper attendanceRecordMapper;
+	private WorkDurationMapper workDurationMapper;
 
     /**
      * 従業員の退勤時間を現在の時刻で記録します。
@@ -53,7 +53,7 @@ public class ClockOutServiceImpl implements RecordService {
 
         // 勤怠時間を再計算
         Timestamp currClockIn = getCurrentRecord(recordId).getClockIn();
-        attendanceRecordMapper.upsertWorkDuration(recordId, newClockOut, currClockIn);
+        workDurationMapper.upsertWorkDuration(recordId, newClockOut, currClockIn);
     }
     
     /**

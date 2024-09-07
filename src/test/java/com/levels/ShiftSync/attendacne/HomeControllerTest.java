@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.levels.ShiftSync.controller.attendance.HomeController;
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.LoginUser; // Import LoginUser
-import com.levels.ShiftSync.service.attendance.record.impl.ApprovalServiceImpl;
+import com.levels.ShiftSync.service.attendance.approval.impl.ApprovalServiceImpl;
 import com.levels.ShiftSync.service.attendance.record.impl.WorkDurationServiceImpl;
 
 public class HomeControllerTest {

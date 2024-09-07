@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
-import com.levels.ShiftSync.service.attendance.record.impl.ApprovalServiceImpl;
+import com.levels.ShiftSync.service.attendance.approval.impl.ApprovalServiceImpl;
 import com.levels.ShiftSync.service.attendance.record.impl.CheckServiceImpl;
 import com.levels.ShiftSync.service.attendance.record.impl.WorkDurationServiceImpl;
 import com.levels.ShiftSync.service.impl.CsvExportServiceImpl;

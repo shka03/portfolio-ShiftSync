@@ -1,4 +1,4 @@
-package com.levels.ShiftSync.attendacne.service.impl.record;
+package com.levels.ShiftSync.attendacne.service.impl.approval;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -14,13 +14,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.levels.ShiftSync.entity.AttendanceRequest;
-import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
-import com.levels.ShiftSync.service.attendance.record.impl.ApprovalServiceImpl;
+import com.levels.ShiftSync.repository.attendance.approval.RequestMapper;
+import com.levels.ShiftSync.service.attendance.approval.impl.ApprovalServiceImpl;
 
 class ApprovalServiceImplTest {
 
     @Mock
-    private RecordMapper attendanceRecordMapper;
+    private RequestMapper requestMapper;
 
     @InjectMocks
     private ApprovalServiceImpl approvalServiceImpl;
@@ -40,7 +40,7 @@ class ApprovalServiceImplTest {
         approvalServiceImpl.insertApproveRequest(employeeId, yearMonth);
 
         // リポジトリメソッドが正しく呼び出されたか確認
-        verify(attendanceRecordMapper, times(1)).insertApproveRequest(employeeId, yearMonth);
+        verify(requestMapper, times(1)).insertApproveRequest(employeeId, yearMonth);
     }
 
     @Test
@@ -50,12 +50,12 @@ class ApprovalServiceImplTest {
         String yearMonth = "2024-09";
 
         // 承認申請がないときはtrueを返す
-        when(attendanceRecordMapper.isNoRequest(employeeId, yearMonth)).thenReturn(true);
+        when(requestMapper.isNoRequest(employeeId, yearMonth)).thenReturn(true);
 
         // 実行と検証
         boolean result = approvalServiceImpl.isNoRequest(employeeId, yearMonth);
         assertTrue(result);
-        verify(attendanceRecordMapper, times(1)).isNoRequest(employeeId, yearMonth);
+        verify(requestMapper, times(1)).isNoRequest(employeeId, yearMonth);
     }
 
     @Test
@@ -65,12 +65,12 @@ class ApprovalServiceImplTest {
         String yearMonth = "2024-09";
 
         // 承認申請があるときはfalseを返す
-        when(attendanceRecordMapper.isNoRequest(employeeId, yearMonth)).thenReturn(false);
+        when(requestMapper.isNoRequest(employeeId, yearMonth)).thenReturn(false);
 
         // 実行と検証
         boolean result = approvalServiceImpl.isNoRequest(employeeId, yearMonth);
         assertFalse(result);
-        verify(attendanceRecordMapper, times(1)).isNoRequest(employeeId, yearMonth);
+        verify(requestMapper, times(1)).isNoRequest(employeeId, yearMonth);
     }
 
     @Test
@@ -81,12 +81,12 @@ class ApprovalServiceImplTest {
 
         // 承認申請リストが空でない場合
         List<AttendanceRequest> requests = List.of(new AttendanceRequest());
-        when(attendanceRecordMapper.getRequestsForMonth(employeeId, yearMonth)).thenReturn(requests);
+        when(requestMapper.getRequestsForMonth(employeeId, yearMonth)).thenReturn(requests);
 
         // 実行と検証
         boolean result = approvalServiceImpl.hasRequestsForMonth(employeeId, yearMonth);
         assertTrue(result);
-        verify(attendanceRecordMapper, times(1)).getRequestsForMonth(employeeId, yearMonth);
+        verify(requestMapper, times(1)).getRequestsForMonth(employeeId, yearMonth);
     }
 
     @Test
@@ -96,11 +96,11 @@ class ApprovalServiceImplTest {
         String yearMonth = "2024-09";
 
         // 承認申請リストが空の場合
-        when(attendanceRecordMapper.getRequestsForMonth(employeeId, yearMonth)).thenReturn(Collections.emptyList());
+        when(requestMapper.getRequestsForMonth(employeeId, yearMonth)).thenReturn(Collections.emptyList());
 
         // 実行と検証
         boolean result = approvalServiceImpl.hasRequestsForMonth(employeeId, yearMonth);
         assertFalse(result);
-        verify(attendanceRecordMapper, times(1)).getRequestsForMonth(employeeId, yearMonth);
+        verify(requestMapper, times(1)).getRequestsForMonth(employeeId, yearMonth);
     }
 }

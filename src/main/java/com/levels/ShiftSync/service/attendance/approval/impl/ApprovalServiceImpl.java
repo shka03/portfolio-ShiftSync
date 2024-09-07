@@ -1,4 +1,4 @@
-package com.levels.ShiftSync.service.attendance.record.impl;
+package com.levels.ShiftSync.service.attendance.approval.impl;
 
 import java.util.List;
 
@@ -6,14 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.levels.ShiftSync.entity.AttendanceRequest;
-import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
-import com.levels.ShiftSync.service.attendance.record.ApprovalService;
+import com.levels.ShiftSync.repository.attendance.approval.RequestMapper;
+import com.levels.ShiftSync.service.attendance.approval.ApprovalService;
 
 @Service
 public class ApprovalServiceImpl implements ApprovalService {
 
 	@Autowired
-	private RecordMapper attendanceRecordMapper;
+	private RequestMapper requestMapper;
 	
     /**
      * 指定した従業員の指定した月の勤怠承認申請を登録します。
@@ -23,7 +23,7 @@ public class ApprovalServiceImpl implements ApprovalService {
      */
     @Override
     public void insertApproveRequest(Integer employeeId, String yearMonth) {
-        attendanceRecordMapper.insertApproveRequest(employeeId, yearMonth);
+    	requestMapper.insertApproveRequest(employeeId, yearMonth);
     }
 
     /**
@@ -35,7 +35,7 @@ public class ApprovalServiceImpl implements ApprovalService {
      */
 	@Override
     public boolean isNoRequest(Integer employeeId, String yearMonth) {
-        return attendanceRecordMapper.isNoRequest(employeeId, yearMonth);
+        return requestMapper.isNoRequest(employeeId, yearMonth);
     }
 
     /**
@@ -47,7 +47,7 @@ public class ApprovalServiceImpl implements ApprovalService {
      */
 	@Override
     public boolean hasRequestsForMonth(Integer employeeId, String yearMonth) {
-        List<AttendanceRequest> records = attendanceRecordMapper.getRequestsForMonth(employeeId, yearMonth);
+        List<AttendanceRequest> records = requestMapper.getRequestsForMonth(employeeId, yearMonth);
         return !records.isEmpty();
     }
 

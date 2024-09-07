@@ -27,7 +27,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import com.levels.ShiftSync.controller.attendance.WorkDurationController;
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.LoginUser;
-import com.levels.ShiftSync.service.attendance.record.impl.ApprovalServiceImpl;
+import com.levels.ShiftSync.service.attendance.approval.impl.ApprovalServiceImpl;
 import com.levels.ShiftSync.service.attendance.record.impl.CheckServiceImpl;
 import com.levels.ShiftSync.service.attendance.record.impl.WorkDurationServiceImpl;
 import com.levels.ShiftSync.service.impl.CsvExportServiceImpl;

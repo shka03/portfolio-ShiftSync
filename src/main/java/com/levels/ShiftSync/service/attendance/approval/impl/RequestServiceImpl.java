@@ -6,33 +6,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.levels.ShiftSync.entity.AttendanceRequest;
-import com.levels.ShiftSync.repository.AttendanceRequestMapper;
+import com.levels.ShiftSync.repository.attendance.approval.RequestMapper;
 import com.levels.ShiftSync.service.attendance.approval.RequestService;
 
 @Service
 public class RequestServiceImpl implements RequestService {
 
     @Autowired
-    private AttendanceRequestMapper attendanceRequestMapper;
+    private RequestMapper requestMapper;
 
     @Override
     public List<AttendanceRequest> getAllRequests() {
-        return attendanceRequestMapper.getAllRequests();
+        return requestMapper.getAllRequests();
     }
     
     @Override
     public String getApprovalStatus(Integer employeeId, String yearMonth) {
-    	return attendanceRequestMapper.getApprovalStatus(employeeId, yearMonth);
+    	return requestMapper.getApprovalStatus(employeeId, yearMonth);
     }
     
     @Override
     public void updateApproveStatus(Integer employeeId, String yearMonth, String status) {
-    	attendanceRequestMapper.updateApproveStatus(employeeId, yearMonth, status);
+    	requestMapper.updateApproveStatus(employeeId, yearMonth, status);
     }
     
     @Override
     public void deleteRequest(Integer employeeId, String yearMonth) {
-    	attendanceRequestMapper.deleteRequest(employeeId, yearMonth);
+    	requestMapper.deleteRequest(employeeId, yearMonth);
     }
     
 }
