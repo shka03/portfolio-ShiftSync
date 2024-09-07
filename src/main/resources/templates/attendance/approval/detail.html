@@ -16,7 +16,7 @@
         <h2>勤怠承認</h2>
 
         <!-- 勤怠テーブル -->
-        <table class="attendance-table">
+        <table class="attendance-request-table">
             <thead>
             <tr>
                 <th>年月日</th>
@@ -44,17 +44,17 @@
 			    <input type="hidden" name="employeeId" th:value="${employeeId}" />
 			    <input type="hidden" name="yearMonth" th:value="${yearMonth}" />
 			    <input type="hidden" name="status" value="承認済" />
-			    <button type="submit">承認する</button>
+			    <button type="submit" class="btn btn-primary mb-4">承認する</button>
 			</form>
 			
 			<form th:action="@{/delete-request}" method="post" th:if="${status == '承認済'}">
 			    <input type="hidden" name="employeeId" th:value="${employeeId}" />
 			    <input type="hidden" name="yearMonth" th:value="${yearMonth}" />
-			    <button type="submit">解除する</button>
+			    <button type="submit" class="btn btn-danger mb-4">解除する</button>
 			</form>
         </div>
 
-        <a th:href="@{/attendance-requests-list}">勤怠申請一覧に戻る</a>
+        <a th:href="@{/attendance-requests-list}" class="btn btn-danger">勤怠申請一覧に戻る</a>
     </div>
 
     <!-- footer共通部分 -->
