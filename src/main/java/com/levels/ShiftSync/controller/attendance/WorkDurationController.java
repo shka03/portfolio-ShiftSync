@@ -18,7 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.service.attendance.record.impl.ApprovalServiceImpl;
-import com.levels.ShiftSync.service.attendance.record.impl.RecordCheckServiceImpl;
+import com.levels.ShiftSync.service.attendance.record.impl.CheckServiceImpl;
 import com.levels.ShiftSync.service.attendance.record.impl.WorkDurationServiceImpl;
 import com.levels.ShiftSync.service.impl.CsvExportServiceImpl;
 import com.levels.ShiftSync.utility.SecurityUtils;
@@ -31,7 +31,7 @@ public class WorkDurationController {
 
 	private final ApprovalServiceImpl approvalServiceImpl;
 	private final CsvExportServiceImpl csvExportServiceImpl;
-	private final RecordCheckServiceImpl recordCheckServiceImpl;
+	private final CheckServiceImpl recordCheckServiceImpl;
     private final WorkDurationServiceImpl workDurationServiceImpl;
 
     /**

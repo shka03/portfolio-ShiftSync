@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.LoginUser;
-import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.WorkDurationMapper;
 import com.levels.ShiftSync.service.attendance.record.WorkDurationService;
 import com.levels.ShiftSync.utility.SecurityUtils;
 
@@ -19,7 +19,7 @@ import com.levels.ShiftSync.utility.SecurityUtils;
 public class WorkDurationServiceImpl implements WorkDurationService {
 	
 	@Autowired
-	private RecordMapper attendanceRecordMapper;
+	private WorkDurationMapper workDurationMapper;
 
     /**
      * 当日の出退勤レコードに基づいて、当日の勤務時間を登録または更新します。
@@ -28,7 +28,7 @@ public class WorkDurationServiceImpl implements WorkDurationService {
     public void upsertTodayWorkDuration() {
         List<AttendanceRecord> todayRecord = getTodayRecordForEmployee();
         AttendanceRecord firstRecord = todayRecord.get(0);  // リストの最初の要素を取得
-        attendanceRecordMapper.upsertWorkDuration(firstRecord.getRecordId(), firstRecord.getClockOut(), firstRecord.getClockIn());
+        workDurationMapper.upsertWorkDuration(firstRecord.getRecordId(), firstRecord.getClockOut(), firstRecord.getClockIn());
     }
 
     /**
@@ -40,7 +40,7 @@ public class WorkDurationServiceImpl implements WorkDurationService {
      */
     @Override
     public void upsertWorkDuration(Integer recordId, Timestamp newClockOut, Timestamp newClockIn) {
-        attendanceRecordMapper.upsertWorkDuration(recordId, newClockOut, newClockIn);
+    	workDurationMapper.upsertWorkDuration(recordId, newClockOut, newClockIn);
     }
 
     /**
@@ -59,7 +59,7 @@ public class WorkDurationServiceImpl implements WorkDurationService {
         Calendar cal = Calendar.getInstance();
         String yearMonth = String.format("%d-%02d", cal.get(Calendar.YEAR), month);
 
-        return attendanceRecordMapper.getRecordForYearByMonth(employeeId, yearMonth);
+        return workDurationMapper.getRecordForYearByMonth(employeeId, yearMonth);
     }
 	
     /**
@@ -70,7 +70,7 @@ public class WorkDurationServiceImpl implements WorkDurationService {
     @Override
     public List<AttendanceRecord> getTodayRecordForEmployee() {
         Integer employeeId = SecurityUtils.getEmployeeIdFromSecurityContext();
-        return attendanceRecordMapper.getTodayRecordForEmployee(employeeId);
+        return workDurationMapper.getTodayRecordForEmployee(employeeId);
     }
 
 }

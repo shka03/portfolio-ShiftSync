@@ -28,7 +28,7 @@ import com.levels.ShiftSync.controller.attendance.WorkDurationController;
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.LoginUser;
 import com.levels.ShiftSync.service.attendance.record.impl.ApprovalServiceImpl;
-import com.levels.ShiftSync.service.attendance.record.impl.RecordCheckServiceImpl;
+import com.levels.ShiftSync.service.attendance.record.impl.CheckServiceImpl;
 import com.levels.ShiftSync.service.attendance.record.impl.WorkDurationServiceImpl;
 import com.levels.ShiftSync.service.impl.CsvExportServiceImpl;
 
@@ -44,7 +44,7 @@ public class WorkDurationControllerTest {
     private CsvExportServiceImpl csvExportServiceImpl;
 
     @Mock
-    private RecordCheckServiceImpl recordCheckServiceImpl;
+    private CheckServiceImpl recordCheckServiceImpl;
 
     @Mock
     private WorkDurationServiceImpl workDurationServiceImpl;

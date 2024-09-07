@@ -1,6 +1,6 @@
 package com.levels.ShiftSync.service.attendance.record;
 
-public interface RecordCheckService {
+public interface CheckService {
 	
     /**
      * 指定した年月に出退勤記録が存在するかを確認します。

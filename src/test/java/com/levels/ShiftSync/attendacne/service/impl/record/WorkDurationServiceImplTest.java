@@ -20,10 +20,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.LoginUser;
 import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.WorkDurationMapper;
 import com.levels.ShiftSync.service.attendance.record.impl.WorkDurationServiceImpl;
 
 public class WorkDurationServiceImplTest {
 
+    @Mock
+    private WorkDurationMapper workDurationMapper;
+	
     @Mock
     private RecordMapper attendanceRecordMapper;
 
@@ -64,7 +68,7 @@ public class WorkDurationServiceImplTest {
         workDurationServiceImpl.upsertTodayWorkDuration();
 
         // モックが正しく呼び出されたことを確認
-        verify(attendanceRecordMapper).upsertWorkDuration(1, clockOut, clockIn);
+        verify(workDurationMapper).upsertWorkDuration(1, clockOut, clockIn);
     }
 
     @Test
@@ -78,7 +82,7 @@ public class WorkDurationServiceImplTest {
         workDurationServiceImpl.upsertWorkDuration(1, newClockOut, newClockIn);
 
         // モックが正しく呼び出されたことを確認
-        verify(attendanceRecordMapper).upsertWorkDuration(1, newClockOut, newClockIn);
+        verify(workDurationMapper).upsertWorkDuration(1, newClockOut, newClockIn);
     }
 
     @Test
@@ -92,7 +96,7 @@ public class WorkDurationServiceImplTest {
         record.setClockOut(clockOut);
 
         // モックの設定
-        when(attendanceRecordMapper.getRecordForYearByMonth(anyInt(), anyString()))
+        when(workDurationMapper.getRecordForYearByMonth(anyInt(), anyString()))
                 .thenReturn(List.of(record));
 
         // メソッド呼び出し
@@ -104,7 +108,7 @@ public class WorkDurationServiceImplTest {
         assertEquals(clockOut, records.get(0).getClockOut());
 
         // モックが正しく呼び出されたことを確認
-        verify(attendanceRecordMapper).getRecordForYearByMonth(1, "2024-09");
+        verify(workDurationMapper).getRecordForYearByMonth(1, "2024-09");
     }
 
     @Test
@@ -118,7 +122,7 @@ public class WorkDurationServiceImplTest {
         record.setClockOut(clockOut);
 
         // モックの設定
-        when(attendanceRecordMapper.getTodayRecordForEmployee(anyInt())).thenReturn(List.of(record));
+        when(workDurationMapper.getTodayRecordForEmployee(anyInt())).thenReturn(List.of(record));
 
         // メソッド呼び出し
         List<AttendanceRecord> records = workDurationServiceImpl.getTodayRecordForEmployee();
@@ -129,6 +133,6 @@ public class WorkDurationServiceImplTest {
         assertEquals(clockOut, records.get(0).getClockOut());
 
         // モックが正しく呼び出されたことを確認
-        verify(attendanceRecordMapper).getTodayRecordForEmployee(1);
+        verify(workDurationMapper).getTodayRecordForEmployee(1);
     }
 }

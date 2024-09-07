@@ -62,7 +62,8 @@ public class ClockOutServiceImpl implements RecordService {
      * @param recordId 出退勤レコードのID
      * @return 現在の出退勤レコード
      */
-    private AttendanceRecord getCurrentRecord(Integer recordId) {
+    @Override
+    public AttendanceRecord getCurrentRecord(Integer recordId) {
         return clockOutMapper.getCurrentRecord(recordId);
     }
 

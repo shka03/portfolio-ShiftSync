@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
-import com.levels.ShiftSync.service.attendance.record.RecordCheckService;
+import com.levels.ShiftSync.service.attendance.record.CheckService;
 
 @Service
-public class RecordCheckServiceImpl implements RecordCheckService {
+public class CheckServiceImpl implements CheckService {
 	
 	@Autowired
 	private RecordMapper attendanceRecordMapper;

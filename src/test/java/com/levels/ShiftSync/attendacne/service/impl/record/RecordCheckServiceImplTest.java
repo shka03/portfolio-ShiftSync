@@ -16,18 +16,18 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
-import com.levels.ShiftSync.service.attendance.record.RecordCheckService;
-import com.levels.ShiftSync.service.attendance.record.impl.RecordCheckServiceImpl;
+import com.levels.ShiftSync.service.attendance.record.CheckService;
+import com.levels.ShiftSync.service.attendance.record.impl.CheckServiceImpl;
 
 @SpringJUnitConfig
-@WebMvcTest(RecordCheckServiceImpl.class)
+@WebMvcTest(CheckServiceImpl.class)
 public class RecordCheckServiceImplTest {
 
     @MockBean
     private RecordMapper attendanceRecordMapper;
 
     @Autowired
-    private RecordCheckService recordCheckService;
+    private CheckService recordCheckService;
 
     @Test
     @DisplayName("指定された年月に出退勤記録が存在する場合、trueを返すことを確認するテスト")
