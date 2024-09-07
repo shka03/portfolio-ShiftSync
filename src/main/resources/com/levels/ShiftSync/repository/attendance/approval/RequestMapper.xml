@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.levels.ShiftSync.repository.attendance.approval.RequestMapper">
+
+    <!-- 全ての勤怠承認申請を取得 -->
+    <select id="getAllRequests" resultType="com.levels.ShiftSync.entity.AttendanceRequest">
+        SELECT request_id AS requestId,
+               employee_id AS employeeId,
+               year_month AS yearMonth,
+               status
+        FROM attendance_requests
+        ORDER BY yearMonth DESC;
+    </select>
+    
+	<!-- 特定の月の承認申請を取得する -->
+	<select id="getRequestsForMonth" parameterType="map" resultType="com.levels.ShiftSync.entity.AttendanceRequest">
+	    SELECT
+	    	request_id AS requestId,
+	    	employee_id AS employeeId,
+	    	year_month AS yearMonth,
+	    	status
+	    FROM attendance_requests 
+	    WHERE employee_id = #{employeeId}
+	    AND year_month = #{yearMonth}
+	</select>
+
+    <!-- 承認状態を取得する -->
+    <select id="getApprovalStatus" parameterType="map" resultType="java.lang.String">
+        SELECT status
+        FROM attendance_requests
+        WHERE employee_id = #{employeeId} AND year_month = #{yearMonth}
+    </select>
+	
+	<!-- 承認申請のステータスを確認 -->
+	<select id="isNoRequest" resultType="boolean">
+		SELECT 0 >= COUNT(*)
+		FROM attendance_requests
+		WHERE employee_id = #{employeeId}
+	    	AND year_month = #{yearMonth}
+	</select>
+	
+	<!-- 承認申請を作成 -->
+	<insert id="insertApproveRequest" parameterType="map">
+	    INSERT INTO attendance_requests (employee_id, year_month, status)
+	    VALUES(#{employeeId}, #{yearMonth}, '提出済')
+	</insert>
+
+    <!-- 承認状態の更新をする -->
+    <update id="updateApproveStatus">
+	    UPDATE attendance_requests
+	    SET status = #{status}
+	    WHERE employee_id = #{employeeId} AND year_month = #{yearMonth}
+	</update>
+	
+	<!-- 承認申請を解除する -->
+	<delete id="deleteRequest">
+		DELETE FROM attendance_requests
+		WHERE employee_id = #{employeeId} AND year_month = #{yearMonth}
+	</delete>
+
+</mapper>

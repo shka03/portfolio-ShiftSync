@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <link href="../static/css/approval/requests-list.css" th:href="@{/css/attendance/approval/requests-list.css}" rel="stylesheet" />
+    <title>勤怠申請一覧 - ShiftSync</title>
+</head>
+
+<body>
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+
+    <div class="container">
+        <h2>勤怠申請一覧</h2>
+
+        <table class="attendance-request-table">
+            <thead>
+            <tr>
+                <th>従業員ID</th>
+                <th>申請月</th>
+                <th>申請状況</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(attendance_requests)}">
+                <td colspan="3">申請データがありません</td>
+            </tr>
+            <tr th:each="request : ${attendance_requests}">
+                <td th:text="${request.employeeId}"></td>
+                <td>
+                    <a th:href="@{/attendance-approval/{employeeId}/{yearMonth}(employeeId=${request.employeeId}, yearMonth=${request.yearMonth})}" th:text="${request.yearMonth}"></a>
+                </td>
+                <td th:text="${request.status}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <a th:href="@{/}" class="btn btn-danger">TOPに戻る</a>
+    </div>
+
+    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>

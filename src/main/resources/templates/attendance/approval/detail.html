@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- head共通部分 -->
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <link href="../static/css/approval/requests-list.css" th:href="@{/css/attendance/approval/requests-list.css}" rel="stylesheet" />
+    <title>勤怠承認 - ShiftSync</title>
+</head>
+
+<body>
+    <!-- header共通部分 -->
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+
+    <div class="container">
+        <h2>勤怠承認</h2>
+
+        <!-- 勤怠テーブル -->
+        <table class="attendance-request-table">
+            <thead>
+            <tr>
+                <th>年月日</th>
+                <th>出勤時刻</th>
+                <th>退勤時刻</th>
+                <th>勤務時間</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(attendance_records)}">
+                <td colspan="6" th:text="${message}"></td>
+            </tr>
+            <tr th:each="attendance_record : ${attendance_records}">
+                <td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd')}"></td>
+                <td th:text="${#dates.format(attendance_record.clockIn, 'HH:mm:ss')}"></td>
+                <td th:text="${#dates.format(attendance_record.clockOut, 'HH:mm:ss')}"></td>
+                <td th:text="${attendance_record.workDuration}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 申請承認 -->
+        <div th:if="${!#lists.isEmpty(attendance_records)}">
+			<form th:action="@{/update-approve-status}" method="post" th:if="${status == '提出済'}">
+			    <input type="hidden" name="employeeId" th:value="${employeeId}" />
+			    <input type="hidden" name="yearMonth" th:value="${yearMonth}" />
+			    <input type="hidden" name="status" value="承認済" />
+			    <button type="submit" class="btn btn-primary mb-4">承認する</button>
+			</form>
+			
+			<form th:action="@{/delete-request}" method="post" th:if="${status == '承認済'}">
+			    <input type="hidden" name="employeeId" th:value="${employeeId}" />
+			    <input type="hidden" name="yearMonth" th:value="${yearMonth}" />
+			    <button type="submit" class="btn btn-danger mb-4">解除する</button>
+			</form>
+        </div>
+
+        <a th:href="@{/attendance-requests-list}" class="btn btn-danger">勤怠申請一覧に戻る</a>
+    </div>
+
+    <!-- footer共通部分 -->
+    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>

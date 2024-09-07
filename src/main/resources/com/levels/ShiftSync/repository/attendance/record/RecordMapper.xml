@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.levels.ShiftSync.repository.attendance.record.RecordMapper">
+
+    <!--　出勤時間の登録 -->
+    <insert id="clockIn" parameterType="com.levels.ShiftSync.entity.AttendanceRecord">
+		INSERT INTO attendance_records (employee_id, clock_in)
+		VALUES (#{employeeId}, date_trunc('second', #{clockIn}::timestamp without time zone))
+    </insert>
+
+	<!--　出勤時間の修正 -->
+	<update id="updateClockInTime" parameterType="map">
+	    UPDATE attendance_records
+	    SET clock_in = date_trunc('second', #{newClockIn}::timestamp without time zone)
+	    WHERE record_id = #{recordId} AND employee_id = #{employeeId}
+	</update>
+
+    <!--　退勤時間の登録 -->
+    <update id="clockOut" parameterType="com.levels.ShiftSync.entity.AttendanceRecord">
+        UPDATE attendance_records
+        SET clock_out = date_trunc('second', #{clockOut}::timestamp without time zone)
+        WHERE employee_id = #{employeeId}
+        AND  DATE(clock_in) = current_date 
+    </update>
+    
+	<!--　退勤時間の修正 -->
+	<update id="updateClockOutTime" parameterType="map">
+	    UPDATE attendance_records
+	    SET clock_out = date_trunc('second', #{newClockOut}::timestamp without time zone)
+	    WHERE record_id = #{recordId} AND employee_id = #{employeeId}
+	</update>
+	
+	<!-- 勤怠データを登録/更新 -->
+	<insert id="upsertWorkDuration" parameterType="map">
+		INSERT INTO attendance_records (record_id, work_duration)
+		VALUES (#{recordId}, 
+		        INTERVAL '1 SECOND' * 
+		        CASE 
+		            WHEN EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) >= 3600 THEN 
+		                ROUND((EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) - 3600) / 60) * 60
+		            ELSE 
+		                ROUND(EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))))
+		        END)
+		ON CONFLICT (record_id)
+		DO UPDATE SET
+		    work_duration = 
+		        INTERVAL '1 SECOND' * 
+		        CASE 
+		            WHEN EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) >= 3600 THEN 
+		                ROUND((EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))) - 3600) / 60) * 60
+		            ELSE 
+		                ROUND(EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))))
+		        END;
+	</insert>
+	
+	<!-- 承認申請を作成 -->
+	<insert id="insertApproveRequest" parameterType="map">
+	    INSERT INTO attendance_requests (employee_id, year_month, status)
+	    VALUES(#{employeeId}, #{yearMonth}, '提出済')
+	</insert>
+	
+	<!-- 承認申請のステータスを確認 -->
+	<select id="isNoRequest" resultType="boolean">
+		SELECT 0 >= COUNT(*)
+		FROM attendance_requests
+		WHERE employee_id = #{employeeId}
+	    	AND year_month = #{yearMonth}
+	</select>
+	
+	<!-- 承認申請を取得する -->
+	<select id="getRequestsForMonth" parameterType="map" resultType="com.levels.ShiftSync.entity.AttendanceRequest">
+	    SELECT
+	    	request_id AS requestId,
+	    	employee_id AS employeeId,
+	    	year_month AS yearMonth,
+	    	status
+	    FROM attendance_requests 
+	    WHERE employee_id = #{employeeId}
+	    AND year_month = #{yearMonth}
+	</select>
+
+	<!-- 当日の勤怠データを取得 -->
+	<select id="getTodayRecordForEmployee" parameterType="java.lang.Integer" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
+	    SELECT
+	        record_id AS recordId,
+		    employee_id AS employeeId,
+		    clock_in AS clockIn,
+		    clock_out AS clockOut,
+		    TO_CHAR(work_duration, 'HH24:MI:SS') AS workDuration 
+	    FROM attendance_records
+	    WHERE employee_id = #{employeeId}
+	    AND  DATE(clock_in) = current_date
+	</select>
+
+	<!-- 特定の月の勤怠データを取得 -->
+	<select id="getRecordForYearByMonth" parameterType="map" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
+	    <![CDATA[
+	    SELECT
+	        record_id AS recordId,
+	        employee_id AS employeeId,
+	        clock_in AS clockIn,
+	        clock_out AS clockOut,
+		    TO_CHAR(work_duration, 'HH24:MI:SS') AS workDuration 
+	    FROM attendance_records
+	    WHERE employee_id = #{employeeId}
+	    AND clock_in >= date_trunc('month', to_date(#{yearMonth}, 'YYYY-MM'))
+	    AND clock_in < date_trunc('month', to_date(#{yearMonth}, 'YYYY-MM')) + interval '1 month'
+	    ORDER BY clock_in ASC
+	    ]]>
+	</select>
+	
+	<!-- 特定のレコードIDから勤怠データの取得 -->
+	<select id="getCurrentRecord" parameterType="map" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
+		SELECT
+			record_id AS recordId,
+		    employee_id AS employeeId,
+		    clock_in AS clockIn,
+		    clock_out AS clockOut,
+		    TO_CHAR(work_duration, 'HH24:MI:SS') AS workDuration 
+		FROM attendance_records
+		WHERE record_id = #{recordId}
+	</select>
+
+</mapper>
