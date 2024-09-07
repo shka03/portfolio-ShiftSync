@@ -4,7 +4,7 @@
 <head>
     <!-- head共通部分 -->
     <th:block th:replace="~{fragments/head :: head}"></th:block>
-    <link href="../static/css/attendance-year-month.css" th:href="@{/css/attendance-year-month.css}" rel="stylesheet" />
+    <link href="../static/css/record/attendance-year-month.css" th:href="@{/css/attendance/record/year-month-detail.css}" rel="stylesheet" />
     <title>勤怠履歴 - ShiftSync</title>
 </head>
 
@@ -29,7 +29,7 @@
         <p th:text="'選択された月: ' + ${selectedMonth} + '月の勤怠履歴'"></p>
         
         <!-- CSVダウンロードリンク -->
-        <a th:href="@{/download-csv(month=${selectedMonth})}" class="btn btn-primary">Download CSV</a>
+        <a th:href="@{/download-csv(month=${selectedMonth})}" class="btn btn-success">Download CSV</a>
 
         <!-- メッセージの表示 -->
         <div th:if="${approveSuccessMessage}" class="alert alert-success">
