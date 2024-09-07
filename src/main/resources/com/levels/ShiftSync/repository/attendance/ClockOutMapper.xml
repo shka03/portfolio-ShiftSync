@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.levels.ShiftSync.repository.attendance.ClockOutMapper">
+	
+	<!--　退勤時間の登録 -->
+    <update id="addEntry" parameterType="com.levels.ShiftSync.entity.AttendanceRecord">
+        UPDATE attendance_records
+        SET clock_out = date_trunc('second', #{clockOut}::timestamp without time zone)
+        WHERE employee_id = #{employeeId}
+        AND  DATE(clock_in) = current_date 
+    </update>
+    
+	<!--　退勤時間の修正 -->
+	<update id="updateEntry" parameterType="map">
+	    UPDATE attendance_records
+	    SET clock_out = date_trunc('second', #{newClockOut}::timestamp without time zone)
+	    WHERE record_id = #{recordId} AND employee_id = #{employeeId}
+	</update>
+	
+</mapper>

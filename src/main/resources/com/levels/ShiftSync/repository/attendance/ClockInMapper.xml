@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.levels.ShiftSync.repository.attendance.ClockInMapper">
+    
+    <!--　出勤時間の登録 -->
+    <insert id="clockIn" parameterType="com.levels.ShiftSync.entity.AttendanceRecord">
+		INSERT INTO attendance_records (employee_id, clock_in)
+		VALUES (#{employeeId}, date_trunc('second', #{clockIn}::timestamp without time zone))
+    </insert>
+
+	<!--　出勤時間の修正 -->
+	<update id="updateClockInTime" parameterType="map">
+	    UPDATE attendance_records
+	    SET clock_in = date_trunc('second', #{newClockIn}::timestamp without time zone)
+	    WHERE record_id = #{recordId} AND employee_id = #{employeeId}
+	</update>
+	
+</mapper>
