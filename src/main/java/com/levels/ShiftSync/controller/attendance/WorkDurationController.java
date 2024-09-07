@@ -79,9 +79,6 @@ public class WorkDurationController {
     public ResponseEntity<InputStreamResource> downloadCsv(
             @RequestParam(value = "month", required = false) Integer month
     ) {
-        if (month == null) {
-            month = LocalDate.now().getMonthValue();
-        }
 
         List<AttendanceRecord> records = workDurationServiceImpl.getRecordForYearByMonth(month);
         String csvData = csvExportServiceImpl.exportToCsv(records);

@@ -79,7 +79,7 @@ public class ClockOutControllerTest {
     }
 
     @Test
-    @DisplayName("出勤記録がない場合の処理")
+    @DisplayName("出勤記録がない場合")
     void testClockOut_NoAttendanceRecord() throws Exception {
         // 出勤記録がない場合
         when(workDurationServiceImpl.getTodayRecordForEmployee()).thenReturn(List.of());
@@ -96,7 +96,7 @@ public class ClockOutControllerTest {
     }
 
     @Test
-    @DisplayName("すでに退勤している場合の処理")
+    @DisplayName("すでに退勤している場合")
     void testClockOut_AlreadyClockedOut() throws Exception {
         // 出勤記録が存在し、すでに退勤済みの場合
         LocalDateTime now = LocalDateTime.now().withNano(0);
@@ -116,4 +116,63 @@ public class ClockOutControllerTest {
         verify(clockOutServiceImpl, times(0)).insert();
         verify(workDurationServiceImpl, times(1)).getTodayRecordForEmployee();
     }
+    
+    @Test
+    @DisplayName("退勤時刻の更新が正常に行われること")
+    void testUpdateClockOutTime_Success() throws Exception {
+        // テスト用データの準備
+        Integer recordId = 1;
+        Integer employeeId = 123;
+        String newClockOutStr = "18:00";
+        String currentClockOutStr = "2024-09-01 17:00:00";
+        Timestamp newClockOut = Timestamp.valueOf("2024-09-01 18:00:00");
+        Integer month = 9;
+
+        // モック設定
+        doNothing().when(clockOutServiceImpl).update(recordId, employeeId, newClockOut);
+
+        // モックMVCによるテスト実行
+        mockMvc.perform(post("/update-clock-out-time")
+                .param("recordId", recordId.toString())
+                .param("employeeId", employeeId.toString())
+                .param("newClockOut", newClockOutStr)
+                .param("currentClockOut", currentClockOutStr)
+                .param("month", month.toString()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/attendance-year-month?month=9"))
+                .andExpect(flash().attribute("message", "退勤時刻を修正しました。"));
+
+        // モックメソッドの呼び出し確認
+        verify(clockOutServiceImpl, times(1)).update(recordId, employeeId, newClockOut);
+    }
+
+    @Test
+    @DisplayName("退勤時刻の修正に失敗した場合")
+    void testUpdateClockOutTime_Failure() throws Exception {
+        // テスト用データの準備
+        Integer recordId = 1;
+        Integer employeeId = 123;
+        String newClockOutStr = "18:00";
+        String currentClockOutStr = "2024-09-01 17:00:00";
+        Timestamp newClockOut = Timestamp.valueOf("2024-09-01 18:00:00");
+        Integer month = 9;
+
+        // モック設定：修正に失敗する例外をスロー
+        doThrow(new RuntimeException("修正エラー")).when(clockOutServiceImpl).update(recordId, employeeId, newClockOut);
+
+        // モックMVCによるテスト実行
+        mockMvc.perform(post("/update-clock-out-time")
+                .param("recordId", recordId.toString())
+                .param("employeeId", employeeId.toString())
+                .param("newClockOut", newClockOutStr)
+                .param("currentClockOut", currentClockOutStr)
+                .param("month", month.toString()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/attendance-year-month"))
+                .andExpect(flash().attribute("message", "退勤時刻の修正に失敗しました。"));
+
+        // モックメソッドの呼び出し確認
+        verify(clockOutServiceImpl, times(1)).update(recordId, employeeId, newClockOut);
+    }
+
 }

@@ -92,5 +92,60 @@ public class ClockInControllerTest {
         verify(clockInServiceImpl, times(0)).insert();;
         verify(workDurationServiceImpl, times(1)).getTodayRecordForEmployee();
     }
+    
+    @Test
+    @DisplayName("出勤時刻更新が成功すること")
+    void testUpdateClockInTime_Success() throws Exception {
+        // テスト用データを準備
+        Integer recordId = 1;
+        Integer employeeId = 123;
+        String newClockInStr = "09:00";
+        String currentClockInStr = "2023-09-01 08:00:00";
+        Timestamp newClockInTimestamp = Timestamp.valueOf("2023-09-01 09:00:00");
+
+        // モックの設定
+        doNothing().when(clockInServiceImpl).update(recordId, employeeId, newClockInTimestamp);
+
+        // モックMVCによるテスト実行
+        mockMvc.perform(post("/update-clock-in-time")
+                .param("recordId", recordId.toString())
+                .param("employeeId", employeeId.toString())
+                .param("newClockIn", newClockInStr)
+                .param("currentClockIn", currentClockInStr))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/attendance-year-month"))
+                .andExpect(flash().attribute("message", "出勤時刻を修正しました。"));
+
+        // モックメソッドの呼び出し確認
+        verify(clockInServiceImpl, times(1)).update(recordId, employeeId, newClockInTimestamp);
+    }
+
+    @Test
+    @DisplayName("出勤時刻更新中に例外が発生した場合")
+    void testUpdateClockInTime_ExceptionDuringUpdate() throws Exception {
+        // テスト用データを準備
+        Integer recordId = 1;
+        Integer employeeId = 123;
+        String newClockInStr = "09:00";
+        String currentClockInStr = "2023-09-01 08:00:00";
+        Timestamp newClockInTimestamp = Timestamp.valueOf("2023-09-01 09:00:00");
+
+        // 例外をスローするようにモックの設定
+        doThrow(new RuntimeException("Unexpected error"))
+                .when(clockInServiceImpl).update(recordId, employeeId, newClockInTimestamp);
+
+        // モックMVCによるテスト実行
+        mockMvc.perform(post("/update-clock-in-time")
+                .param("recordId", recordId.toString())
+                .param("employeeId", employeeId.toString())
+                .param("newClockIn", newClockInStr)
+                .param("currentClockIn", currentClockInStr))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/attendance-year-month"))
+                .andExpect(flash().attribute("message", "出勤時刻の修正に失敗しました。"));
+
+        // モックメソッドの呼び出し確認
+        verify(clockInServiceImpl, times(1)).update(recordId, employeeId, newClockInTimestamp);
+    }
 
 }

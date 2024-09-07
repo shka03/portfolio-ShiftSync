@@ -68,29 +68,11 @@ public class ClockOutController {
             @RequestParam(value = "month", required = false) Integer month,
             RedirectAttributes attributes) {
 
-        // 入力パラメータの検証
-        if (isInvalidTimeParameter(newClockOutStr, currentClockOutStr)) {
-            attributes.addFlashAttribute("message", "退勤時刻が無効です。");
-            return "redirect:/attendance-year-month";
-        }
-
         // 現在の退勤時刻から日付部分を取得
-        String datePart;
-        try {
-            datePart = extractDatePart(currentClockOutStr);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            attributes.addFlashAttribute("message", "現在の退勤時刻の形式が不正です。");
-            return "redirect:/attendance-year-month";
-        }
+        String datePart = extractDatePart(currentClockOutStr);
 
         // 日付部分と新しい退勤時間部分を結合してタイムスタンプ形式に変換
-        Timestamp newClockOut;
-        try {
-            newClockOut = createTimestamp(datePart, newClockOutStr);
-        } catch (IllegalArgumentException e) {
-            attributes.addFlashAttribute("message", "新しい退勤時刻の形式が不正です。");
-            return "redirect:/attendance-year-month";
-        }
+        Timestamp newClockOut = createNewTime(datePart, newClockOutStr);
 
         // 退勤時間の修正を実行
         try {
@@ -98,6 +80,7 @@ public class ClockOutController {
             attributes.addFlashAttribute("message", "退勤時刻を修正しました。");
         } catch (Exception e) {
             attributes.addFlashAttribute("message", "退勤時刻の修正に失敗しました。");
+            return "redirect:/attendance-year-month";
         }
 
         attributes.addAttribute("month", month);
@@ -124,27 +107,14 @@ public class ClockOutController {
     }
     
     // 日付部分と新しい退勤時間を結合してタイムスタンプに変換するメソッド
-    private Timestamp createTimestamp(String datePart, String newClockOutStr) {
+    private Timestamp createNewTime(String datePart, String newClockOutStr) {
         String newClockOutFullStr = datePart + " " + newClockOutStr + ":00";
-        try {
-            return Timestamp.valueOf(newClockOutFullStr);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid format for newClockOut.");
-        }
+        return Timestamp.valueOf(newClockOutFullStr);
     }
     
     // 現在の退勤時刻から日付部分を抽出するメソッド
     private String extractDatePart(String currentClockOutStr) {
-        if (currentClockOutStr == null || !currentClockOutStr.contains(" ")) {
-            throw new ArrayIndexOutOfBoundsException("Invalid format for currentClockOut.");
-        }
         return currentClockOutStr.split(" ")[0];
-    }
-    
-    // 入力パラメータが無効かどうかを確認するメソッド
-    private boolean isInvalidTimeParameter(String newClockOutStr, String currentClockOutStr) {
-        return newClockOutStr == null || newClockOutStr.isEmpty() ||
-               currentClockOutStr == null || currentClockOutStr.isEmpty();
     }
     
 }

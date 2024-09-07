@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -67,10 +68,34 @@ public class WorkDurationControllerTest {
     }
 
     @Test
-    @DisplayName("勤怠履歴を正常に表示するテスト")
-    void testShowYearMonth_Success() throws Exception {
-        List<AttendanceRecord> records = List.of(new AttendanceRecord(1, 1, Timestamp.valueOf("2024-09-01 09:00:00"), null, "8:00"));
-        when(workDurationServiceImpl.getRecordForYearByMonth(anyInt())).thenReturn(records);
+    @DisplayName("勤怠履歴が正常に表示されるかのテスト - 月がnullの場合")
+    void testShowYearMonth_NullMonth() throws Exception {
+        // 初期表示時に月がnullの場合をテスト
+        List<AttendanceRecord> recordsForNullMonth = List.of(new AttendanceRecord(1, 1, Timestamp.valueOf("2024-09-01 09:00:00"), null, "8:00"));
+        when(workDurationServiceImpl.getRecordForYearByMonth(LocalDate.now().getMonthValue())).thenReturn(recordsForNullMonth);
+        when(approvalServiceImpl.hasRequestsForMonth(anyInt(), anyString())).thenReturn(true);
+        when(approvalServiceImpl.isNoRequest(anyInt(), anyString())).thenReturn(true);
+
+        mockMvc.perform(get("/attendance-year-month"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("attendance/record/year-month-detail"))
+                .andExpect(model().attributeExists("attendance_records", "selectedMonth", "canApproveRequest"))
+                .andExpect(model().attribute("attendance_records", recordsForNullMonth))
+                .andExpect(model().attribute("selectedMonth", LocalDate.now().getMonthValue()))
+                .andExpect(model().attribute("canApproveRequest", false));
+
+        // モックの呼び出し確認
+        verify(workDurationServiceImpl, times(1)).getRecordForYearByMonth(LocalDate.now().getMonthValue());
+        verify(approvalServiceImpl, times(1)).hasRequestsForMonth(anyInt(), anyString());
+        verify(approvalServiceImpl, times(1)).isNoRequest(anyInt(), anyString());
+    }
+
+    @Test
+    @DisplayName("勤怠履歴が正常に表示されるかのテスト - 特定の月が指定された場合")
+    void testShowYearMonth_SpecificMonth() throws Exception {
+        // 特定の月が指定された場合のテスト
+        List<AttendanceRecord> recordsForSpecificMonth = List.of(new AttendanceRecord(1, 1, Timestamp.valueOf("2024-09-01 09:00:00"), null, "8:00"));
+        when(workDurationServiceImpl.getRecordForYearByMonth(9)).thenReturn(recordsForSpecificMonth);
         when(approvalServiceImpl.hasRequestsForMonth(anyInt(), anyString())).thenReturn(true);
         when(approvalServiceImpl.isNoRequest(anyInt(), anyString())).thenReturn(true);
 
@@ -79,14 +104,16 @@ public class WorkDurationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("attendance/record/year-month-detail"))
                 .andExpect(model().attributeExists("attendance_records", "selectedMonth", "canApproveRequest"))
-                .andExpect(model().attribute("attendance_records", records))
+                .andExpect(model().attribute("attendance_records", recordsForSpecificMonth))
                 .andExpect(model().attribute("selectedMonth", 9))
                 .andExpect(model().attribute("canApproveRequest", false));
 
-        verify(workDurationServiceImpl).getRecordForYearByMonth(9);
-        verify(approvalServiceImpl).hasRequestsForMonth(anyInt(), anyString());
-        verify(approvalServiceImpl).isNoRequest(anyInt(), anyString());
+        // モックの呼び出し確認
+        verify(workDurationServiceImpl, times(1)).getRecordForYearByMonth(9);
+        verify(approvalServiceImpl, times(1)).hasRequestsForMonth(anyInt(), anyString());
+        verify(approvalServiceImpl, times(1)).isNoRequest(anyInt(), anyString());
     }
+
 
     @Test
     @DisplayName("勤怠履歴がない場合にメッセージを表示するテスト")

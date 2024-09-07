@@ -31,7 +31,7 @@ public class ClockInController {
         List<AttendanceRecord> todayAttendance = workDurationServiceImpl.getTodayRecordForEmployee();
 
         if (!todayAttendance.isEmpty()) {
-            handleAlreadyClockedIn(attributes, todayAttendance.get(0).getClockIn());
+        	addClockInErrorAttributes(attributes, todayAttendance.get(0).getClockIn());
             return "redirect:/";
         }
 
@@ -58,24 +58,11 @@ public class ClockInController {
             @RequestParam(value = "month", required = false) Integer month,
             RedirectAttributes attributes) {
 
-        // 入力パラメータの検証
-        if (isInvalidClockInParameter(newClockInStr, currentClockInStr)) {
-            attributes.addFlashAttribute("message", "出勤時刻が無効です。");
-            return "redirect:/attendance-year-month";
-        }
-
         // 現在の出勤時刻から日付部分を取得
         String datePart = extractDatePartFromCurrentClockIn(currentClockInStr, attributes);
-        if (datePart == null) {
-            return "redirect:/attendance-year-month";
-        }
 
-        // 新しい出勤時刻のパースと検証
-        Timestamp newClockIn = parseNewClockIn(datePart, newClockInStr, attributes);
-        if (newClockIn == null) {
-            return "redirect:/attendance-year-month";
-        }
-
+        // 新しい出勤時刻
+        Timestamp newClockIn = createNewTime(datePart, newClockInStr, attributes);
         try {
             // 出勤時刻の更新処理
         	clockInServiceImpl.update(recordId, employeeId, newClockIn);
@@ -116,58 +103,18 @@ public class ClockInController {
      * @return 日付部分（yyyy-MM-dd形式）または、形式が不正な場合はnull
      */
     private String extractDatePartFromCurrentClockIn(String currentClockInStr, RedirectAttributes attributes) {
-        if (currentClockInStr == null || !currentClockInStr.contains(" ")) {
-            attributes.addFlashAttribute("message", "現在の出勤時刻の形式が不正です。");
-            return null;
-        }
-
-        try {
-            return currentClockInStr.split(" ")[0];
-        } catch (Exception e) {
-            attributes.addFlashAttribute("message", "現在の出勤時刻の形式が不正です。");
-            return null;
-        }
+        return currentClockInStr.split(" ")[0];
     }
-    
+        
     /**
-     * すでに出勤している場合の処理
-     * @param attributes リダイレクト時にFlashAttributesにデータを追加
-     * @param clockInTime 出勤時刻
-     */
-    private void handleAlreadyClockedIn(RedirectAttributes attributes, Timestamp clockInTime) {
-        addClockInErrorAttributes(attributes, clockInTime);
-    }
-    
-    /**
-     * 出勤時刻と現在の出勤時刻の文字列が有効かどうかをチェックします。
-     * @param newClockInStr 新しい出勤時刻（hh:mm形式）
-     * @param currentClockInStr 現在の出勤時刻（yyyy-MM-dd HH:mm:ss形式）
-     * @return 出勤時刻が無効な場合はtrue、それ以外はfalse
-     */
-    private boolean isInvalidClockInParameter(String newClockInStr, String currentClockInStr) {
-        return newClockInStr == null || newClockInStr.isEmpty() ||
-               currentClockInStr == null || currentClockInStr.isEmpty();
-    }
-    
-    /**
-     * 新しい出勤時刻をパースしてTimestampに変換します。
+     * 新しい出勤時刻をTimestampに変換します。
      * @param datePart 現在の出勤時刻から抽出した日付部分（yyyy-MM-dd形式）
      * @param newClockInStr 新しい出勤時刻（hh:mm形式）
      * @param attributes リダイレクト時にFlashAttributesにデータを追加
-     * @return 新しい出勤時刻のTimestampまたは、形式が不正な場合はnull
+     * @return 新しい出勤時刻のTimestamp型で返す
      */
-    private Timestamp parseNewClockIn(String datePart, String newClockInStr, RedirectAttributes attributes) {
-        if (newClockInStr == null || newClockInStr.isEmpty()) {
-            attributes.addFlashAttribute("message", "新しい出勤時刻の形式が不正です。");
-            return null;
-        }
-
+    private Timestamp createNewTime(String datePart, String newClockInStr, RedirectAttributes attributes) {
         String newClockInFullStr = String.format("%s %s:00", datePart, newClockInStr);
-        try {
-            return Timestamp.valueOf(newClockInFullStr);
-        } catch (IllegalArgumentException e) {
-            attributes.addFlashAttribute("message", "新しい出勤時刻の形式が不正です。");
-            return null;
-        }
+        return Timestamp.valueOf(newClockInFullStr);
     }
 }
