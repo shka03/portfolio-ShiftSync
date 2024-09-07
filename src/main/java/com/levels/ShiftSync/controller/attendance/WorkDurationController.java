@@ -54,7 +54,7 @@ public class WorkDurationController {
         if (yearlyAttendance.isEmpty()) {
             model.addAttribute("message", "選択された月のデータはありません。");
             model.addAttribute("selectedMonth", month);
-            return "attendance-year-month";
+            return "attendance/record/year-month-detail";
         }
 
         model.addAttribute("attendance_records", yearlyAttendance);
@@ -67,7 +67,7 @@ public class WorkDurationController {
         boolean isNoRequest = approvalServiceImpl.isNoRequest(employeeId, yearMonth);
         model.addAttribute("canApproveRequest", isNoRequest && !hasRequest);
 
-        return "attendance-year-month";
+        return "attendance/record/year-month-detail";
     }
 
     /**

@@ -46,6 +46,6 @@ public class HomeController {
         boolean isNoRequest = approvalServiceImpl.isNoRequest(employeeId, today.getYear() + "-" + today.getMonthValue());
         model.addAttribute("canApproveRequest", isNoRequest && !hasRequest);
 
-        return "attendance";
+        return "attendance/home";
     }
 }

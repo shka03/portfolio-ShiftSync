@@ -1,4 +1,4 @@
-package com.levels.ShiftSync.controller;
+package com.levels.ShiftSync.controller.approval;
 
 import java.util.List;
 
@@ -13,22 +13,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.AttendanceRequest;
 import com.levels.ShiftSync.repository.AttendanceRecordMapper;
-import com.levels.ShiftSync.service.attendance.approval.impl.AttendanceRequestServiceImpl;
+import com.levels.ShiftSync.service.attendance.approval.impl.RequestServiceImpl;
 
 @Controller
-public class AttendanceRequestController {
+public class RequestController {
 
     @Autowired
-    private AttendanceRequestServiceImpl attendanceRequestServiceImpl;
+    private RequestServiceImpl requestServiceImpl;
     
     @Autowired
     private AttendanceRecordMapper attendanceRecordMapper;
 
     @GetMapping("/attendance-requests-list")
     public String showRequests(Model model) {
-        List<AttendanceRequest> attendanceRequests = attendanceRequestServiceImpl.getAllRequests();
+        List<AttendanceRequest> attendanceRequests = requestServiceImpl.getAllRequests();
         model.addAttribute("attendance_requests", attendanceRequests);
-        return "attendance-requests-list";
+        return "attendance/approval/requests-list";
     }
     
     @GetMapping("/attendance-approval/{employeeId}/{yearMonth}")
@@ -40,17 +40,17 @@ public class AttendanceRequestController {
         
         if(requestRecords.isEmpty()) {
         	 model.addAttribute("message", "対象データがありません");
-        	return "attendance-approval";
+        	return "attendance/approval/detail";
         }
         
         model.addAttribute("attendance_records", requestRecords);
         model.addAttribute("employeeId", employeeId);
         model.addAttribute("yearMonth", yearMonth);
         
-        String status = attendanceRequestServiceImpl.getApprovalStatus(employeeId, yearMonth);
+        String status = requestServiceImpl.getApprovalStatus(employeeId, yearMonth);
         model.addAttribute("status", status);
         
-        return "attendance-approval";
+        return "attendance/approval/detail";
     }
     
     @PostMapping("/update-approve-status")
@@ -59,7 +59,7 @@ public class AttendanceRequestController {
             @RequestParam("yearMonth") String yearMonth,
             @RequestParam("status") String status,
             Model model) {
-        attendanceRequestServiceImpl.updateApproveStatus(employeeId, yearMonth, status);
+        requestServiceImpl.updateApproveStatus(employeeId, yearMonth, status);
         model.addAttribute("employeeId", employeeId);
         model.addAttribute("yearMonth", yearMonth);
         
@@ -71,7 +71,7 @@ public class AttendanceRequestController {
             @RequestParam("employeeId") Integer employeeId,
             @RequestParam("yearMonth") String yearMonth,
             Model model) {
-        attendanceRequestServiceImpl.deleteRequest(employeeId, yearMonth);
+        requestServiceImpl.deleteRequest(employeeId, yearMonth);
         model.addAttribute("employeeId", employeeId);
         model.addAttribute("yearMonth", yearMonth);
         

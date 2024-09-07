@@ -77,7 +77,7 @@ public class WorkDurationControllerTest {
         mockMvc.perform(get("/attendance-year-month")
                 .param("month", "9"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("attendance-year-month"))
+                .andExpect(view().name("attendance/record/year-month-detail"))
                 .andExpect(model().attributeExists("attendance_records", "selectedMonth", "canApproveRequest"))
                 .andExpect(model().attribute("attendance_records", records))
                 .andExpect(model().attribute("selectedMonth", 9))
@@ -96,7 +96,7 @@ public class WorkDurationControllerTest {
         mockMvc.perform(get("/attendance-year-month")
                 .param("month", "9"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("attendance-year-month"))
+                .andExpect(view().name("attendance/record/year-month-detail"))
                 .andExpect(model().attributeExists("message", "selectedMonth"))
                 .andExpect(model().attribute("message", "選択された月のデータはありません。"))
                 .andExpect(model().attribute("selectedMonth", 9));

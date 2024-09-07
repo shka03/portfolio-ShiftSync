@@ -77,7 +77,7 @@ public class HomeControllerTest {
         // モックMVCによるテスト実行
         mockMvc.perform(get("/"))
                .andExpect(status().isOk())
-               .andExpect(view().name("attendance"))
+               .andExpect(view().name("attendance/home"))
                .andExpect(model().attribute("clockInTime", clockIn))
                .andExpect(model().attribute("clockOutTime", clockOut))
                .andExpect(model().attribute("canApproveRequest", true));
@@ -93,7 +93,7 @@ public class HomeControllerTest {
         // モックMVCによるテスト実行
         mockMvc.perform(get("/"))
                .andExpect(status().isOk())
-               .andExpect(view().name("attendance"))
+               .andExpect(view().name("attendance/home"))
                .andExpect(model().attributeExists("message", "canApproveRequest"))
                .andExpect(model().attribute("message", "本日の出勤記録がありません。"))
                .andExpect(model().attribute("canApproveRequest", true));

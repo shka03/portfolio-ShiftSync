@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 
 import com.levels.ShiftSync.entity.AttendanceRequest;
 import com.levels.ShiftSync.repository.AttendanceRequestMapper;
-import com.levels.ShiftSync.service.attendance.approval.AttendanceRequestService;
+import com.levels.ShiftSync.service.attendance.approval.RequestService;
 
 @Service
-public class AttendanceRequestServiceImpl implements AttendanceRequestService {
+public class RequestServiceImpl implements RequestService {
 
     @Autowired
     private AttendanceRequestMapper attendanceRequestMapper;
