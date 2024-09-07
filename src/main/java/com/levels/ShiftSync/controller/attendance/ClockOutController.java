@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
-import com.levels.ShiftSync.service.attendance.record.impl.ClockOutServiceImpl;
+import com.levels.ShiftSync.service.attendance.record.RecordService;
 import com.levels.ShiftSync.service.attendance.record.impl.WorkDurationServiceImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ClockOutController {
 
-    private final ClockOutServiceImpl clockOutServiceImpl;
+    private final RecordService clockOutServiceImpl;
     private final WorkDurationServiceImpl workDurationServiceImpl;
 
     /**
@@ -40,7 +40,7 @@ public class ClockOutController {
             return "redirect:/";
         }
 
-        clockOutServiceImpl.clockOutTime();
+        clockOutServiceImpl.insert();
         todayAttendance = workDurationServiceImpl.getTodayRecordForEmployee();
         addClockOutSuccessAttributes(attributes, todayAttendance.get(0).getClockOut());
 

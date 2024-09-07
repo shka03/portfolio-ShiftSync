@@ -19,13 +19,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.LoginUser;
-import com.levels.ShiftSync.repository.AttendanceRecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
 import com.levels.ShiftSync.service.attendance.record.impl.WorkDurationServiceImpl;
 
 public class WorkDurationServiceImplTest {
 
     @Mock
-    private AttendanceRecordMapper attendanceRecordMapper;
+    private RecordMapper attendanceRecordMapper;
 
     @InjectMocks
     private WorkDurationServiceImpl workDurationServiceImpl;

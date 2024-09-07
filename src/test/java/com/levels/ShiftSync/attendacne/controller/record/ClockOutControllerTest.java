@@ -19,13 +19,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.levels.ShiftSync.controller.attendance.ClockOutController;
 import com.levels.ShiftSync.entity.AttendanceRecord;
-import com.levels.ShiftSync.service.attendance.record.impl.ClockOutServiceImpl;
+import com.levels.ShiftSync.service.attendance.record.RecordService;
 import com.levels.ShiftSync.service.attendance.record.impl.WorkDurationServiceImpl;
 
 public class ClockOutControllerTest {
 
     @Mock
-    private ClockOutServiceImpl clockOutServiceImpl;
+    private RecordService clockOutServiceImpl;
 
     @Mock
     private WorkDurationServiceImpl workDurationServiceImpl;
@@ -60,7 +60,7 @@ public class ClockOutControllerTest {
             // 退勤処理後に `clockOut` を設定する
             record.setClockOut(clockOut);
             return null;
-        }).when(clockOutServiceImpl).clockOutTime();
+        }).when(clockOutServiceImpl).insert();
         
         when(workDurationServiceImpl.getTodayRecordForEmployee()).thenReturn(List.of(record));
         doNothing().when(workDurationServiceImpl).upsertTodayWorkDuration(); // voidメソッドには doNothing() を使用
@@ -73,7 +73,7 @@ public class ClockOutControllerTest {
                .andExpect(flash().attribute("clockOutSuccessMessage", "お疲れ様でした。退勤しました。"));
 
         // モックメソッドの呼び出し確認
-        verify(clockOutServiceImpl, times(1)).clockOutTime();
+        verify(clockOutServiceImpl, times(1)).insert();
         verify(workDurationServiceImpl, times(2)).getTodayRecordForEmployee(); // 最初と2回目の呼び出し
         verify(workDurationServiceImpl, times(1)).upsertTodayWorkDuration(); // upsertTodayWorkDurationが呼び出されていることを確認
     }
@@ -91,7 +91,7 @@ public class ClockOutControllerTest {
                .andExpect(flash().attribute("clockOutErrorMessage", "出勤記録がありません。"));
 
         // モックメソッドの呼び出し確認
-        verify(clockOutServiceImpl, times(0)).clockOutTime();
+        verify(clockOutServiceImpl, times(0)).insert();
         verify(workDurationServiceImpl, times(1)).getTodayRecordForEmployee();
     }
 
@@ -113,7 +113,7 @@ public class ClockOutControllerTest {
                .andExpect(flash().attribute("clockOutErrorMessage", "すでに退勤しています。"));
 
         // モックメソッドの呼び出し確認
-        verify(clockOutServiceImpl, times(0)).clockOutTime();
+        verify(clockOutServiceImpl, times(0)).insert();
         verify(workDurationServiceImpl, times(1)).getTodayRecordForEmployee();
     }
 }

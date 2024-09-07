@@ -20,13 +20,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.levels.ShiftSync.controller.attendance.ClockInController;
 import com.levels.ShiftSync.entity.AttendanceRecord;
-import com.levels.ShiftSync.service.attendance.record.impl.ClockInServiceImpl;
+import com.levels.ShiftSync.service.attendance.record.RecordService;
 import com.levels.ShiftSync.service.attendance.record.impl.WorkDurationServiceImpl;
 
 public class ClockInControllerTest {
 
     @Mock
-    private ClockInServiceImpl clockInServiceImpl;
+    private RecordService clockInServiceImpl;
 
     @Mock
     private WorkDurationServiceImpl workDurationServiceImpl;
@@ -55,7 +55,7 @@ public class ClockInControllerTest {
                 now, // clockIn
                 null, // clockOut
                 null))); // workDuration
-        doNothing().when(clockInServiceImpl).clockInTime(); // voidメソッドには doNothing() を使用
+        doNothing().when(clockInServiceImpl).insert();; // voidメソッドには doNothing() を使用
 
         // モックMVCによるテスト実行
         mockMvc.perform(post("/clock-in"))
@@ -65,7 +65,7 @@ public class ClockInControllerTest {
                .andExpect(flash().attribute("clockInSuccessMessage", "おはようございます。出勤しました。"));
 
         // モックメソッドの呼び出し確認
-        verify(clockInServiceImpl, times(1)).clockInTime();
+        verify(clockInServiceImpl, times(1)).insert();;
         verify(workDurationServiceImpl, times(2)).getTodayRecordForEmployee(); // 最初と2回目の呼び出し
     }
 
@@ -89,7 +89,7 @@ public class ClockInControllerTest {
                .andExpect(flash().attribute("clockInErrorMessage", "すでに出勤しています。"));
 
         // voidメソッドは呼び出されていないことを確認
-        verify(clockInServiceImpl, times(0)).clockInTime();
+        verify(clockInServiceImpl, times(0)).insert();;
         verify(workDurationServiceImpl, times(1)).getTodayRecordForEmployee();
     }
 

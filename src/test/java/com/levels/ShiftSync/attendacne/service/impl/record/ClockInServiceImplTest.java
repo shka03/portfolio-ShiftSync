@@ -16,14 +16,18 @@ import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
-import com.levels.ShiftSync.repository.AttendanceRecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.ClockInMapper;
+import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
 import com.levels.ShiftSync.service.attendance.record.impl.ClockInServiceImpl;
 import com.levels.ShiftSync.utility.SecurityUtils;
 
 class ClockInServiceImplTest {
 
     @Mock
-    private AttendanceRecordMapper attendanceRecordMapper;
+    private ClockInMapper clockInMapper;
+    
+	@Mock
+	private RecordMapper recordMapper;
 
     @InjectMocks
     private ClockInServiceImpl clockInServiceImpl;
@@ -44,10 +48,10 @@ class ClockInServiceImplTest {
             mockedStatic.when(SecurityUtils::getEmployeeIdFromSecurityContext).thenReturn(employeeId);
 
             // 実行
-            clockInServiceImpl.clockInTime();
+            clockInServiceImpl.insert();
 
             // AttendanceRecord に正しい値が設定され、attendanceRecordMapper が呼ばれたことを確認
-            verify(attendanceRecordMapper, times(1)).clockIn(any(AttendanceRecord.class));
+            verify(clockInMapper, times(1)).insert(any(AttendanceRecord.class));
         }
     }
 
@@ -61,14 +65,14 @@ class ClockInServiceImplTest {
         // getCurrentRecord のモック作成
         AttendanceRecord existingRecord = new AttendanceRecord();
         existingRecord.setClockOut(Timestamp.valueOf("2024-09-01 18:00:00"));
-        when(attendanceRecordMapper.getCurrentRecord(recordId)).thenReturn(existingRecord);
+        when(clockInMapper.getCurrentRecord(recordId)).thenReturn(existingRecord);
 
         // 実行
-        clockInServiceImpl.updateClockInTime(recordId, employeeId, newClockIn);
+        clockInServiceImpl.update(recordId, employeeId, newClockIn);
 
         // 更新メソッドと勤怠時間再計算メソッドの呼び出しを確認
-        verify(attendanceRecordMapper, times(1)).updateClockInTime(anyMap());
-        verify(attendanceRecordMapper, times(1)).upsertWorkDuration(recordId, existingRecord.getClockOut(), newClockIn);
+        verify(clockInMapper, times(1)).update(anyMap());
+        verify(recordMapper, times(1)).upsertWorkDuration(recordId, existingRecord.getClockOut(), newClockIn);
     }
 
     @Test
@@ -83,11 +87,11 @@ class ClockInServiceImplTest {
         method.setAccessible(true);
 
         // getCurrentRecord のモック作成
-        when(attendanceRecordMapper.getCurrentRecord(recordId)).thenReturn(expectedRecord);
+        when(clockInMapper.getCurrentRecord(recordId)).thenReturn(expectedRecord);
 
         // 実行と検証
         AttendanceRecord actualRecord = (AttendanceRecord) method.invoke(clockInServiceImpl, recordId);
         assertEquals(expectedRecord, actualRecord);
-        verify(attendanceRecordMapper, times(1)).getCurrentRecord(recordId);
+        verify(clockInMapper, times(1)).getCurrentRecord(recordId);
     }
 }

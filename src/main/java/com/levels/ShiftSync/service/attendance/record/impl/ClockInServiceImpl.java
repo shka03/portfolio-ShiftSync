@@ -8,25 +8,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
-import com.levels.ShiftSync.repository.AttendanceRecordMapper;
-import com.levels.ShiftSync.service.attendance.record.ClockInService;
+import com.levels.ShiftSync.repository.attendance.record.ClockInMapper;
+import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
+import com.levels.ShiftSync.service.attendance.record.RecordService;
 import com.levels.ShiftSync.utility.SecurityUtils;
 
 @Service
-public class ClockInServiceImpl implements ClockInService {
+public class ClockInServiceImpl implements RecordService {
 	
 	@Autowired
-	private AttendanceRecordMapper attendanceRecordMapper;
+	private ClockInMapper clockInMapper;
 
+	@Autowired
+	private RecordMapper recordMapper;
+	
     /**
      * 現在の時刻で退勤時間を記録します。
      */
     @Override
-    public void clockInTime() {
+    public void insert() {
         AttendanceRecord record = new AttendanceRecord();
         record.setEmployeeId(SecurityUtils.getEmployeeIdFromSecurityContext());
         record.setClockIn(new Timestamp(System.currentTimeMillis()));
-        attendanceRecordMapper.clockIn(record);
+        clockInMapper.insert(record);
     }
     
     /**
@@ -37,18 +41,18 @@ public class ClockInServiceImpl implements ClockInService {
      * @param newClockIn 新しい出勤時刻
      */
     @Override
-    public void updateClockInTime(Integer recordId, Integer employeeId, Timestamp newClockIn) {
+    public void update(Integer recordId, Integer employeeId, Timestamp newClockIn) {
         Map<String, Object> params = new HashMap<>();
         params.put("recordId", recordId);
         params.put("employeeId", employeeId);
         params.put("newClockIn", newClockIn);
 
         // 出勤時間を更新
-        attendanceRecordMapper.updateClockInTime(params);
+        clockInMapper.update(params);
 
         // 勤怠時間を再計算
         Timestamp currClockOut = getCurrentRecord(recordId).getClockOut();
-        attendanceRecordMapper.upsertWorkDuration(recordId, currClockOut, newClockIn);
+        recordMapper.upsertWorkDuration(recordId, currClockOut, newClockIn);
     }
     
     /**
@@ -58,7 +62,7 @@ public class ClockInServiceImpl implements ClockInService {
      * @return 現在の出退勤レコード
      */
     private AttendanceRecord getCurrentRecord(Integer recordId) {
-        return attendanceRecordMapper.getCurrentRecord(recordId);
+        return clockInMapper.getCurrentRecord(recordId);
     }
 
 }

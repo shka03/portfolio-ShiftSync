@@ -18,14 +18,18 @@ import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
-import com.levels.ShiftSync.repository.AttendanceRecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.ClockOutMapper;
+import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
 import com.levels.ShiftSync.service.attendance.record.impl.ClockOutServiceImpl;
 import com.levels.ShiftSync.utility.SecurityUtils;
 
 class ClockOutServiceImplTest {
 
     @Mock
-    private AttendanceRecordMapper attendanceRecordMapper;
+    private ClockOutMapper clockOutMapper;
+    
+    @Mock
+    private RecordMapper attendanceRecordMapper;
 
     @InjectMocks
     private ClockOutServiceImpl clockOutServiceImpl;
@@ -44,11 +48,11 @@ class ClockOutServiceImplTest {
             mockedStatic.when(SecurityUtils::getEmployeeIdFromSecurityContext).thenReturn(employeeId);
 
             // 実行
-            clockOutServiceImpl.clockOutTime();
+            clockOutServiceImpl.insert();
 
             // 現在時刻を取得し、AttendanceRecord を作成
             Timestamp now = new Timestamp(System.currentTimeMillis());
-            verify(attendanceRecordMapper, times(1)).clockOut(argThat(record -> 
+            verify(clockOutMapper, times(1)).insert(argThat(record -> 
                 record.getEmployeeId().equals(employeeId) && 
                 Math.abs(record.getClockOut().getTime() - now.getTime()) < 1000 // within 1 second
             ));
@@ -65,10 +69,10 @@ class ClockOutServiceImplTest {
         // getCurrentRecord のモック作成
         AttendanceRecord existingRecord = new AttendanceRecord();
         existingRecord.setClockIn(Timestamp.valueOf("2024-09-01 09:00:00"));
-        when(attendanceRecordMapper.getCurrentRecord(recordId)).thenReturn(existingRecord);
+        when(clockOutMapper.getCurrentRecord(recordId)).thenReturn(existingRecord);
 
         // 実行
-        clockOutServiceImpl.updateClockOutTime(recordId, employeeId, newClockOut);
+        clockOutServiceImpl.update(recordId, employeeId, newClockOut);
 
         // 検証
         Map<String, Object> params = new HashMap<>();
@@ -76,7 +80,7 @@ class ClockOutServiceImplTest {
         params.put("employeeId", employeeId);
         params.put("newClockOut", newClockOut);
 
-        verify(attendanceRecordMapper, times(1)).updateClockOutTime(params);
+        verify(clockOutMapper, times(1)).update(params);
         verify(attendanceRecordMapper, times(1)).upsertWorkDuration(recordId, newClockOut, existingRecord.getClockIn());
     }
 
@@ -92,11 +96,11 @@ class ClockOutServiceImplTest {
         method.setAccessible(true);
 
         // getCurrentRecord のモック作成
-        when(attendanceRecordMapper.getCurrentRecord(recordId)).thenReturn(expectedRecord);
+        when(clockOutMapper.getCurrentRecord(recordId)).thenReturn(expectedRecord);
 
         // 実行と検証
         AttendanceRecord actualRecord = (AttendanceRecord) method.invoke(clockOutServiceImpl, recordId);
         assertEquals(expectedRecord, actualRecord);
-        verify(attendanceRecordMapper, times(1)).getCurrentRecord(recordId);
+        verify(clockOutMapper, times(1)).getCurrentRecord(recordId);
     }
 }

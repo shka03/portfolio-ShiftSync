@@ -15,7 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
-import com.levels.ShiftSync.repository.AttendanceRecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
 import com.levels.ShiftSync.service.attendance.record.RecordCheckService;
 import com.levels.ShiftSync.service.attendance.record.impl.RecordCheckServiceImpl;
 
@@ -24,7 +24,7 @@ import com.levels.ShiftSync.service.attendance.record.impl.RecordCheckServiceImp
 public class RecordCheckServiceImplTest {
 
     @MockBean
-    private AttendanceRecordMapper attendanceRecordMapper;
+    private RecordMapper attendanceRecordMapper;
 
     @Autowired
     private RecordCheckService recordCheckService;

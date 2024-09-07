@@ -8,26 +8,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
-import com.levels.ShiftSync.repository.AttendanceRecordMapper;
-import com.levels.ShiftSync.service.attendance.record.ClockOutService;
+import com.levels.ShiftSync.repository.attendance.record.ClockOutMapper;
+import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
+import com.levels.ShiftSync.service.attendance.record.RecordService;
 import com.levels.ShiftSync.utility.SecurityUtils;
 
 @Service
-public class ClockOutServiceImpl implements ClockOutService {
+public class ClockOutServiceImpl implements RecordService {
+
+	@Autowired
+	private ClockOutMapper clockOutMapper;
 	
 	@Autowired
-	private AttendanceRecordMapper attendanceRecordMapper;
+	private RecordMapper attendanceRecordMapper;
 
     /**
      * 従業員の退勤時間を現在の時刻で記録します。
      * 現在ログインしている従業員のIDを使用して、新しい退勤レコードをデータベースに保存します。
      */
     @Override
-    public void clockOutTime() {
+    public void insert() {
         AttendanceRecord record = new AttendanceRecord();
         record.setEmployeeId(SecurityUtils.getEmployeeIdFromSecurityContext());
         record.setClockOut(new Timestamp(System.currentTimeMillis()));
-        attendanceRecordMapper.clockOut(record);
+        clockOutMapper.insert(record);
     }
     
     /**
@@ -38,14 +42,14 @@ public class ClockOutServiceImpl implements ClockOutService {
      * @param newClockOut 新しい退勤時刻
      */
     @Override
-    public void updateClockOutTime(Integer recordId, Integer employeeId, Timestamp newClockOut) {
+    public void update(Integer recordId, Integer employeeId, Timestamp newClockOut) {
         Map<String, Object> params = new HashMap<>();
         params.put("recordId", recordId);
         params.put("employeeId", employeeId);
         params.put("newClockOut", newClockOut);
 
         // 退勤時間を更新
-        attendanceRecordMapper.updateClockOutTime(params);
+        clockOutMapper.update(params);
 
         // 勤怠時間を再計算
         Timestamp currClockIn = getCurrentRecord(recordId).getClockIn();
@@ -59,7 +63,7 @@ public class ClockOutServiceImpl implements ClockOutService {
      * @return 現在の出退勤レコード
      */
     private AttendanceRecord getCurrentRecord(Integer recordId) {
-        return attendanceRecordMapper.getCurrentRecord(recordId);
+        return clockOutMapper.getCurrentRecord(recordId);
     }
 
 }

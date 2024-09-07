@@ -14,13 +14,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.levels.ShiftSync.entity.AttendanceRequest;
-import com.levels.ShiftSync.repository.AttendanceRecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
 import com.levels.ShiftSync.service.attendance.record.impl.ApprovalServiceImpl;
 
 class ApprovalServiceImplTest {
 
     @Mock
-    private AttendanceRecordMapper attendanceRecordMapper;
+    private RecordMapper attendanceRecordMapper;
 
     @InjectMocks
     private ApprovalServiceImpl approvalServiceImpl;

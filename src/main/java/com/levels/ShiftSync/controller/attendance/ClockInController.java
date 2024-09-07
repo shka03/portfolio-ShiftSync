@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
-import com.levels.ShiftSync.service.attendance.record.impl.ClockInServiceImpl;
+import com.levels.ShiftSync.service.attendance.record.RecordService;
 import com.levels.ShiftSync.service.attendance.record.impl.WorkDurationServiceImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ClockInController {
 
-    private final ClockInServiceImpl clockInServiceImpl;
+    private final RecordService clockInServiceImpl;
     private final WorkDurationServiceImpl workDurationServiceImpl;
 
     /**
@@ -34,7 +34,7 @@ public class ClockInController {
             return "redirect:/";
         }
 
-        clockInServiceImpl.clockInTime();
+        clockInServiceImpl.insert();
         todayAttendance = workDurationServiceImpl.getTodayRecordForEmployee();
         addClockInSuccessAttributes(attributes, todayAttendance.get(0).getClockIn());
         return "redirect:/";

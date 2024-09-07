@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.AttendanceRequest;
-import com.levels.ShiftSync.repository.AttendanceRecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
 import com.levels.ShiftSync.service.attendance.approval.impl.RequestServiceImpl;
 
 @Controller
@@ -22,7 +22,7 @@ public class RequestController {
     private RequestServiceImpl requestServiceImpl;
     
     @Autowired
-    private AttendanceRecordMapper attendanceRecordMapper;
+    private RecordMapper attendanceRecordMapper;
 
     @GetMapping("/attendance-requests-list")
     public String showRequests(Model model) {

@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.levels.ShiftSync.controller.approval.RequestController;
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.AttendanceRequest;
-import com.levels.ShiftSync.repository.AttendanceRecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
 import com.levels.ShiftSync.service.attendance.approval.impl.RequestServiceImpl;
 
 public class RequestControllerTest {
@@ -28,7 +28,7 @@ public class RequestControllerTest {
     private RequestServiceImpl requestServiceImpl;
 
     @Mock
-    private AttendanceRecordMapper attendanceRecordMapper;
+    private RecordMapper attendanceRecordMapper;
 
     @InjectMocks
     private RequestController requestController;

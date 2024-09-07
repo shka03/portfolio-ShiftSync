@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.entity.LoginUser;
-import com.levels.ShiftSync.repository.AttendanceRecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
 import com.levels.ShiftSync.service.attendance.record.WorkDurationService;
 import com.levels.ShiftSync.utility.SecurityUtils;
 
@@ -19,7 +19,7 @@ import com.levels.ShiftSync.utility.SecurityUtils;
 public class WorkDurationServiceImpl implements WorkDurationService {
 	
 	@Autowired
-	private AttendanceRecordMapper attendanceRecordMapper;
+	private RecordMapper attendanceRecordMapper;
 
     /**
      * 当日の出退勤レコードに基づいて、当日の勤務時間を登録または更新します。

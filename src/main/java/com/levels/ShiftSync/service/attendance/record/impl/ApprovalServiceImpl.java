@@ -6,14 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.levels.ShiftSync.entity.AttendanceRequest;
-import com.levels.ShiftSync.repository.AttendanceRecordMapper;
+import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
 import com.levels.ShiftSync.service.attendance.record.ApprovalService;
 
 @Service
 public class ApprovalServiceImpl implements ApprovalService {
 
 	@Autowired
-	private AttendanceRecordMapper attendanceRecordMapper;
+	private RecordMapper attendanceRecordMapper;
 	
     /**
      * 指定した従業員の指定した月の勤怠承認申請を登録します。

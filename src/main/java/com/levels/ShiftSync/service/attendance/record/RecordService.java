@@ -6,7 +6,7 @@ public interface RecordService {
     /**
      * 現在の時刻で出勤時間を記録します。
      */
-    void add();
+    void insert();
     
     /**
      * 指定されたレコードの出勤時間を更新し、出退勤時間を再計算します。
@@ -16,6 +16,5 @@ public interface RecordService {
      * @param newClockIn 新しい出勤時刻
      */
     void update(Integer recordId, Integer employeeId, Timestamp newClockIn);
-    
     
 }

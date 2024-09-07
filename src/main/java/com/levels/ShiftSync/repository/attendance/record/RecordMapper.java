@@ -1,4 +1,4 @@
-package com.levels.ShiftSync.repository;
+package com.levels.ShiftSync.repository.attendance.record;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -14,7 +14,7 @@ import com.levels.ShiftSync.entity.AttendanceRequest;
  * このインターフェースは、出勤時間と退勤時間の登録、および特定の期間の勤怠記録の取得に関するメソッドを定義しています。
  */
 @Mapper
-public interface AttendanceRecordMapper {
+public interface RecordMapper {
 
     /**
      * @param record 出勤記録を含むAttendanceRecordオブジェクト。出勤時間が設定されている必要があります。
