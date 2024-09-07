@@ -20,8 +20,8 @@ public class SecurityConfig {
 			.authorizeHttpRequests(authz -> authz
 			// 「/login」へのアクセスは認証を必要としない
 			.requestMatchers("/login").permitAll()
-			// TODO:決裁者しかアクセスでいきない場合の実装で追加
-			.requestMatchers("/attendance/admin").hasAuthority("ADMIN")
+			// 管理者しかアクセスできない
+			.requestMatchers("/attendance-requests-list").hasAuthority("ADMIN")
 			// その他のリクエストは認証が必要
 			.anyRequest().authenticated())
 			// ★フォームベースのログイン設定

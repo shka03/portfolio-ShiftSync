@@ -53,7 +53,7 @@ public class ErrorPageTest {
     @WithMockUser(username = "user", roles = "USER")
     void test403ErrorPage() throws Exception {
         // 権限がないURLにアクセスして403エラーを確認
-        mockMvc.perform(get("/attendance/admin"))  // このURLはADMIN権限が必要と仮定
+        mockMvc.perform(get("/attendance-requests-list"))  // このURLはADMIN権限が必要と仮定
                 .andExpect(status().isForbidden());  // 403 Forbidden
     }
 }

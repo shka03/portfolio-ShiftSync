@@ -55,7 +55,7 @@
 	            <a th:href="@{/attendance-year-month}" class="btn btn-secondary mx-2">勤怠履歴</a>
 	        </div>
 	        
-	        <div class="text-center mb-4">
+	        <div class="text-center mb-4" sec:authorize="hasAuthority('ADMIN')">
 	            <a th:href="@{/attendance-requests-list}" class="btn btn-warning mx-2">勤怠承認</a>
 	        </div>
 		</div>
