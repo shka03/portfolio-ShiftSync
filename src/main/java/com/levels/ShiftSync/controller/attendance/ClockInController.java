@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -57,7 +58,8 @@ public class ClockInController {
             @RequestParam("newClockIn") String newClockInStr,
             @RequestParam("currentClockIn") String currentClockInStr,
             @RequestParam(value = "month", required = false) Integer month,
-            RedirectAttributes attributes) {
+            RedirectAttributes attributes,
+            Model model) {
 
         // 現在の出勤時刻から日付部分を取得
         String datePart = extractDatePartFromCurrentClockIn(currentClockInStr, attributes);
@@ -73,8 +75,11 @@ public class ClockInController {
             attributes.addFlashAttribute("message", "出勤時刻の修正に失敗しました。");
         }
         
-        attributes.addAttribute("month", month); // 月のパラメータを追加
-        return "redirect:/attendance-year-month";
+        // 出勤データを再取得
+        AttendanceRecord attendanceRecord = clockInServiceImpl.getCurrentRecord(recordId);
+        model.addAttribute("attendance_record", attendanceRecord);
+
+        return "attendance/record/edit-clock-time"; 
     }
     
     /**

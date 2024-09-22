@@ -25,6 +25,7 @@
 		                ROUND(EXTRACT(EPOCH FROM (CAST(#{clockOut} AS TIMESTAMP) - CAST(#{clockIn} AS TIMESTAMP))))
 		        END;
 	</insert>
+	
 	<!-- 当日の勤怠データを取得 -->
 	<select id="getTodayRecordForEmployee" parameterType="java.lang.Integer" resultType="com.levels.ShiftSync.entity.AttendanceRecord">
 	    SELECT

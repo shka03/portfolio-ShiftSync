@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS attendance_records CASCADE;
 DROP TABLE IF EXISTS authentications CASCADE;
 DROP TABLE IF EXISTS employees CASCADE;
 DROP TABLE IF EXISTS attendance_requests CASCADE;
+DROP TABLE IF EXISTS attendance_time_correction CASCADE;
 DROP TYPE IF EXISTS role CASCADE;
 
 -- 権限用のENUM型を作成する
@@ -62,4 +63,26 @@ CREATE TABLE attendance_requests (
     status VARCHAR(3),
     -- ユニーク制約
     CONSTRAINT uq_employee_year_month UNIQUE(employee_id, year_month)
+);
+
+-- 勤怠データ修正申請を格納するテーブルを作成する
+CREATE TABLE attendance_time_correction (
+    -- リクエストID：主キー
+    request_id SERIAL PRIMARY KEY,
+    -- レコードID：外部キー
+    record_id INTEGER REFERENCES attendance_records(record_id),
+    -- 従業員ID：外部キー
+    employee_id INTEGER REFERENCES employees(employee_id),
+    -- 年月
+    year_month VARCHAR(7) NOT NULL,
+    -- 出勤時間
+    clock_in timestamp without time zone,
+    -- 退勤時間
+    clock_out timestamp without time zone,
+    -- 勤務時間
+    work_duration interval,
+    -- 申請理由
+    application_reason VARCHAR(255) NOT NULL,
+    -- ステータス
+    approval_status VARCHAR(3)
 );

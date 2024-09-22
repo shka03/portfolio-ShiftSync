@@ -59,7 +59,7 @@
             </thead>
             <tbody>
             <tr th:if="${#lists.isEmpty(attendance_records)}">
-                <td colspan="6" th:text="${message}"></td>
+                <td colspan="5" th:text="${message}"></td>
             </tr>
             <tr th:each="attendance_record : ${attendance_records}">
                 <td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd')}"></td>
@@ -67,9 +67,15 @@
                 <td th:text="${#dates.format(attendance_record.clockOut, 'HH:mm:ss')}"></td>
                 <td th:text="${attendance_record.workDuration}"></td>
                 <td>
-		            <!-- 出勤時刻修正リンク -->
-		            <a th:href="@{/edit-clock-time(recordId=${attendance_record.recordId}, employeeId=${attendance_record.employeeId})}"
-		               class="btn btn-secondary" th:if="${canApproveRequest}">修正申請</a>
+					<form th:action="@{/edit-clock-time}" method="post" th:if="${canApproveRequest && attendance_record.clockOut != null}">
+					    <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
+					    <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />
+					    <input type="hidden" name="clockIn" th:value="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}" />
+ 						<input type="hidden" name="clockOut" th:value="${#dates.format(attendance_record.clockOut, 'yyyy-MM-dd HH:mm:ss')}" />
+ 						<input type="hidden" name="selectedMonth" th:value="${selectedMonth}" />
+					    <input type="hidden" name="workDuration" th:value="${attendance_record.workDuration}" />
+					    <button type="submit" class="btn btn-secondary">修正申請</button>
+					</form>
                 </td>
             </tr>
             </tbody>
