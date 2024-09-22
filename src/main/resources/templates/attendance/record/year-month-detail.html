@@ -54,8 +54,7 @@
                 <th>出勤時刻</th>
                 <th>退勤時刻</th>
                 <th>勤務時間</th>
-                <th>出勤データ修正</th>
-                <th>退勤データ修正</th>
+                <th>勤怠データ修正申請</th>
             </tr>
             </thead>
             <tbody>
@@ -68,24 +67,9 @@
                 <td th:text="${#dates.format(attendance_record.clockOut, 'HH:mm:ss')}"></td>
                 <td th:text="${attendance_record.workDuration}"></td>
                 <td>
-                    <form th:action="@{/update-clock-in-time}" method="post" style="display:inline;" th:if="${canApproveRequest}">
-                        <input type="hidden" name="month" th:value="${selectedMonth}" />
-                        <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
-                        <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />
-                        <input type="hidden" name="currentClockIn" th:value="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}" />
-                        <input type="time" name="newClockIn" placeholder="時間" required />
-                        <button type="submit">出勤時刻の修正</button>
-                    </form>
-                </td>
-                <td>
-                    <form th:action="@{/update-clock-out-time}" method="post" style="display:inline;" th:if="${canApproveRequest}">
-                        <input type="hidden" name="month" th:value="${selectedMonth}" />
-                        <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
-                        <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />
-                        <input type="hidden" name="currentClockOut" th:value="${#dates.format(attendance_record.clockOut, 'yyyy-MM-dd HH:mm:ss')}" />
-                        <input type="time" name="newClockOut" placeholder="時間" required />
-                        <button type="submit">退勤時刻の修正</button>
-                    </form>
+		            <!-- 出勤時刻修正リンク -->
+		            <a th:href="@{/edit-clock-time(recordId=${attendance_record.recordId}, employeeId=${attendance_record.employeeId})}"
+		               class="btn btn-secondary" th:if="${canApproveRequest}">修正申請</a>
                 </td>
             </tr>
             </tbody>
