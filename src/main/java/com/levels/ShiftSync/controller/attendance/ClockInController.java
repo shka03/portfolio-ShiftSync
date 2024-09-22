@@ -40,6 +40,7 @@ public class ClockInController {
         addClockInSuccessAttributes(attributes, todayAttendance.get(0).getClockIn());
         return "redirect:/";
     }
+    
     /**
      * 出勤時刻を更新するメソッド
      * @param recordId 出退勤レコードのID
