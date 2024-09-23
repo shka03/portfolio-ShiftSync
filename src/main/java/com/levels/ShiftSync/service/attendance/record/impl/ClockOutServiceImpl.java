@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.repository.attendance.record.ClockOutMapper;
@@ -14,6 +15,7 @@ import com.levels.ShiftSync.service.attendance.record.RecordService;
 import com.levels.ShiftSync.utility.SecurityUtils;
 
 @Service
+@Transactional
 public class ClockOutServiceImpl implements RecordService {
 
 	@Autowired

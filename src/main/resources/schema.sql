@@ -73,8 +73,8 @@ CREATE TABLE attendance_time_correction (
     record_id INTEGER REFERENCES attendance_records(record_id),
     -- 従業員ID：外部キー
     employee_id INTEGER REFERENCES employees(employee_id),
-    -- 年月
-    year_month VARCHAR(7) NOT NULL,
+    -- 修正勤怠日
+    year_month_day VARCHAR(15) NOT NULL,
     -- 出勤時間
     clock_in timestamp without time zone,
     -- 退勤時間
@@ -84,5 +84,7 @@ CREATE TABLE attendance_time_correction (
     -- 申請理由
     application_reason VARCHAR(255) NOT NULL,
     -- ステータス
-    approval_status VARCHAR(3)
+    approval_status VARCHAR(3),
+    -- ユニーク制約
+    CONSTRAINT uq_record_year_month_day UNIQUE(record_id, year_month_day)
 );
