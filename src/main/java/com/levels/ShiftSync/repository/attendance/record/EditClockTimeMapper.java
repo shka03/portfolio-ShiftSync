@@ -39,8 +39,7 @@ public interface EditClockTimeMapper {
                               @Param("newClockIn") Timestamp newClockIn,
                               @Param("newClockOut") Timestamp newClockOut,
                               @Param("workDuration") String workDuration,
-                              @Param("applicationReason") String applicationReason,
-                              @Param("approvalStatus") String approvalStatus);
+                              @Param("applicationReason") String applicationReason);
   
     /**
      * 勤怠レコードの取得メソッド。

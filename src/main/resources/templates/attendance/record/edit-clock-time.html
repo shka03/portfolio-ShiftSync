@@ -24,7 +24,7 @@
 			    <button type="submit"  class="btn btn-primary mx-2">修正申請</button>
 
 			<!-- 修正申請フォーム -->
-			<form th:if="${canUpdateRequest}" th:action="@{/insert-approve-request}" method="post">
+			<form th:if="${canUpdateRequest}" th:action="@{/update-approve-request}" method="post">
 			    <input type="hidden" name="month" th:value="${updateRequestStatus}"/>
 			    <button type="submit"  class="btn btn-primary mx-2">修正申請</button>
 			</form>
@@ -64,38 +64,19 @@
 					    <label>退勤時刻:</label>
 					    <input type="time" name="newClockOut" placeholder="時間" required />
 					    
+					    <br>
 					    <label>修正理由:</label>
+					    <br>
         				<textarea name="applicationReason" required></textarea>
         				
-        				<button type="submit">確定</button>
+        				<button type="submit">修正申請</button>
 					</form>
 				</td>
-<!--                <td>-->
-<!--                    <form th:action="@{/update-clock-in-time}" method="post" style="display:inline;">-->
-<!--                        <input type="hidden" name="month" th:value="${selectedMonth}" />-->
-<!--                        <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />-->
-<!--                        <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />-->
-<!--                        <input type="hidden" name="currentClockIn" th:value="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}" />-->
-<!--                        <input type="time" name="newClockIn" placeholder="時間" required />-->
-<!--                        <button type="submit">出勤時刻の修正</button>-->
-<!--                    </form>-->
-<!--                </td>-->
-<!--                <td>-->
-<!--                    <form th:action="@{/update-clock-out-time}" method="post" style="display:inline;">-->
-<!--                        <input type="hidden" name="month" th:value="${selectedMonth}" />-->
-<!--                        <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />-->
-<!--                        <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />-->
-<!--                        <input type="hidden" name="currentClockOut" th:value="${#dates.format(attendance_record.clockOut, 'yyyy-MM-dd HH:mm:ss')}" />-->
-<!--                        <input type="time" name="newClockOut" placeholder="時間" required />-->
-<!--                        <button type="submit">退勤時刻の修正</button>-->
-<!--                    </form>-->
-<!--                </td>-->
             </tr>
             </tbody>
-        </table>
-    </div>
-        
-    <!-- footer共通部分 -->
+        </table> </div>
+
+            <!-- footer共通部分 -->
     <th:block th:replace="~{fragments/footer :: footer}"></th:block>
 </body>
 </html>

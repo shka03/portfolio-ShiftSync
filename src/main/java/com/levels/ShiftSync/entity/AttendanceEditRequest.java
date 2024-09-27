@@ -13,10 +13,9 @@ public class AttendanceEditRequest {
     private Integer requestId;
     private Integer recordId;
     private Integer employeeId;
-    private String yearMonth;
+    private String yearMonthDay;
     private Timestamp clockIn;
     private Timestamp clockOut;
     private String workDuration;
     private String applicationReason;
-    private String status;
 }

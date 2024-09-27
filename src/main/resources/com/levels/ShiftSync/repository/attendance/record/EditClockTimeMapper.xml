@@ -13,15 +13,14 @@
     
 	<!-- 勤怠修正申請データを登録/更新 -->
     <insert id="upsertClockInAndOut" parameterType="map">
-        INSERT INTO attendance_time_correction (record_id, employee_id, year_month_day, clock_in, clock_out, work_duration, application_reason, approval_status)
-        VALUES (#{recordId}, #{employeeId}, #{yearMonthDay}, #{newClockIn}, #{newClockOut}, #{workDuration}::interval, #{applicationReason}, #{approvalStatus})
+        INSERT INTO attendance_time_corrections (record_id, employee_id, year_month_day, clock_in, clock_out, work_duration, application_reason)
+        VALUES (#{recordId}, #{employeeId}, #{yearMonthDay}, #{newClockIn}, #{newClockOut}, #{workDuration}::interval, #{applicationReason})
         ON CONFLICT (record_id, year_month_day)
         DO UPDATE SET
             clock_in = #{newClockIn},
             clock_out = #{newClockOut},
             work_duration = #{workDuration}::interval,
-            application_reason = #{applicationReason},
-            approval_status = #{approvalStatus}
+            application_reason = #{applicationReason}
     </insert>
 
     <!-- 特定のレコードIDから勤怠データの取得 -->
@@ -35,21 +34,5 @@
         FROM attendance_records
         WHERE record_id = #{recordId}
     </select>	
-    
-	<!-- 特定のレコードIDから勤怠修正申請済データの取得 -->
-	<select id="getCurrentEditRecord" parameterType="map" resultType="com.levels.ShiftSync.entity.AttendanceEditRequest">
-		SELECT
-			request_id AS requestId,
-			record_id AS recordId,
-		    employee_id AS employeeId,
-		    year_month AS yearMonth,
-		    clock_in AS clockIn,
-		    clock_out AS clockOut,
-		    TO_CHAR(work_duration, 'HH24:MI:SS') AS workDuration,
-		    application_reason AS applicationReason,
-		    approval_status AS approvalStatus
-		FROM attendance_time_correction
-		WHERE record_id = #{recordId}
-	</select>
 	
 </mapper>

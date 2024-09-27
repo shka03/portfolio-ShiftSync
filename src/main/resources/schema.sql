@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS attendance_records CASCADE;
 DROP TABLE IF EXISTS authentications CASCADE;
 DROP TABLE IF EXISTS employees CASCADE;
 DROP TABLE IF EXISTS attendance_requests CASCADE;
-DROP TABLE IF EXISTS attendance_time_correction CASCADE;
+DROP TABLE IF EXISTS attendance_time_corrections CASCADE;
 DROP TYPE IF EXISTS role CASCADE;
 
 -- 権限用のENUM型を作成する
@@ -66,7 +66,7 @@ CREATE TABLE attendance_requests (
 );
 
 -- 勤怠データ修正申請を格納するテーブルを作成する
-CREATE TABLE attendance_time_correction (
+CREATE TABLE attendance_time_corrections (
     -- リクエストID：主キー
     request_id SERIAL PRIMARY KEY,
     -- レコードID：外部キー

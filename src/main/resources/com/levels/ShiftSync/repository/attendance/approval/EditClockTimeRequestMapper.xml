@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.levels.ShiftSync.repository.attendance.approval.EditClockTimeRequestMapper">
+	
+    <!-- 全ての勤怠承認申請を取得 -->
+    <select id="getAllRequests" parameterType="map" >
+        SELECT
+        	request_id AS requestId,
+            employee_id AS employeeId,
+            year_month_day AS yearMonthDay
+        FROM attendance_time_corrections
+        ORDER BY year_month_day DESC;
+    </select>
+	
+	<!-- 特定のレコードIDから勤怠修正申請済データの取得 -->
+	<select id="getCurrentEditRecord" resultType="com.levels.ShiftSync.entity.AttendanceEditRequest">
+		SELECT
+			request_id AS requestId,
+			record_id AS recordId,
+		    employee_id AS employeeId,
+		    year_month_day AS yearMonthDay,
+		    clock_in AS clockIn,
+		    clock_out AS clockOut,
+		    TO_CHAR(work_duration, 'HH24:MI:SS') AS workDuration,
+		    application_reason AS applicationReason
+		FROM attendance_time_corrections
+		WHERE employee_id = #{employeeId}
+		AND year_month_day = #{yearMonthDay}
+	</select>
+	
+    <!-- 修正を承認する -->
+    <update id="updateEditClockTimeRecord">
+	    UPDATE attendance_records
+	    SET clock_in = #{newClockInTime},
+	    	clock_out = #{newClockOutTime},
+	    	work_duration = #{newWorkDuration}::interval
+	    WHERE employee_id = #{employeeId}
+	    AND record_id = #{recordId}
+	</update>
+	
+	<!-- 修正申請を削除する -->
+	<delete id="deleteEditClockTimeApproval">
+		DELETE FROM attendance_time_corrections
+		WHERE employee_id = #{employeeId}
+		AND year_month_day = #{yearMonthDay}
+	</delete>
+	
+</mapper>

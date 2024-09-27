@@ -1,7 +1,6 @@
 package com.levels.ShiftSync.service.attendance.record.impl;
 
 import java.sql.Timestamp;
-import java.time.Duration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,15 +25,10 @@ public class EditClockTimeServiceImpl implements EditClockTimeService {
 			Timestamp newClockIn,
 			Timestamp newClockOut,
 			String applicationReason) {
-		
-        // 出勤時間と退勤時間を同時に更新
-//        editClockTimeMapper.updateClockInAndOut(recordId, employeeId, newClockIn, newClockOut);
-
-        // 勤務時間の再計算
-//        workDurationMapper.upsertWorkDuration(recordId, newClockOut, newClockIn);
 
 		String workDuration = calculateWorkDuration(newClockIn, newClockOut);
-        editClockTimeMapper.upsertClockInAndOut(recordId, employeeId, yearMonthDay, newClockIn, newClockOut, workDuration, applicationReason, "申請済");
+        editClockTimeMapper.upsertClockInAndOut(recordId, employeeId, yearMonthDay, newClockIn, newClockOut, workDuration, applicationReason);
+        
 	}
 
 	@Override
@@ -50,21 +44,5 @@ public class EditClockTimeServiceImpl implements EditClockTimeService {
 	        (duration / (1000 * 60)) % 60, 
 	        (duration / 1000) % 60);
 	}
-	
-	private Duration convertWorkDurationToDuration(String workDuration) {
-	    return parseDuration(workDuration); // hh:mm:ss形式のStringをDurationに変換
-	}
-	
-	private Duration parseDuration(String durationString) {
-	    // "hh:mm:ss"形式の文字列をパースしてDurationに変換
-	    String[] parts = durationString.split(":");
-	    
-	    long hours = Long.parseLong(parts[0]);
-	    long minutes = Long.parseLong(parts[1]);
-	    long seconds = Long.parseLong(parts[2]);
 
-	    return Duration.ofHours(hours)
-	                   .plusMinutes(minutes)
-	                   .plusSeconds(seconds);
-	}
 }

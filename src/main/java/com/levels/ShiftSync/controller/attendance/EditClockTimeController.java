@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequiredArgsConstructor
 @Transactional
-public class EditTimeController {
+public class EditClockTimeController {
 	
 	private final EditClockTimeServiceImpl editClockTimeServiceImpl;
 
@@ -59,14 +59,14 @@ public class EditTimeController {
     	Timestamp newClockIn = createNewTime(datePart, newClockInStr, attributes);
         Timestamp newClockOut = createNewTime(datePart, newClockOutStr, attributes);
 
-        editClockTimeServiceImpl.updateClockInAndOut(
-        		recordId,
-        		employeeId,
-        		datePart, 
-        		newClockIn,
-        		newClockOut, 
-        		applicationReason);
         try {
+        	editClockTimeServiceImpl.updateClockInAndOut(
+        			recordId,
+        			employeeId,
+        			datePart, 
+        			newClockIn,
+        			newClockOut, 
+        			applicationReason);
             attributes.addFlashAttribute("message", "出勤・退勤時刻を修正しました。");
         } catch (Exception e) {
             attributes.addFlashAttribute("message", "出勤・退勤時刻の修正に失敗しました。");
