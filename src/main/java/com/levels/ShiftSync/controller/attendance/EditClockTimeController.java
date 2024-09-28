@@ -29,7 +29,7 @@ public class EditClockTimeController {
             @RequestParam("selectedMonth") Integer selectedMonth,
             Model model) {
 
-        AttendanceRecord attendanceRecord = createAttendanceRecord(recordId, employeeId, clockIn, clockOut, workDuration);
+        AttendanceRecord attendanceRecord = createAttendanceRecord(recordId, employeeId, clockIn, clockOut, workDuration, model);
         model.addAttribute("attendance_record", attendanceRecord);
         model.addAttribute("selectedMonth", selectedMonth);
         model.addAttribute("canEditTimeRequest", canEditTimeRequest(employeeId, clockIn));
@@ -66,7 +66,7 @@ public class EditClockTimeController {
         return "attendance/record/edit-clock-time";
     }
 
-    private AttendanceRecord createAttendanceRecord(Integer recordId, Integer employeeId, String clockIn, String clockOut, String workDuration) {
+    private AttendanceRecord createAttendanceRecord(Integer recordId, Integer employeeId, String clockIn, String clockOut, String workDuration, Model model) {
         AttendanceRecord attendanceRecord = new AttendanceRecord();
         String datePart = extractDatePartFromCurrentClockIn(clockIn);
 
@@ -77,6 +77,7 @@ public class EditClockTimeController {
             attendanceRecord.setClockIn(existingRequest.getClockIn());
             attendanceRecord.setClockOut(existingRequest.getClockOut());
             attendanceRecord.setWorkDuration(existingRequest.getWorkDuration());
+            model.addAttribute("message", "申請済です。修正したい場合は管理者に取り下げをご依頼ください");
         } else {
             attendanceRecord.setRecordId(recordId);
             attendanceRecord.setEmployeeId(employeeId);
