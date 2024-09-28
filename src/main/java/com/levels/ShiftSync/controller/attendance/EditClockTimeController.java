@@ -39,6 +39,11 @@ public class EditClockTimeController {
 
 	    model.addAttribute("attendance_record", attendanceRecord);
 	    model.addAttribute("selectedMonth", selectedMonth);
+	    
+	    String yearMonthDay = clockIn.substring(0, 10);
+	    boolean canEditTimeRequest = editClockTimeServiceImpl.getCurrentEditRecord(employeeId, yearMonthDay).isEmpty();
+	    System.out.println("canEditTimeRequestの結果" + canEditTimeRequest);
+	    model.addAttribute("canEditTimeRequest", canEditTimeRequest);
 		
 	    return "attendance/record/edit-clock-time";
 	}

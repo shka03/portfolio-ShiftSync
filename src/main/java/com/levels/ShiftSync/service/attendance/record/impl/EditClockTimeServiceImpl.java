@@ -1,11 +1,13 @@
 package com.levels.ShiftSync.service.attendance.record.impl;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.levels.ShiftSync.entity.AttendanceEditRequest;
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.repository.attendance.record.EditClockTimeMapper;
 import com.levels.ShiftSync.service.attendance.record.EditClockTimeService;
@@ -34,6 +36,11 @@ public class EditClockTimeServiceImpl implements EditClockTimeService {
 	@Override
 	public AttendanceRecord getCurrentRecord(Integer recordId) {
 		return editClockTimeMapper.getCurrentRecord(recordId);
+	}
+
+	@Override
+	public List<AttendanceEditRequest> getCurrentEditRecord(Integer employeeId, String yearMonthDay) {
+		return editClockTimeMapper.getCurrentEditRecord(employeeId, yearMonthDay);
 	}
 
 	private String calculateWorkDuration(Timestamp clockIn, Timestamp clockOut) {

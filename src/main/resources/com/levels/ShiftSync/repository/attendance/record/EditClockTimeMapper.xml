@@ -33,6 +33,22 @@
             TO_CHAR(work_duration, 'HH24:MI:SS') AS workDuration 
         FROM attendance_records
         WHERE record_id = #{recordId}
-    </select>	
+    </select>
+
+	<!-- 特定のレコードIDから勤怠修正申請データの取得 -->
+	<select id="getCurrentEditRecord" resultType="com.levels.ShiftSync.entity.AttendanceEditRequest">
+		SELECT
+			request_id AS requestId,
+			record_id AS recordId,
+		    employee_id AS employeeId,
+		    year_month_day AS yearMonthDay,
+		    clock_in AS clockIn,
+		    clock_out AS clockOut,
+		    TO_CHAR(work_duration, 'HH24:MI:SS') AS workDuration,
+		    application_reason AS applicationReason
+		FROM attendance_time_corrections
+		WHERE employee_id = #{employeeId}
+		AND year_month_day = #{yearMonthDay}
+	</select>
 	
 </mapper>
