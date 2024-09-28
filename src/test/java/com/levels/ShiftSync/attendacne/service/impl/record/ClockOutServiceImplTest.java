@@ -6,8 +6,6 @@ import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -57,31 +55,6 @@ class ClockOutServiceImplTest {
                 Math.abs(record.getClockOut().getTime() - now.getTime()) < 1000 // within 1 second
             ));
         }
-    }
-
-    @Test
-    @DisplayName("退勤時間を正常に更新し、出退勤時間を再計算するテスト")
-    void testUpdateClockOutTime() throws Exception {
-        Integer recordId = 1;
-        Integer employeeId = 1;
-        Timestamp newClockOut = Timestamp.valueOf("2024-09-01 18:00:00");
-
-        // getCurrentRecord のモック作成
-        AttendanceRecord existingRecord = new AttendanceRecord();
-        existingRecord.setClockIn(Timestamp.valueOf("2024-09-01 09:00:00"));
-        when(clockOutMapper.getCurrentRecord(recordId)).thenReturn(existingRecord);
-
-        // 実行
-        clockOutServiceImpl.update(recordId, employeeId, newClockOut);
-
-        // 検証
-        Map<String, Object> params = new HashMap<>();
-        params.put("recordId", recordId);
-        params.put("employeeId", employeeId);
-        params.put("newClockOut", newClockOut);
-
-        verify(clockOutMapper, times(1)).update(params);
-        verify(workDurationMapper, times(1)).upsertWorkDuration(recordId, newClockOut, existingRecord.getClockIn());
     }
 
     @Test

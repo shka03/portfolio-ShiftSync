@@ -49,18 +49,22 @@
 						    <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />
 	                        <input type="hidden" name="currentClockIn" th:value="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}" />
 	                        
-						    <label>出勤時刻:</label>
-						    <input type="time" name="newClockIn" placeholder="時間" required />
+		                    <div class="mb-3">
+		                        <label for="newClockIn" class="form-label">出勤時刻:</label>
+		                        <input type="time" name="newClockIn" class="form-control" required />
+		                    </div>
+		                    
+		                    <div class="mb-3">
+		                        <label for="newClockOut" class="form-label">退勤時刻:</label>
+		                        <input type="time" name="newClockOut" class="form-control" required />
+		                    </div>
 						    
-						    <label>退勤時刻:</label>
-						    <input type="time" name="newClockOut" placeholder="時間" required />
-						    
-						    <br>
-						    <label>修正理由:</label>
-						    <br>
-	        				<textarea name="applicationReason" required></textarea>
-	        				
-	        				<button type="submit" th:if="${canEditTimeRequest}">修正申請</button>
+		                    <div class="mb-3">
+		                        <label for="applicationReason" class="form-label">修正理由:</label>
+		                        <textarea name="applicationReason" class="form-control" required></textarea>
+		                    </div>
+		                    
+		                    <button type="submit" class="btn btn-primary" th:if="${canEditTimeRequest}">修正申請</button>
 						</form>
 					</td>
 	            </tr>
