@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Method;
-import java.sql.Timestamp;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -53,26 +52,6 @@ class ClockInServiceImplTest {
             // AttendanceRecord に正しい値が設定され、attendanceRecordMapper が呼ばれたことを確認
             verify(clockInMapper, times(1)).insert(any(AttendanceRecord.class));
         }
-    }
-
-    @Test
-    @DisplayName("出勤時間を正常に更新し、出退勤時間を再計算するテスト")
-    void testUpdateClockInTime() {
-        Integer recordId = 1;
-        Integer employeeId = 1;
-        Timestamp newClockIn = Timestamp.valueOf("2024-09-01 09:00:00");
-
-        // getCurrentRecord のモック作成
-        AttendanceRecord existingRecord = new AttendanceRecord();
-        existingRecord.setClockOut(Timestamp.valueOf("2024-09-01 18:00:00"));
-        when(clockInMapper.getCurrentRecord(recordId)).thenReturn(existingRecord);
-
-        // 実行
-        clockInServiceImpl.update(recordId, employeeId, newClockIn);
-
-        // 更新メソッドと勤怠時間再計算メソッドの呼び出しを確認
-        verify(clockInMapper, times(1)).update(anyMap());
-        verify(workDurationMapper, times(1)).upsertWorkDuration(recordId, existingRecord.getClockOut(), newClockIn);
     }
 
     @Test

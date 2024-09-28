@@ -1,8 +1,6 @@
 package com.levels.ShiftSync.service.attendance.record.impl;
 
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.repository.attendance.record.ClockInMapper;
-import com.levels.ShiftSync.repository.attendance.record.WorkDurationMapper;
 import com.levels.ShiftSync.service.attendance.record.RecordService;
 import com.levels.ShiftSync.utility.SecurityUtils;
 
@@ -21,9 +18,6 @@ public class ClockInServiceImpl implements RecordService {
 	@Autowired
 	private ClockInMapper clockInMapper;
 
-	@Autowired
-	private WorkDurationMapper workDurationMapper;
-	
     /**
      * 現在の時刻で出勤時間を記録します。
      */
@@ -33,28 +27,6 @@ public class ClockInServiceImpl implements RecordService {
         record.setEmployeeId(SecurityUtils.getEmployeeIdFromSecurityContext());
         record.setClockIn(new Timestamp(System.currentTimeMillis()));
         clockInMapper.insert(record);
-    }
-    
-    /**
-     * 指定されたレコードの出勤時間を更新し、出退勤時間を再計算します。
-     * 
-     * @param recordId 出退勤レコードのID
-     * @param employeeId 従業員のID
-     * @param newClockIn 新しい出勤時刻
-     */
-    @Override
-    public void update(Integer recordId, Integer employeeId, Timestamp newClockIn) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("recordId", recordId);
-        params.put("employeeId", employeeId);
-        params.put("newClockIn", newClockIn);
-
-        // 出勤時間を更新
-        clockInMapper.update(params);
-
-        // 勤怠時間を再計算
-        Timestamp currClockOut = getCurrentRecord(recordId).getClockOut();
-        workDurationMapper.upsertWorkDuration(recordId, currClockOut, newClockIn);
     }
     
     /**
