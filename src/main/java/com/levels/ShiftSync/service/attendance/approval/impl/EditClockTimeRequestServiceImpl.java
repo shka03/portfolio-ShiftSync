@@ -5,12 +5,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.levels.ShiftSync.entity.AttendanceEditRequest;
 import com.levels.ShiftSync.repository.attendance.approval.EditClockTimeRequestMapper;
 import com.levels.ShiftSync.service.attendance.approval.EditClockTimeRequestService;
 
 @Service
+@Transactional
 public class EditClockTimeRequestServiceImpl implements EditClockTimeRequestService {
 
 	@Autowired

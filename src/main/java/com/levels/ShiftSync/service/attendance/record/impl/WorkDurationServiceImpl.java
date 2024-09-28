@@ -16,6 +16,7 @@ import com.levels.ShiftSync.service.attendance.record.WorkDurationService;
 import com.levels.ShiftSync.utility.SecurityUtils;
 
 @Service
+@Transactional
 public class WorkDurationServiceImpl implements WorkDurationService {
 	
 	@Autowired

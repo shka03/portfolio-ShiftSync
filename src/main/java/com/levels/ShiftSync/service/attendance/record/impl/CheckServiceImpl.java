@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.levels.ShiftSync.entity.AttendanceRecord;
 import com.levels.ShiftSync.repository.attendance.record.RecordMapper;
 import com.levels.ShiftSync.service.attendance.record.CheckService;
 
 @Service
+@Transactional
 public class CheckServiceImpl implements CheckService {
 	
 	@Autowired
