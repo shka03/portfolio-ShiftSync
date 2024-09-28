@@ -56,10 +56,13 @@
 		                        <input type="time" name="newClockOut" class="form-control" required />
 		                    </div>
 						    
-		                    <div class="mb-3">
-		                        <label for="applicationReason" class="form-label">修正理由:</label>
-		                        <textarea name="applicationReason" class="form-control" required></textarea>
-		                    </div>
+							<div class="mb-3">
+							    <label for="applicationReason" class="form-label">修正理由:</label>
+							    <textarea name="applicationReason" id="applicationReason" class="form-control" minlength="6" required></textarea>
+							    <div class="invalid-feedback">
+							        修正理由は5文字以上で入力してください。
+							    </div>
+							</div>
 		                    
 		                    <button type="submit" class="btn btn-primary" th:if="${canEditTimeRequest}">修正申請</button>
 						</form>
