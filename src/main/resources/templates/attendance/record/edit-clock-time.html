@@ -35,16 +35,13 @@
 	            </tr>
             </thead>
             <tbody>
-	            <tr th:if="${#lists.isEmpty(attendance_record)}">
-	                <td colspan="6" th:text="${message}"></td>
-	            </tr>
-	            <tr>
+	           <tr>
 	                <td th:text="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd')}"></td>
 	                <td th:text="${#dates.format(attendance_record.clockIn, 'HH:mm:ss')}"></td>
 	                <td th:text="${#dates.format(attendance_record.clockOut, 'HH:mm:ss')}" ></td>
 	                <td th:text="${attendance_record.workDuration}"></td>
 	                <td>
-						<form th:action="@{/update-clock-times}" method="post">
+						<form th:action="@{/edit-clock-time-request}" method="post">
 						    <input type="hidden" name="recordId" th:value="${attendance_record.recordId}" />
 						    <input type="hidden" name="employeeId" th:value="${attendance_record.employeeId}" />
 	                        <input type="hidden" name="currentClockIn" th:value="${#dates.format(attendance_record.clockIn, 'yyyy-MM-dd HH:mm:ss')}" />
@@ -72,7 +69,7 @@
         </table>
       </div>
 
-            <!-- footer共通部分 -->
+    <!-- footer共通部分 -->
     <th:block th:replace="~{fragments/footer :: footer}"></th:block>
 </body>
 </html>

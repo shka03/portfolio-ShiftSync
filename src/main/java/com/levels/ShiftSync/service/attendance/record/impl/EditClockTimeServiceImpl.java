@@ -1,7 +1,6 @@
 package com.levels.ShiftSync.service.attendance.record.impl;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ public class EditClockTimeServiceImpl implements EditClockTimeService {
     private EditClockTimeMapper editClockTimeMapper;
 
 	@Override
-	public void updateClockInAndOut(
+	public void editRequestClockInAndOut(
 			Integer recordId,
 			Integer employeeId,
 			String yearMonthDay,
@@ -29,7 +28,7 @@ public class EditClockTimeServiceImpl implements EditClockTimeService {
 			String applicationReason) {
 
 		String workDuration = calculateWorkDuration(newClockIn, newClockOut);
-        editClockTimeMapper.upsertClockInAndOut(recordId, employeeId, yearMonthDay, newClockIn, newClockOut, workDuration, applicationReason);
+        editClockTimeMapper.editRequestClockInAndOut(recordId, employeeId, yearMonthDay, newClockIn, newClockOut, workDuration, applicationReason);
         
 	}
 
@@ -39,7 +38,7 @@ public class EditClockTimeServiceImpl implements EditClockTimeService {
 	}
 
 	@Override
-	public List<AttendanceEditRequest> getCurrentEditRecord(Integer employeeId, String yearMonthDay) {
+	public AttendanceEditRequest getCurrentEditRecord(Integer employeeId, String yearMonthDay) {
 		return editClockTimeMapper.getCurrentEditRecord(employeeId, yearMonthDay);
 	}
 
