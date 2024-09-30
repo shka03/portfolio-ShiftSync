@@ -5,7 +5,7 @@
     <!-- head共通部分 -->
     <th:block th:replace="~{fragments/head :: head}"></th:block>
     <link href="../static/css/approval/requests-list.css" th:href="@{/css/attendance/approval/requests-list.css}" rel="stylesheet" />
-    <title>勤怠データ修正承認 - ShiftSync</title>
+    <title>勤怠修正承認 - ShiftSync</title>
 </head>
 
 <body>
@@ -29,7 +29,7 @@
 			    <button type="submit" class="btn btn-danger mx-2">申請を取り下げる</button>
 			</form>
 			
-			<a th:href="@{/edit-clock-time-request-list}" class="btn btn-danger mx-2">勤怠データ修正一覧に戻る</a>
+			<a th:href="@{/edit-clock-time-request-list}" class="btn btn-danger mx-2">勤怠修正一覧に戻る</a>
         </div>
 
         <!-- 勤怠テーブル -->
